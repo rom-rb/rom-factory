@@ -35,6 +35,7 @@ module RomFactory
       @_name = name
       @_as = as
       @_schema = {}
+      define_methods_from_repos_schema
       yield(self)
     end
 
@@ -42,15 +43,15 @@ module RomFactory
 
     private
 
-    def method_missing(name, *args, &block)
-      if @_repo.root.relation.attributes.include?(name)
-        if block_given?
-          @_schema[name] = block
-        else
-          @_schema[name] = args.first
-        end
-      else
-        raise NoMethodError, "undefined method `#{name}' for #{self}"
+    def define_methods_from_repos_schema
+      _repo.root.relation.attributes.each do |a|
+        define_singleton_method a, Proc.new {|v = nil, &block|
+          if block
+            _schema[a] = block
+          else
+            _schema[a] = v
+          end
+        }
       end
     end
   end

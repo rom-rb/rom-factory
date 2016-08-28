@@ -33,5 +33,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec", "~> 3.0"
   spec.add_development_dependency "rom", "~> 2.0"
   spec.add_development_dependency "rom-repository", "~> 0.3.1"
+  spec.add_development_dependency "rom-sql", "~> 0.8.0"
+  spec.add_development_dependency "sqlite3", "~> 1.3.11"
   spec.add_development_dependency "pry"
 end

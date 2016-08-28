@@ -1,7 +1,8 @@
 require "pry"
 require "rom"
 require 'rom-repository'
-require 'dry-configurable'
+require 'rom-sql'
+require 'sqlite3'
 
 require "rom_factory/version"
 
