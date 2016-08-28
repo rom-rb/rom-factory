@@ -8,7 +8,7 @@ module RomFactory
 
     def self.define(&block)
       factory = new(&block)
-      raise ArgumentError, "Factory #{factory.name} already present" if container.key?(factory.name)
+      raise ArgumentError, "Factory with key #{factory.name} already present" if container.key?(factory.name)
       container.register(factory.name, factory)
     end
 
@@ -32,14 +32,14 @@ module RomFactory
     end
 
     def create(attrs)
-      schema = _schema.merge(attrs).map do |k, v|
+      values = _schema.merge(attrs).map do |k, v|
         if v.respond_to?(:call)
           [k, v.call]
         else
           [k, v]
         end
       end
-      record = _repo.create(schema.to_h)
+      record = _repo.create(values.to_h)
       _as ? _as.call(record.to_h) : record
     end
 
