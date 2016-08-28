@@ -3,8 +3,8 @@ require 'ostruct'
 
 
 RSpec.describe RomFactory::Builder do
-  let!(:container)  {
-    ROM.container(:sql, 'sqlite::memory') do |conf|
+  before(:all) do
+    container = ROM.container(:sql, 'sqlite::memory') do |conf|
       conf.default.create_table(:users) do
         primary_key :id
         column :last_name, String, null: false
@@ -13,42 +13,43 @@ RSpec.describe RomFactory::Builder do
         column :created_at, Time, null: false
         column :updated_at, Time, null: false
       end
-      conf.relation(:users) do
-        schema(:users, infer: true) do
+    end
 
-        end
-      end
+    RomFactory::Config.configure do |config|
+      config.container = container
+    end
+  end
+
+  let(:repo_class) {
+    Class.new(ROM::Repository[:users]) do
+      commands :create
     end
   }
 
-  before(:all) do
-    class MappedUser
+  let(:mapped_user_class) {
+    Class.new do
       def self.call(attrs)
         OpenStruct.new(attrs)
       end
     end
-
-    RepoClass = Class.new(ROM::Repository[:users]) do
-      commands :create
-    end
-  end
+  }
 
   describe "factory builder DSL" do
     it "does not error when trying using proper DSL" do
-      RomFactory::Builder.define(container) do
-        factory(repo: RepoClass, name: :user_1) do
-          first_name "Janis"
-          last_name "Miezitis"
-          email "janjiss@gmail.com"
+      RomFactory::Builder.define do |b|
+        b.factory(repo: repo_class, name: :user_1) do |f|
+          f.first_name "Janis"
+          f.last_name "Miezitis"
+          f.email "janjiss@gmail.com"
         end
       end
     end
 
     it "Raises an error if arguments are not part of schema" do
       expect {
-        RomFactory::Builder.define(container) do
-          factory(repo: RepoClass, name: :user_2) do
-            boobly "Janis"
+        RomFactory::Builder.define do |b|
+          b.factory(repo: repo_class, name: :user_2) do |f|
+            f.boobly "Janis"
           end
         end
       }.to raise_error(NoMethodError)
@@ -57,13 +58,13 @@ RSpec.describe RomFactory::Builder do
 
   context "creation of records" do
     it "creates a record based on defined factory" do
-      RomFactory::Builder.define(container) do
-        factory(repo: RepoClass, name: :user_3) do
-          first_name "Janis"
-          last_name "Miezitis"
-          email "janjiss@gmail.com"
-          created_at Time.now
-          updated_at Time.now
+      RomFactory::Builder.define do |b|
+        b.factory(repo: repo_class, name: :user_3) do |f|
+          f.first_name "Janis"
+          f.last_name "Miezitis"
+          f.email "janjiss@gmail.com"
+          f.created_at Time.now
+          f.updated_at Time.now
         end
       end
 
@@ -74,13 +75,13 @@ RSpec.describe RomFactory::Builder do
     end
 
     it "supports callable values" do
-      RomFactory::Builder.define(container) do
-        factory(repo: RepoClass, name: :user_4) do
-          first_name "Janis"
-          last_name "Miezitis"
-          email "janjiss@gmail.com"
-          created_at {Time.now}
-          updated_at {Time.now}
+      RomFactory::Builder.define do |b|
+        b.factory(repo: repo_class, name: :user_4) do |f|
+          f.first_name "Janis"
+          f.last_name "Miezitis"
+          f.email "janjiss@gmail.com"
+          f.created_at {Time.now}
+          f.updated_at {Time.now}
         end
       end
 
@@ -95,13 +96,13 @@ RSpec.describe RomFactory::Builder do
 
   context "mapping of the records" do
     it "creates a record based on defined factory" do
-      RomFactory::Builder.define(container) do
-        factory(repo: RepoClass, name: :user_6, as: MappedUser) do
-          first_name "Janis"
-          last_name "Miezitis"
-          email "janjiss@gmail.com"
-          created_at Time.now
-          updated_at Time.now
+      RomFactory::Builder.define do |b|
+        b.factory(repo: repo_class, name: :user_6, as: mapped_user_class) do |f|
+          f.first_name "Janis"
+          f.last_name "Miezitis"
+          f.email "janjiss@gmail.com"
+          f.created_at Time.now
+          f.updated_at Time.now
         end
       end
 
@@ -115,13 +116,13 @@ RSpec.describe RomFactory::Builder do
 
   context "changing values" do
     it "supports overwriting of values" do
-      RomFactory::Builder.define(container) do
-        factory(repo: RepoClass, name: :user_7, as: MappedUser) do
-          first_name "Janis"
-          last_name "Miezitis"
-          email "janjiss@gmail.com"
-          created_at Time.now
-          updated_at Time.now
+      RomFactory::Builder.define do |b|
+        b.factory(repo: repo_class, name: :user_7, as: mapped_user_class) do |f|
+          f.first_name "Janis"
+          f.last_name "Miezitis"
+          f.email "janjiss@gmail.com"
+          f.created_at Time.now
+          f.updated_at Time.now
         end
       end
 
@@ -132,14 +133,14 @@ RSpec.describe RomFactory::Builder do
 
   context "errors" do
     it "raises error if factory with the same name is registered" do
-      RomFactory::Builder.define(container) do
-        factory(repo: RepoClass, name: :user_8) do
+      RomFactory::Builder.define do |b|
+        b.factory(repo: repo_class, name: :user_8) do
         end
       end
 
       expect {
-        RomFactory::Builder.define do
-          factory(repo: RepoClass, name: :user_8) do
+        RomFactory::Builder.define do |b|
+          b.factory(repo: repo_class, name: :user_8) do
           end
         end
       }.to raise_error(ArgumentError)
