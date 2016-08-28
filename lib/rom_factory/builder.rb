@@ -8,22 +8,14 @@ module RomFactory
 
     def self.define(&block)
       factory = new(&block)
-      raise ArgumentError, "Factory #{factory._name} already present" if container.key?(factory._name)
-      container.register(factory._name, factory)
+      raise ArgumentError, "Factory #{factory.name} already present" if container.key?(factory.name)
+      container.register(factory.name, factory)
     end
 
     def self.create(name, attrs = {})
+      raise ArgumentError, "Factory #{name} does not exist" unless container.key?(name)
       factory = container.resolve(name)
-      schema = factory._schema.merge(attrs)
-      schema = schema.map do |k,v|
-        if v.respond_to?(:call)
-          [k, v.call]
-        else
-          [k, v]
-        end
-      end
-      record = factory._repo.create(schema.to_h)
-      factory._as ? factory._as.call(record.to_h) : record
+      factory.create(attrs)
     end
 
     def initialize
@@ -32,16 +24,30 @@ module RomFactory
 
     def factory(name:, repo:, as: nil, &block)
       @_repo = repo.new(RomFactory::Config.config.container)
-      @_name = name
+      @name = name
       @_as = as
       @_schema = {}
       define_methods_from_repos_schema
       yield(self)
     end
 
-    attr_reader :_repo, :_name, :_as, :_schema
+    def create(attrs)
+      schema = _schema.merge(attrs).map do |k, v|
+        if v.respond_to?(:call)
+          [k, v.call]
+        else
+          [k, v]
+        end
+      end
+      record = _repo.create(schema.to_h)
+      _as ? _as.call(record.to_h) : record
+    end
+
+    attr_reader :name
 
     private
+
+    attr_reader :_repo, :_as, :_schema
 
     def define_methods_from_repos_schema
       _repo.root.relation.attributes.each do |a|
