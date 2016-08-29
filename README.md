@@ -38,18 +38,12 @@ RomFactory::Config.configure do |config|
   config.container = container
 end
 ```
-This library works in conjunction with "rom-repository" so you will need to define repository with create command:
-```ruby
-UsersRepo < ROM::Repository[:users] do
-  commands :create
-end
-```
 ## Simple use case
 
 After configuration is done, you can define the factory as follows:
 ```ruby
 RomFactory::Builder.define do |b|
-  b.factory(repo: UsersRepo, name: :user) do |f|
+  b.factory(relation: :users, name: :user) do |f|
     f.first_name "Janis"
     f.last_name "Miezitis"
     f.email "janjiss@gmail.com"
@@ -62,39 +56,11 @@ user = RomFactory::Builder.create(:user)
 user.email #=> "janjiss@gmail.com"
 ```
 
-### Mapping of records
-To follow ROM conventions, you can pass any object that responds to `.call` method with `as:` key in following way:
-```ruby
-class User
-  def self.call(attrs)
-    self.new(attrs)
-  end
-
-  attr_reader :first_name, :last_name, :email
-
-  def initialize(first_name:, last_name:, email:)
-    @first_name, @last_name, @email = first_name, last_name, email
-  end
-end
-
-RomFactory::Builder.define do |b|
-  b.factory(repo: UsersRepo, name: :user, as: User) do |f|
-    f.first_name "Janis"
-    f.last_name "Miezitis"
-    f.email "janjiss@gmail.com"
-  end
-end
-
-user = RomFactory::Builder.create(:user)
-user.class #=> User
-```
-I would recommend using `dry-types` library or similar for creating your domain objects.
-
 ### Callable properties
 You can easily define dynamic (callbale) properties if value needs to change every time it needs to be called. Anything that responds to `.call` can be dynamic property.
 ```ruby
 RomFactory::Builder.define do |b|
-  b.factory(repo: UsersRepo, name: :user) do |f|
+  b.factory(relation: :users, name: :user) do |f|
     f.first_name "Janis"
     f.last_name "Miezitis"
     f.email "janjiss@gmail.com"
@@ -104,8 +70,6 @@ end
 user = RomFactory::Builder.create(:user)
 user.created_at #=> 2016-08-27 18:17:08 -0500
 ```
-
-
 
 ## License
 
