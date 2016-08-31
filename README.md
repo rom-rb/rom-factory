@@ -1,6 +1,6 @@
-# RomFactory
+[![Build Status](https://travis-ci.org/janjiss/rom_factory.svg?branch=master)](https://travis-ci.org/janjiss/rom_factory)
 
-FactoryGirl is an awesome and ROM is awesome, hence RomFactory is born.
+# RomFactory
 
 ## Installation
 
