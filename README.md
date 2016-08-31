@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/janjiss/rom_factory.svg?branch=master)](https://travis-ci.org/janjiss/rom_factory)
+[![Gem Version](https://badge.fury.io/rb/rom_factory.svg)](https://badge.fury.io/rb/rom_factory)
 
 # RomFactory
 
