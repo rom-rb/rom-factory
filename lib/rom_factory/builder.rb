@@ -8,8 +8,8 @@ module RomFactory
 
     def self.define(&block)
       factory = new(&block)
-      raise ArgumentError, "Factory with key #{factory.name} already present" if container.key?(factory.name)
-      container.register(factory.name, factory)
+      raise ArgumentError, "Factory with key #{factory._name} already present" if container.key?(factory._name)
+      container.register(factory._name, factory)
     end
 
     def self.create(name, attrs = {})
@@ -24,7 +24,7 @@ module RomFactory
 
     def factory(name:, relation:, &block)
       @_relation = RomFactory::Config.config.container.relations.fetch(relation)
-      @name = name
+      @_name = name
       @_schema = {}
       define_methods_from_relation
       yield(self)
@@ -42,7 +42,7 @@ module RomFactory
       OpenStruct.new(_relation.where(id: record_id).one)
     end
 
-    attr_reader :name
+    attr_reader :_name
 
     private
 
