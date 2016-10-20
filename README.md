@@ -40,6 +40,7 @@ RomFactory::Config.configure do |config|
   config.container = container
 end
 ```
+
 ## Simple use case
 
 After configuration is done, you can define the factory as follows:
@@ -71,6 +72,25 @@ RomFactory::Builder.define do |b|
 end
 user = RomFactory::Builder.create(:user)
 user.created_at #=> 2016-08-27 18:17:08 -0500
+```
+
+### Sequencing
+
+If you want attributes to be unique each time you build a factory, you can use sequence to achieve that:
+```ruby
+RomFactory::Builder.define do |b|
+  b.factory(relation: :users, name: :user) do |f|
+    f.first_name "Janis"
+    f.last_name "Miezitis"
+    f.sequence :email do |n|
+      "janjiss#{n}@gmail.com"
+    end
+  end
+end
+user = RomFactory::Builder.create(:user)
+user.email #=> janjiss1@gmail.com
+user2 = RomFactory::Builder.create(:user)
+user2.email #=> janjiss2@gmail.com
 ```
 
 ## License

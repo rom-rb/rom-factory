@@ -98,6 +98,7 @@ RSpec.describe RomFactory::Builder do
     end
   end
 
+
   context "errors" do
     it "raises error if factory with the same name is registered" do
       RomFactory::Builder.define do |b|
@@ -111,6 +112,27 @@ RSpec.describe RomFactory::Builder do
           end
         end
       }.to raise_error(ArgumentError)
+    end
+  end
+
+  context "sequence" do
+    it "supports sequencing of values" do
+      RomFactory::Builder.define do |b|
+        b.factory(relation: :users, name: :user_9) do |f|
+          f.sequence :email do |n|
+            "janjiss#{n}@gmail.com"
+          end
+          f.first_name "Janis"
+          f.last_name "Miezitis"
+          f.created_at Time.now
+          f.updated_at Time.now
+        end
+      end
+
+      user = RomFactory::Builder.create(:user_9)
+      expect(user.email).to eq("janjiss1@gmail.com")
+      user2 = RomFactory::Builder.create(:user_9)
+      expect(user2.email).to eq("janjiss2@gmail.com")
     end
   end
 end
