@@ -14,7 +14,7 @@ module RomFactory
     def create(attrs)
       values = _schema.merge(wrap_attributes_to_callable(attrs)).map {|k, v| [k, v.call]}
       record_id = _relation.insert(values.to_h)
-      OpenStruct.new(values.to_h.merge(id: record_id))
+      Struct.new(values.to_h.merge(id: record_id))
     end
 
     def sequence(method_id, &block)
