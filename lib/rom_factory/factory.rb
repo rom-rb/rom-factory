@@ -18,7 +18,7 @@ module RomFactory
     end
 
     def sequence(method_id, &block)
-      if _relation.attributes.include?(method_id)
+      if _relation.schema.attributes.map(&:name).include?(method_id)
         define_sequence_method(method_id, block)
       end
       self.send(method_id)
@@ -35,7 +35,7 @@ module RomFactory
     end
 
     def method_missing(method_id, *arguments, &block)
-      if _relation.attributes.include?(method_id)
+      if _relation.schema.attributes.map(&:name).include?(method_id)
         define_regular_method(method_id)
         self.send(method_id, *arguments, &block)
       else
