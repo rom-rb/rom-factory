@@ -92,6 +92,22 @@ user.email #=> janjiss1@gmail.com
 user2 = RomFactory::Builder.create(:user)
 user2.email #=> janjiss2@gmail.com
 ```
+### Timestamps
+
+There is a support for timestamps for `created_at` and `updated_at` attributes:
+```ruby
+RomFactory::Builder.define do |b|
+  b.factory(relation: :users, name: :user) do |f|
+    f.first_name "Janis"
+    f.last_name "Miezitis"
+    f.email "janjiss@gmail.com"
+    f.timestamps
+  end
+end
+user = RomFactory::Builder.create(:user)
+user.created_at #=> 2016-08-27 18:17:08 -0500
+user.updated_at #=> 2016-08-27 18:17:10 -0500
+```
 
 ## License
 
