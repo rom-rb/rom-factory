@@ -135,4 +135,25 @@ RSpec.describe RomFactory::Builder do
       expect(user2.email).to eq("janjiss2@gmail.com")
     end
   end
+
+  context "timestamps" do
+    it "creates timestamps, created_at and updated_at, based on callable property" do
+      RomFactory::Builder.define do |b|
+        b.factory(relation: :users, name: :user_10) do |f|
+          f.first_name "Janis"
+          f.last_name "Miezitis"
+          f.email "janjiss@gmail.com"
+          f.timestamps
+        end
+      end
+
+      user = RomFactory::Builder.create(:user_10)
+      expect(user.created_at.class).to eq(Time)
+      expect(user.updated_at.class).to eq(Time)
+
+      user2 = RomFactory::Builder.create(:user_10)
+      expect(user2.created_at).not_to eq(user.created_at)
+      expect(user2.updated_at).not_to eq(user.updated_at)
+    end
+  end
 end

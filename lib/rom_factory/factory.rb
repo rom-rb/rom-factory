@@ -24,6 +24,11 @@ module RomFactory
       self.send(method_id)
     end
 
+    def timestamps
+      created_at { Time.now }
+      updated_at { Time.now }
+    end
+
     attr_reader :_name
 
     private
