@@ -227,6 +227,28 @@ user.id # auto-generated fake PK
 user.first_name # "Janis"
 ```
 
+### Performance
+
+Seems like this thing is a bit faster than other popular factory gems:
+
+``` ruby
+Warming up --------------------------------------
+         rom-factory     1.000  i/100ms
+        factory_girl     1.000  i/100ms
+         fabrication     1.000  i/100ms
+Calculating -------------------------------------
+         rom-factory      1.550  (± 0.0%) i/s -      8.000  in   5.166227s
+        factory_girl      0.982  (± 0.0%) i/s -      5.000  in   5.098193s
+         fabrication      1.011  (± 0.0%) i/s -      6.000  in   5.942209s
+
+Comparison:
+         rom-factory:        1.5 i/s
+         fabrication:        1.0 i/s - 1.53x  slower
+        factory_girl:        1.0 i/s - 1.58x  slower
+```
+
+> See [benchmarks/basic.rb](https://github.com/rom-rb/rom-factory/blob/master/benchmarks/basic.rb)
+
 ## Credits
 
 This project was originally created by [Jānis Miezītis](https://github.com/janjiss) and eventually moved to `rom-rb` organization.
