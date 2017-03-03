@@ -162,6 +162,25 @@ Factory.define(:user, relation: :people) do |f|
 end
 ```
 
+### Generating structs without persistence
+
+You can generate struct objects without persisting them using `#structs` generator:
+
+``` ruby
+Factory.define(:user) do |f|
+  f.first_name "Janis"
+  f.last_name "Miezitis"
+  f.email "janjiss@gmail.com"
+  f.admin false
+  f.timestamps
+end
+
+user = Factory.structs[:user]
+
+user.id # auto-generated fake PK
+user.first_name # "Janis"
+```
+
 ## Credits
 
 This project was originally created by [Jānis Miezītis](https://github.com/janjiss) and eventually moved to `rom-rb` organization.
