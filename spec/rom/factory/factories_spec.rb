@@ -173,11 +173,14 @@ RSpec.describe ROM::Factory do
 
   context 'traits' do
     it 'sets up a new builder based on another' do
-      factories.define(:jane, relation: :users) do |f|
+      factories.define(:user) do |f|
+        f.timestamps
+      end
+
+      factories.define(jane: :user) do |f|
         f.first_name 'Jane'
         f.last_name 'Doe'
         f.email 'jane@doe.org'
-        f.timestamps
       end
 
       factories.define(john: :jane) do |f|
