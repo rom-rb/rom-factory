@@ -1,4 +1,4 @@
-module RomFactory
+module ROM::Factory
   module Attributes
     class Regular
       def initialize(value)

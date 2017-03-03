@@ -1,4 +1,4 @@
-module RomFactory
+module ROM::Factory
   class Struct
     def initialize(values)
       @values = values

@@ -1,4 +1,4 @@
-module RomFactory
+module ROM::Factory
   module Attributes
     class Sequence
       def initialize(&block)

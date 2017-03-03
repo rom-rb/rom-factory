@@ -1,9 +1,12 @@
-require 'rom_factory'
-require "rom"
+require 'rom'
 require 'rom-repository'
 require 'rom-sql'
 require 'sqlite3'
-require "pry"
+require 'pry'
 
-$LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
-require 'rom_factory'
+require 'rom/factory'
+require 'rspec'
+
+RSpec.configure do |config|
+  config.disable_monkey_patching!
+end

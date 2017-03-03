@@ -2,7 +2,7 @@
 [![Gem Version](https://badge.fury.io/rb/rom_factory.svg)](https://badge.fury.io/rb/rom_factory)
 [![Dependency Status](https://gemnasium.com/badges/github.com/janjiss/rom_factory.svg)](https://gemnasium.com/github.com/janjiss/rom_factory)
 [![Code Climate](https://codeclimate.com/github/janjiss/rom_factory/badges/gpa.svg)](https://codeclimate.com/github/janjiss/rom_factory)
-# RomFactory
+# ROM::Factory
 
 ## Installation
 
@@ -34,9 +34,9 @@ container = ROM.container(:sql, 'sqlite::memory') do |conf|
   end
 end
 ```
-Once that is done, you will have to specify which container RomFactory will use:
+Once that is done, you will have to specify which container ROM::Factory will use:
 ```ruby
-RomFactory::Config.configure do |config|
+ROM::Factory::Config.configure do |config|
   config.container = container
 end
 ```
@@ -45,7 +45,7 @@ end
 
 After configuration is done, you can define the factory as follows:
 ```ruby
-RomFactory::Builder.define do |b|
+ROM::Factory::Builder.define do |b|
   b.factory(relation: :users, name: :user) do |f|
     f.first_name "Janis"
     f.last_name "Miezitis"
@@ -55,14 +55,14 @@ end
 ```
 When everything is configured, you can use it in your tests as follows:
 ```ruby
-user = RomFactory::Builder.create(:user)
+user = ROM::Factory::Builder.create(:user)
 user.email #=> "janjiss@gmail.com"
 ```
 
 ### Callable properties
 You can easily define dynamic (callbale) properties if value needs to change every time it needs to be called. Anything that responds to `.call` can be dynamic property.
 ```ruby
-RomFactory::Builder.define do |b|
+ROM::Factory::Builder.define do |b|
   b.factory(relation: :users, name: :user) do |f|
     f.first_name "Janis"
     f.last_name "Miezitis"
@@ -70,7 +70,7 @@ RomFactory::Builder.define do |b|
     f.created_at {Time.now}
   end
 end
-user = RomFactory::Builder.create(:user)
+user = ROM::Factory::Builder.create(:user)
 user.created_at #=> 2016-08-27 18:17:08 -0500
 ```
 
@@ -78,7 +78,7 @@ user.created_at #=> 2016-08-27 18:17:08 -0500
 
 If you want attributes to be unique each time you build a factory, you can use sequence to achieve that:
 ```ruby
-RomFactory::Builder.define do |b|
+ROM::Factory::Builder.define do |b|
   b.factory(relation: :users, name: :user) do |f|
     f.first_name "Janis"
     f.last_name "Miezitis"
@@ -87,16 +87,16 @@ RomFactory::Builder.define do |b|
     end
   end
 end
-user = RomFactory::Builder.create(:user)
+user = ROM::Factory::Builder.create(:user)
 user.email #=> janjiss1@gmail.com
-user2 = RomFactory::Builder.create(:user)
+user2 = ROM::Factory::Builder.create(:user)
 user2.email #=> janjiss2@gmail.com
 ```
 ### Timestamps
 
 There is a support for timestamps for `created_at` and `updated_at` attributes:
 ```ruby
-RomFactory::Builder.define do |b|
+ROM::Factory::Builder.define do |b|
   b.factory(relation: :users, name: :user) do |f|
     f.first_name "Janis"
     f.last_name "Miezitis"
@@ -104,7 +104,7 @@ RomFactory::Builder.define do |b|
     f.timestamps
   end
 end
-user = RomFactory::Builder.create(:user)
+user = ROM::Factory::Builder.create(:user)
 user.created_at #=> 2016-08-27 18:17:08 -0500
 user.updated_at #=> 2016-08-27 18:17:10 -0500
 ```

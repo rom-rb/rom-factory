@@ -1,11 +1,11 @@
-module RomFactory
+module ROM::Factory
   class Factory
     def initialize
       yield(self)
     end
 
     def factory(name:, relation:, &block)
-      @_relation = RomFactory::Config.config.container.relations.fetch(relation)
+      @_relation = ROM::Factory::Config.config.container.relations.fetch(relation)
       @_name = name
       @_schema = {}
       yield(self)
@@ -36,7 +36,7 @@ module RomFactory
     attr_reader :_relation, :_schema
 
     def wrap_attributes_to_callable(attrs)
-      attrs.map {|k, v| [k, RomFactory::Attributes::Regular.new(v)]}.to_h
+      attrs.map {|k, v| [k, ROM::Factory::Attributes::Regular.new(v)]}.to_h
     end
 
     def method_missing(method_id, *arguments, &block)
@@ -50,16 +50,16 @@ module RomFactory
 
     def define_sequence_method(method_id, block)
       self.define_singleton_method method_id, ->(){
-        _schema[method_id] = RomFactory::Attributes::Sequence.new(&block)
+        _schema[method_id] = ROM::Factory::Attributes::Sequence.new(&block)
       }
     end
 
     def define_regular_method(method_id)
       define_singleton_method method_id, Proc.new {|v = nil, &block|
         if block
-          _schema[method_id] = RomFactory::Attributes::Callable.new(block)
+          _schema[method_id] = ROM::Factory::Attributes::Callable.new(block)
         else
-          _schema[method_id] = RomFactory::Attributes::Regular.new(v)
+          _schema[method_id] = ROM::Factory::Attributes::Regular.new(v)
         end
       }
     end

@@ -1,8 +1,7 @@
 require 'spec_helper'
 require 'ostruct'
 
-
-RSpec.describe RomFactory::Builder do
+RSpec.describe ROM::Factory::Builder do
   before(:all) do
     container = ROM.container(:sql, 'sqlite::memory') do |conf|
       conf.default.create_table(:users) do
@@ -15,15 +14,14 @@ RSpec.describe RomFactory::Builder do
       end
     end
 
-    RomFactory::Config.configure do |config|
+    ROM::Factory::Config.configure do |config|
       config.container = container
     end
   end
 
-
   describe "factory builder DSL" do
     it "does not error when trying using proper DSL" do
-      RomFactory::Builder.define do |b|
+      ROM::Factory::Builder.define do |b|
         b.factory(relation: :users, name: :user_1) do |f|
           f.first_name "Janis"
           f.last_name "Miezitis"
@@ -34,7 +32,7 @@ RSpec.describe RomFactory::Builder do
 
     it "Raises an error if arguments are not part of schema" do
       expect {
-        RomFactory::Builder.define do |b|
+        ROM::Factory::Builder.define do |b|
           b.factory(relation: :users, name: :user_2) do |f|
             f.boobly "Janis"
           end
@@ -45,7 +43,7 @@ RSpec.describe RomFactory::Builder do
 
   context "creation of records" do
     it "creates a record based on defined factory" do
-      RomFactory::Builder.define do |b|
+      ROM::Factory::Builder.define do |b|
         b.factory(relation: :users, name: :user_3) do |f|
           f.first_name "Janis"
           f.last_name "Miezitis"
@@ -55,14 +53,14 @@ RSpec.describe RomFactory::Builder do
         end
       end
 
-      user = RomFactory::Builder.create(:user_3)
+      user = ROM::Factory::Builder.create(:user_3)
       expect(user.email).not_to be_empty
       expect(user.first_name).not_to be_empty
       expect(user.last_name).not_to be_empty
     end
 
     it "supports callable values" do
-      RomFactory::Builder.define do |b|
+      ROM::Factory::Builder.define do |b|
         b.factory(relation: :users, name: :user_4) do |f|
           f.first_name "Janis"
           f.last_name "Miezitis"
@@ -72,7 +70,7 @@ RSpec.describe RomFactory::Builder do
         end
       end
 
-      user = RomFactory::Builder.create(:user_4)
+      user = ROM::Factory::Builder.create(:user_4)
       expect(user.email).not_to be_empty
       expect(user.first_name).not_to be_empty
       expect(user.last_name).not_to be_empty
@@ -83,7 +81,7 @@ RSpec.describe RomFactory::Builder do
 
   context "changing values" do
     it "supports overwriting of values" do
-      RomFactory::Builder.define do |b|
+      ROM::Factory::Builder.define do |b|
         b.factory(relation: :users, name: :user_7) do |f|
           f.first_name "Janis"
           f.last_name "Miezitis"
@@ -93,7 +91,7 @@ RSpec.describe RomFactory::Builder do
         end
       end
 
-      user = RomFactory::Builder.create(:user_7, email: "holla@gmail.com")
+      user = ROM::Factory::Builder.create(:user_7, email: "holla@gmail.com")
       expect(user.email).to eq("holla@gmail.com")
     end
   end
@@ -101,13 +99,13 @@ RSpec.describe RomFactory::Builder do
 
   context "errors" do
     it "raises error if factory with the same name is registered" do
-      RomFactory::Builder.define do |b|
+      ROM::Factory::Builder.define do |b|
         b.factory(relation: :users, name: :user_8) do
         end
       end
 
       expect {
-        RomFactory::Builder.define do |b|
+        ROM::Factory::Builder.define do |b|
           b.factory(relation: :users, name: :user_8) do
           end
         end
@@ -117,7 +115,7 @@ RSpec.describe RomFactory::Builder do
 
   context "sequence" do
     it "supports sequencing of values" do
-      RomFactory::Builder.define do |b|
+      ROM::Factory::Builder.define do |b|
         b.factory(relation: :users, name: :user_9) do |f|
           f.sequence :email do |n|
             "janjiss#{n}@gmail.com"
@@ -129,16 +127,16 @@ RSpec.describe RomFactory::Builder do
         end
       end
 
-      user = RomFactory::Builder.create(:user_9)
+      user = ROM::Factory::Builder.create(:user_9)
       expect(user.email).to eq("janjiss1@gmail.com")
-      user2 = RomFactory::Builder.create(:user_9)
+      user2 = ROM::Factory::Builder.create(:user_9)
       expect(user2.email).to eq("janjiss2@gmail.com")
     end
   end
 
   context "timestamps" do
     it "creates timestamps, created_at and updated_at, based on callable property" do
-      RomFactory::Builder.define do |b|
+      ROM::Factory::Builder.define do |b|
         b.factory(relation: :users, name: :user_10) do |f|
           f.first_name "Janis"
           f.last_name "Miezitis"
@@ -147,11 +145,11 @@ RSpec.describe RomFactory::Builder do
         end
       end
 
-      user = RomFactory::Builder.create(:user_10)
+      user = ROM::Factory::Builder.create(:user_10)
       expect(user.created_at.class).to eq(Time)
       expect(user.updated_at.class).to eq(Time)
 
-      user2 = RomFactory::Builder.create(:user_10)
+      user2 = ROM::Factory::Builder.create(:user_10)
       expect(user2.created_at).not_to eq(user.created_at)
       expect(user2.updated_at).not_to eq(user.updated_at)
     end

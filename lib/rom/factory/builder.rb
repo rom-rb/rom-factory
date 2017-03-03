@@ -1,4 +1,4 @@
-module RomFactory
+module ROM::Factory
   class Builder
     @container = Dry::Container.new
 
