@@ -2,7 +2,7 @@ language: ruby
 dist: trusty
 sudo: required
 cache: bundler
-bundler_args: --without tools
+bundler_args: --without tools benchmarks
 script: "bundle exec rake spec"
 after_success:
   - '[ "${TRAVIS_JOB_NUMBER#*.}" = "1" ] && [ "$TRAVIS_BRANCH" = "master" ] && bundle exec codeclimate-test-reporter'

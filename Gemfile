@@ -15,3 +15,11 @@ gem 'jdbc-sqlite3', platforms: :jruby
 group :tools do
   gem 'byebug', platform: :mri
 end
+
+group :benchmarks do
+  gem 'activerecord'
+  gem 'benchmark-ips'
+  gem 'factory_girl'
+  gem 'pg'
+  gem 'fabrication'
+end
