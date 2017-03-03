@@ -1,8 +1,9 @@
-[![Build Status](https://travis-ci.org/janjiss/rom_factory.svg?branch=master)](https://travis-ci.org/janjiss/rom_factory)
-[![Gem Version](https://badge.fury.io/rb/rom_factory.svg)](https://badge.fury.io/rb/rom_factory)
-[![Dependency Status](https://gemnasium.com/badges/github.com/janjiss/rom_factory.svg)](https://gemnasium.com/github.com/janjiss/rom_factory)
-[![Code Climate](https://codeclimate.com/github/janjiss/rom_factory/badges/gpa.svg)](https://codeclimate.com/github/janjiss/rom_factory)
-# ROM::Factory
+[![Build Status](https://travis-ci.org/rom-rb/rom-factory.svg?branch=master)](https://travis-ci.org/rom-rb/rom-factory)
+[![Gem Version](https://badge.fury.io/rb/rom-factory.svg)](https://badge.fury.io/rb/rom-factory)
+[![Dependency Status](https://gemnasium.com/badges/github.com/rom-rb/rom-factory.svg)](https://gemnasium.com/github.com/rom-rb/rom-factory)
+[![Code Climate](https://codeclimate.com/github/rom-rb/rom-factory/badges/gpa.svg)](https://codeclimate.com/github/rom-rb/rom-factory)
+
+# rom-factory
 
 ## Installation
 
