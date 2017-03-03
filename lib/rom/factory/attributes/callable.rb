@@ -9,7 +9,11 @@ module ROM::Factory
       end
 
       def call
-        dsl.instance_exec(&block)
+        if block.is_a?(Proc)
+          dsl.instance_exec(&block)
+        else
+          block.call
+        end
       end
     end
   end

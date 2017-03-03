@@ -53,6 +53,18 @@ module ROM
         ::ROM::Factory.fake(*args)
       end
 
+      def association(name)
+        assoc = _relation.associations[name]
+        other = _relation.__registry__[assoc.target]
+
+        fk = _relation.foreign_key(other)
+        pk = other.primary_key
+
+        block = -> { create(name)[pk] }
+
+        _schema[fk] = attributes::Callable.new(self, block)
+      end
+
       private
 
       def method_missing(meth, *args, &block)
@@ -64,7 +76,7 @@ module ROM
       end
 
       def define_sequence_method(meth, block)
-        _schema[meth] = attributes::Callable.new(attributes::Sequence.new(&block))
+        _schema[meth] = attributes::Callable.new(self, attributes::Sequence.new(&block))
       end
 
       def define_regular_method(meth, *args, &block)

@@ -7,7 +7,11 @@ module ROM::Factory
       end
 
       def call
-        @block.call(@count += 1)
+        @block.call(increment)
+      end
+
+      def increment
+        @count += 1
       end
     end
   end

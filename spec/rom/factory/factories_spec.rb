@@ -21,6 +21,14 @@ RSpec.describe ROM::Factory do
         foreign_key :user_id, :users
         column :title, String, null: false
       end
+
+      conf.relation(:tasks) do
+        schema(infer: true) do
+          associations do
+            belongs_to :users, as: :user
+          end
+        end
+      end
     end
   end
 
@@ -237,6 +245,27 @@ RSpec.describe ROM::Factory do
       factories.define(:task) do |f|
         f.title 'A task'
         f.user_id { create(:user).id }
+      end
+
+      task = factories[:task]
+
+      expect(task.title).to eql('A task')
+      expect(task.user_id).to_not be(nil)
+    end
+  end
+
+  context 'using associations' do
+    it 'exposes "create" method in callable attribute blocks' do
+      factories.define(:user) do |f|
+        f.first_name 'Jane'
+        f.last_name 'Doe'
+        f.email 'jane@doe.org'
+        f.timestamps
+      end
+
+      factories.define(:task) do |f|
+        f.title 'A task'
+        f.association(:user)
       end
 
       task = factories[:task]
