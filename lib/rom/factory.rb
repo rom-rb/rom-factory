@@ -9,6 +9,7 @@ end
 
 require 'rom/factory/version'
 require 'rom/factory/config'
+require 'rom/factory/dsl'
 require 'rom/factory/builder'
 require 'rom/factory/factory'
 require 'rom/factory/struct'
