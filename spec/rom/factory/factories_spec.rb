@@ -6,7 +6,9 @@ RSpec.describe ROM::Factory do
   end
 
   let(:rom) do
-    ROM.container(:sql, 'sqlite::memory') do |conf|
+    uri = RUBY_ENGINE == 'jruby' ? 'jdbc:sqlite::memory:' : 'sqlite::memory'
+
+    ROM.container(:sql, uri) do |conf|
       conf.default.create_table(:users) do
         primary_key :id
         column :last_name, String, null: false
