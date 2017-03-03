@@ -13,8 +13,6 @@
 [![Test Coverage](https://codeclimate.com/github/rom-rb/rom-factory/badges/coverage.svg)][codeclimate]
 [![Inline docs](http://inch-ci.org/github/rom-rb/rom-factory.svg?branch=master)][inchpages]
 
-# rom-factory
-
 ## Installation
 
 Add this line to your application's Gemfile:
