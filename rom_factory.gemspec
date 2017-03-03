@@ -28,8 +28,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "dry-configurable", "~> 0.1"
-  spec.add_dependency "dry-container", "~> 0.3"
   spec.add_dependency "dry-core", "~> 0.2"
+  spec.add_dependency "faker", "~> 1.7"
 
   spec.add_development_dependency 'bundler', '~> 1.13'
   spec.add_development_dependency "rake", "~> 10.0"

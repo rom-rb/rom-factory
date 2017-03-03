@@ -1,7 +1,24 @@
+require 'faker'
+require 'dry/core/inflector'
+
 require 'rom/factory/builder'
+require 'rom/factory/attributes/regular'
+require 'rom/factory/attributes/callable'
+require 'rom/factory/attributes/sequence'
 
 module ROM
   module Factory
+    def self.fake(type, *args)
+      api = Faker.const_get(Dry::Core::Inflector.classify(type.to_s))
+      meth, *rest = args
+
+      if meth.is_a?(Symbol)
+        api.public_send(meth, *rest)
+      else
+        api.public_send(type, *args)
+      end
+    end
+
     class DSL < BasicObject
       attr_reader :_name, :_relation, :_schema, :_factories
 
@@ -60,17 +77,6 @@ module ROM
 
       def attributes
         ::ROM::Factory::Attributes
-      end
-    end
-
-    def self.fake(type, *args)
-      api = Faker.const_get(Dry::Core::Inflector.classify(type.to_s))
-      meth, *rest = args
-
-      if meth.is_a?(Symbol)
-        api.public_send(meth, *rest)
-      else
-        api.public_send(type, *args)
       end
     end
   end

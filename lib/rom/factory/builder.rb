@@ -1,3 +1,5 @@
+require 'rom/factory/struct'
+
 module ROM::Factory
   class Builder
     attr_reader :schema, :relation
