@@ -147,6 +147,21 @@ user = Factory[:admin]
 user.admin # true
 ```
 
+### Setting up relation backend explicitly
+
+By default, relation is configured automatically based on the builder name. For example if your builder is called `:user`, then `:users`
+relation name will be inferred. If you want to set up a relation explicitly, use `:relation` option:
+
+``` ruby
+Factory.define(:user, relation: :people) do |f|
+  f.first_name "Janis"
+  f.last_name "Miezitis"
+  f.email "janjiss@gmail.com"
+  f.admin false
+  f.timestamps
+end
+```
+
 ## Credits
 
 This project was originally created by [Jānis Miezītis](https://github.com/janjiss) and eventually moved to `rom-rb` organization.
