@@ -1,21 +1,17 @@
 module ROM::Factory
   class Builder
-    @container = Dry::Container.new
+    attr_reader :schema, :relation
 
-    def self.container
-      @container
+    def initialize(schema, relation)
+      @schema = schema
+      @relation = relation
     end
 
-    def self.define(&block)
-      factory = Factory.new(&block)
-      raise ArgumentError, "Factory with key #{factory._name} already present" if container.key?(factory._name)
-      container.register(factory._name, factory)
-    end
+    def create(attrs = {})
+      tuple = schema.map {|k, v| [k, v.call] }.to_h.merge(attrs)
+      pkval = relation.insert(tuple)
 
-    def self.create(name, attrs = {})
-      raise ArgumentError, "Factory #{name} does not exist" unless container.key?(name)
-      factory = container.resolve(name)
-      factory.create(attrs)
+      Struct.new(tuple.merge(relation.primary_key => pkval))
     end
   end
 end

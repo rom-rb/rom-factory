@@ -1,10 +1,8 @@
 RSpec.describe ROM::Factory do
   subject(:factory) do
-    ROM::Factory::Config.configure do |config|
-      config.container = rom
+    ROM::Factory.configure do |config|
+      config.rom = rom
     end
-
-    ROM::Factory
   end
 
   let(:rom) do
@@ -111,7 +109,7 @@ RSpec.describe ROM::Factory do
   context 'sequence' do
     it 'supports sequencing of values' do
       factory.define(:user_9, relation: :users) do |f|
-        f.sequence :email { |n| "janjiss#{n}@gmail.com" }
+        f.sequence(:email) { |n| "janjiss#{n}@gmail.com" }
         f.first_name 'Janis'
         f.last_name 'Miezitis'
         f.created_at Time.now

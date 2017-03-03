@@ -3,34 +3,64 @@ require 'rom/factory/builder'
 module ROM
   module Factory
     class DSL < BasicObject
-      def initialize(name, relation: ::Dry::Core::Inflector.pluralize(name).to_sym, &block)
-        Builder.define do |b|
-          b.factory(name: name, relation: relation) do |f|
-            @builder = f
-            instance_exec(f, &block)
-          end
-        end
+      attr_reader :_name, :_relation, :_schema, :_factories
 
-        def create(name)
-          ::Factory[name]
-        end
+      def initialize(name, relation:, factories:, &block)
+        @_name = name
+        @_relation = relation
+        @_factories = factories
+        @_schema = {}
+        yield(self)
+      end
 
-        def fake(*args)
-          ::Factory.fake(*args)
-        end
+      def call
+        ::ROM::Factory::Builder.new(_schema, _relation)
+      end
 
-        def method_missing(meth, *args, &block)
-          @builder.public_send(meth, *args, &block)
+      def create(name, *args)
+        _factories[name, *args]
+      end
+
+      def sequence(meth, &block)
+        if _relation.schema.attributes.map(&:name).include?(meth)
+          define_sequence_method(meth, block)
         end
       end
-    end
 
-    def self.define(name, **opts, &block)
-      DSL.new(name, opts, &block)
-    end
+      def timestamps
+        created_at { ::Time.now }
+        updated_at { ::Time.now }
+      end
 
-    def self.[](name, attrs = {})
-      Builder.create(name, attrs)
+      def fake(*args)
+        ::ROM::Factory.fake(*args)
+      end
+
+      private
+
+      def method_missing(meth, *args, &block)
+        if _relation.schema.attributes.map(&:name).include?(meth)
+          define_regular_method(meth, *args, &block)
+        else
+          super
+        end
+      end
+
+      def define_sequence_method(meth, block)
+        _schema[meth] = attributes::Callable.new(attributes::Sequence.new(&block))
+      end
+
+      def define_regular_method(meth, *args, &block)
+        if block
+          _schema[meth] = attributes::Callable.new(block)
+        else
+          _schema[meth] = attributes::Regular.new(*args)
+        end
+      end
+
+      def attributes
+        ::ROM::Factory::Attributes
+      end
     end
 
     def self.fake(type, *args)
