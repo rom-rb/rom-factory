@@ -2,6 +2,7 @@
 [![Gem Version](https://badge.fury.io/rb/rom-factory.svg)](https://badge.fury.io/rb/rom-factory)
 [![Dependency Status](https://gemnasium.com/badges/github.com/rom-rb/rom-factory.svg)](https://gemnasium.com/github.com/rom-rb/rom-factory)
 [![Code Climate](https://codeclimate.com/github/rom-rb/rom-factory/badges/gpa.svg)](https://codeclimate.com/github/rom-rb/rom-factory)
+[![Test Coverage](https://codeclimate.com/github/rom-rb/rom-factory/badges/coverage.svg)][codeclimate]
 
 # rom-factory
 
