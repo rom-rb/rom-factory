@@ -20,13 +20,14 @@ module ROM
     end
 
     class DSL < BasicObject
-      attr_reader :_name, :_relation, :_schema, :_factories
+      attr_reader :_name, :_relation, :_schema, :_factories, :_valid_names
 
       def initialize(name, schema: {}, relation:, factories:, &block)
         @_name = name
         @_relation = relation
         @_factories = factories
         @_schema = schema.dup
+        @_valid_names = _relation.schema.attributes.map(&:name)
         yield(self)
       end
 
@@ -39,8 +40,8 @@ module ROM
       end
 
       def sequence(meth, &block)
-        if _relation.schema.attributes.map(&:name).include?(meth)
-          define_sequence_method(meth, block)
+        if _valid_names.include?(meth)
+          define_sequence(meth, block)
         end
       end
 
@@ -68,22 +69,22 @@ module ROM
       private
 
       def method_missing(meth, *args, &block)
-        if _relation.schema.attributes.map(&:name).include?(meth)
-          define_regular_method(meth, *args, &block)
+        if _valid_names.include?(meth)
+          define_attr(meth, *args, &block)
         else
           super
         end
       end
 
-      def define_sequence_method(meth, block)
-        _schema[meth] = attributes::Callable.new(self, attributes::Sequence.new(&block))
+      def define_sequence(name, block)
+        _schema[name] = attributes::Callable.new(self, attributes::Sequence.new(&block))
       end
 
-      def define_regular_method(meth, *args, &block)
+      def define_attr(name, *args, &block)
         if block
-          _schema[meth] = attributes::Callable.new(self, block)
+          _schema[name] = attributes::Callable.new(self, block)
         else
-          _schema[meth] = attributes::Regular.new(*args)
+          _schema[name] = attributes::Regular.new(*args)
         end
       end
 
