@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gemspec
 
-gem 'rake', '~> 10.0'
+gem 'rake', '~> 12.0'
 gem 'simplecov', require: false, platform: :mri
 gem 'codeclimate-test-reporter', require: false, platform: :mri
 
