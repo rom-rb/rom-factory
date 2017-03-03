@@ -124,6 +124,20 @@ user.created_at #=> 2016-08-27 18:17:08 -0500
 user.updated_at #=> 2016-08-27 18:17:10 -0500
 ```
 
+### Fake data generator
+
+There's a builtin support for [Faker](https://github.com/stympy/faker) gem with a `fake` shortcut in the DSL:
+
+
+``` ruby
+factories.define(:user) do |f|
+  f.first_name { fake(:name, :first_name) }
+  f.last_name { fake(:name, :last_name) }
+  f.email { fake(:internet, :email) }
+  f.timestamps
+end
+```
+
 ### Extending existing builders
 
 You can create a hierarchy of builders easily, which is useful if you want to share data generation logic across
