@@ -29,6 +29,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "dry-configurable", "~> 0.1"
   spec.add_dependency "dry-core", "~> 0.2"
+  spec.add_dependency "dry-struct", "~> 0.2"
   spec.add_dependency "faker", "~> 1.7"
 
   spec.add_development_dependency 'bundler', '~> 1.13'

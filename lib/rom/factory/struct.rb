@@ -1,37 +1,21 @@
+require 'dry/struct'
+require 'dry/core/cache'
+require 'dry/core/class_builder'
+
 module ROM::Factory
-  class Struct
-    def initialize(values)
-      @values = values
-      define_methods
-      set_values
-    end
+  class Struct < Dry::Struct
+    extend Dry::Core::Cache
 
-    attr_reader :schema, :values
+    def self.define(name, schema)
+      fetch_or_store(schema) do
+        id = Dry::Core::Inflector.classify(Dry::Core::Inflector.singularize(name))
 
-    def define_methods
-      values.each {|k,v|
-        define_singleton_method k, Proc.new {
-          instance_variable_get("@#{k}")
-        }
-
-        define_singleton_method "#{k}=", Proc.new {|v|
-          instance_variable_set("@#{k}", v)
-        }
-      }
-    end
-
-    def set_values
-      values.each do |k, v|
-        send("#{k}=", v)
+        Dry::Core::ClassBuilder.new(name: "ROM::Factory::Struct[#{id}]", parent: self).call do |klass|
+          schema.each do |attr|
+            klass.attribute attr.name, attr.type
+          end
+        end
       end
-    end
-
-    def to_hash
-      to_h
-    end
-
-    def to_h
-      values
     end
   end
 end

@@ -40,6 +40,8 @@ RSpec.describe ROM::Factory do
       expect(user1.id).to_not eql(user2.id)
 
       expect(rom.relations[:users].count).to be_zero
+
+      expect(user1.class).to be(user2.class)
     end
   end
 
