@@ -231,7 +231,7 @@ user.first_name # "Janis"
 
 Seems like this thing is a bit faster than other popular factory gems:
 
-``` ruby
+```
 Warming up --------------------------------------
          rom-factory     1.000  i/100ms
         factory_girl     1.000  i/100ms
