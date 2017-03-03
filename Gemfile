@@ -1,6 +1,16 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in rom_factory.gemspec
 gemspec
 
-gem 'byebug', platform: :mri
+gem "rake", "~> 10.0"
+gem 'simplecov', require: false, platform: :mri
+gem 'codeclimate-test-reporter', require: false, platform: :mri
+
+gem "rspec", "~> 3.0"
+gem "rom", "~> 3.0"
+gem "rom-sql", "~> 1.0"
+gem "sqlite3", "~> 1.3"
+
+group :tools do
+  gem 'byebug', platform: :mri
+end
