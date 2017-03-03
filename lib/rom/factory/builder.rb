@@ -1,3 +1,4 @@
+require 'delegate'
 require 'rom/factory/struct'
 
 module ROM::Factory
@@ -7,13 +8,48 @@ module ROM::Factory
     def initialize(schema, relation)
       @schema = schema
       @relation = relation
+      @sequence = 0
+    end
+
+    def tuple(attrs)
+      schema.map {|k, v| [k, v.call] }.to_h.merge(attrs)
     end
 
     def create(attrs = {})
-      tuple = schema.map {|k, v| [k, v.call] }.to_h.merge(attrs)
-      pkval = relation.insert(tuple)
+      struct(tuple(attrs.merge(primary_key => next_id)))
+    end
 
-      Struct.new(tuple.merge(relation.primary_key => pkval))
+    def struct(attrs)
+      Struct.new(attrs)
+    end
+
+    def persistable
+      Persistable.new(self)
+    end
+
+    def primary_key
+      relation.primary_key
+    end
+
+    private
+
+    def next_id
+      @sequence += 1
+    end
+  end
+
+  class Persistable < SimpleDelegator
+    attr_reader :builder, :relation
+
+    def initialize(builder, relation = builder.relation)
+      super(builder)
+      @builder = builder
+      @relation = relation
+    end
+
+    def create(attrs = {})
+      tuple = builder.tuple(attrs)
+      struct(tuple.merge(primary_key => relation.insert(tuple)))
     end
   end
 end

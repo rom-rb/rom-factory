@@ -18,6 +18,31 @@ RSpec.describe ROM::Factory do
     end
   end
 
+  describe '.structs' do
+    it 'returns a plain struct builder' do
+      factories.define(:user) do |f|
+        f.first_name 'Jane'
+        f.last_name 'Doe'
+        f.email 'jane@doe.org'
+        f.timestamps
+      end
+
+      user1 = factories.structs[:user]
+      user2 = factories.structs[:user]
+
+      expect(user1.id).to_not be(nil)
+      expect(user1.first_name).to eql('Jane')
+      expect(user1.last_name).to_not be(nil)
+      expect(user1.email).to_not be(nil)
+      expect(user1.created_at).to_not be(nil)
+      expect(user1.updated_at).to_not be(nil)
+
+      expect(user1.id).to_not eql(user2.id)
+
+      expect(rom.relations[:users].count).to be_zero
+    end
+  end
+
   describe 'factories builder DSL' do
     it 'infers relation from the name' do
       factories.define(:user) do |f|
