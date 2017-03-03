@@ -69,7 +69,7 @@ module ROM
 
       def define_regular_method(meth, *args, &block)
         if block
-          _schema[meth] = attributes::Callable.new(block)
+          _schema[meth] = attributes::Callable.new(self, block)
         else
           _schema[meth] = attributes::Regular.new(*args)
         end

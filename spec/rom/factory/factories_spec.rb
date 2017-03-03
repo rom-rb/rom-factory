@@ -198,4 +198,24 @@ RSpec.describe ROM::Factory do
       expect(john.email).to eql('john@doe.org')
     end
   end
+
+  context 'faker' do
+    it 'exposes faker API in the DSL' do
+      factories.define(:user) do |f|
+        f.first_name { fake(:name, :first_name) }
+        f.last_name { fake(:name, :last_name) }
+        f.email { fake(:internet, :email) }
+        f.timestamps
+      end
+
+      user = factories[:user]
+
+      expect(user.id).to_not be(nil)
+      expect(user.first_name).to_not be(nil)
+      expect(user.last_name).to_not be(nil)
+      expect(user.email).to_not be(nil)
+      expect(user.created_at).to_not be(nil)
+      expect(user.created_at).to_not be(nil)
+    end
+  end
 end

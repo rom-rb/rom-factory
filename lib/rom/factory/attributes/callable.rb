@@ -1,12 +1,15 @@
 module ROM::Factory
   module Attributes
     class Callable
-      def initialize(block)
+      attr_reader :dsl, :block
+
+      def initialize(dsl, block)
+        @dsl = dsl
         @block = block
       end
 
       def call
-        @block.call
+        dsl.instance_exec(&block)
       end
     end
   end
