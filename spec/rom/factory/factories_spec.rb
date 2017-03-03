@@ -16,6 +16,7 @@ RSpec.describe ROM::Factory do
         column :email, String, null: false
         column :created_at, Time, null: false
         column :updated_at, Time, null: false
+        column :age, Integer
       end
 
       conf.default.create_table(:tasks) do
@@ -134,6 +135,22 @@ RSpec.describe ROM::Factory do
       user = factories[:user, email: 'holla@gmail.com']
 
       expect(user.email).to eq('holla@gmail.com')
+    end
+  end
+
+  context 'incomplete schema' do
+    it 'builds structs with projected schemas' do
+      factories.define(:user, relation: :users) do |f|
+        f.first_name 'Janis'
+        f.last_name 'Miezitis'
+        f.email 'janjiss@gmail.com'
+        f.timestamps
+      end
+
+      user = factories[:user]
+
+      expect(user.id).to_not be(nil)
+      expect(user).not_to respond_to(:age)
     end
   end
 

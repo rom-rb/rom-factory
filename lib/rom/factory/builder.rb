@@ -20,7 +20,7 @@ module ROM::Factory
     end
 
     def struct(attrs)
-      Struct.define(relation.name, relation.schema).new(attrs)
+      Struct.define(relation.name, relation.schema.project(*attrs.keys)).new(attrs)
     end
 
     def persistable
