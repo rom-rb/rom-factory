@@ -124,6 +124,28 @@ user.created_at #=> 2016-08-27 18:17:08 -0500
 user.updated_at #=> 2016-08-27 18:17:10 -0500
 ```
 
+### Associations
+
+If you defined associations in your relations, you can use `association` builder:
+
+``` ruby
+factories.define(:user) do |f|
+  f.first_name 'Jane'
+  f.last_name 'Doe'
+  f.email 'jane@doe.org'
+  f.timestamps
+end
+
+factories.define(:task) do |f|
+  f.title 'A task'
+  f.association(:user)
+end
+
+task = factories[:task]
+```
+
+> Currently only `belongs_to` is supported
+
 ### Fake data generator
 
 There's a builtin support for [Faker](https://github.com/stympy/faker) gem with a `fake` shortcut in the DSL:
