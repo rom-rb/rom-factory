@@ -1,5 +1,5 @@
 RSpec.describe ROM::Factory do
-  subject(:factory) do
+  subject(:factories) do
     ROM::Factory.configure do |config|
       config.rom = rom
     end
@@ -18,16 +18,16 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  describe 'factory builder DSL' do
+  describe 'factories builder DSL' do
     it 'infers relation from the name' do
-      factory.define(:user) do |f|
+      factories.define(:user) do |f|
         f.first_name 'Janis'
         f.last_name 'Miezitis'
         f.email 'janjiss@gmail.com'
         f.timestamps
       end
 
-      user = factory[:user]
+      user = factories[:user]
 
       expect(user.id).to_not be(nil)
       expect(user.first_name).to eql('Janis')
@@ -35,7 +35,7 @@ RSpec.describe ROM::Factory do
 
     it 'raises an error if arguments are not part of schema' do
       expect {
-        factory.define(:user_2, relation: :users) do |f|
+        factories.define(:user_2, relation: :users) do |f|
           f.boobly 'Janis'
         end
       }.to raise_error(NoMethodError)
@@ -43,8 +43,8 @@ RSpec.describe ROM::Factory do
   end
 
   context 'creation of records' do
-    it 'creates a record based on defined factory' do
-      factory.define(:user_3, relation: :users) do |f|
+    it 'creates a record based on defined factories' do
+      factories.define(:user_3, relation: :users) do |f|
         f.first_name 'Janis'
         f.last_name 'Miezitis'
         f.email 'janjiss@gmail.com'
@@ -52,7 +52,7 @@ RSpec.describe ROM::Factory do
         f.updated_at Time.now
       end
 
-      user = factory[:user_3]
+      user = factories[:user_3]
 
       expect(user.email).not_to be_empty
       expect(user.first_name).not_to be_empty
@@ -60,7 +60,7 @@ RSpec.describe ROM::Factory do
     end
 
     it 'supports callable values' do
-      factory.define(:user_4, relation: :users) do |f|
+      factories.define(:user_4, relation: :users) do |f|
         f.first_name 'Janis'
         f.last_name 'Miezitis'
         f.email 'janjiss@gmail.com'
@@ -68,7 +68,7 @@ RSpec.describe ROM::Factory do
         f.updated_at {Time.now}
       end
 
-      user = factory[:user_4]
+      user = factories[:user_4]
 
       expect(user.email).not_to be_empty
       expect(user.first_name).not_to be_empty
@@ -80,7 +80,7 @@ RSpec.describe ROM::Factory do
 
   context 'changing values' do
     it 'supports overwriting of values' do
-      factory.define(:user_7, relation: :users) do |f|
+      factories.define(:user_7, relation: :users) do |f|
         f.first_name 'Janis'
         f.last_name 'Miezitis'
         f.email 'janjiss@gmail.com'
@@ -88,16 +88,16 @@ RSpec.describe ROM::Factory do
         f.updated_at Time.now
       end
 
-      user = factory[:user_7, email: 'holla@gmail.com']
+      user = factories[:user_7, email: 'holla@gmail.com']
 
       expect(user.email).to eq('holla@gmail.com')
     end
   end
 
   context 'errors' do
-    it 'raises error if factory with the same name is registered' do
+    it 'raises error if factories with the same name is registered' do
       define = -> {
-        factory.define(:user_8, relation: :users) { }
+        factories.define(:user_8, relation: :users) { }
       }
 
       define.()
@@ -108,7 +108,7 @@ RSpec.describe ROM::Factory do
 
   context 'sequence' do
     it 'supports sequencing of values' do
-      factory.define(:user_9, relation: :users) do |f|
+      factories.define(:user_9, relation: :users) do |f|
         f.sequence(:email) { |n| "janjiss#{n}@gmail.com" }
         f.first_name 'Janis'
         f.last_name 'Miezitis'
@@ -116,8 +116,8 @@ RSpec.describe ROM::Factory do
         f.updated_at Time.now
       end
 
-      user1 = factory[:user_9]
-      user2 = factory[:user_9]
+      user1 = factories[:user_9]
+      user2 = factories[:user_9]
 
       expect(user1.email).to eq('janjiss1@gmail.com')
       expect(user2.email).to eq('janjiss2@gmail.com')
@@ -126,15 +126,15 @@ RSpec.describe ROM::Factory do
 
   context 'timestamps' do
     it 'creates timestamps, created_at and updated_at, based on callable property' do
-      factory.define(:user_10, relation: :users) do |f|
+      factories.define(:user_10, relation: :users) do |f|
         f.first_name 'Janis'
         f.last_name 'Miezitis'
         f.email 'janjiss@gmail.com'
         f.timestamps
       end
 
-      user1 = factory[:user_10]
-      user2 = factory[:user_10]
+      user1 = factories[:user_10]
+      user2 = factories[:user_10]
 
       expect(user1.created_at.class).to eq(Time)
       expect(user1.updated_at.class).to eq(Time)
