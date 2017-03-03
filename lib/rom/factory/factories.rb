@@ -33,24 +33,31 @@ module ROM::Factory
         super
       end
 
-      def define(name, **opts, &block)
+      def define(spec, **opts, &block)
+        name, parent = spec.is_a?(Hash) ? spec.flatten(1) : spec
+
         if registry.key?(name)
           raise ArgumentError, "#{name.inspect} factory has been already defined"
         end
 
-        relation_name = opts.fetch(:relation) do
-          infer_relation(name)
-        end
-
-        relation = config.rom.relations[relation_name]
-
-        builder = DSL.new(name, relation: relation, factories: self, &block).call
+        builder =
+          if parent
+            extend_builder(name, registry[parent], &block)
+          else
+            relation_name = opts.fetch(:relation) { infer_relation(name) }
+            relation = config.rom.relations[relation_name]
+            DSL.new(name, relation: relation, factories: self, &block).call
+          end
 
         registry[name] = builder
       end
 
       def infer_relation(name)
         ::Dry::Core::Inflector.pluralize(name).to_sym
+      end
+
+      def extend_builder(name, parent, &block)
+        DSL.new(name, schema: parent.schema, relation: parent.relation, factories: self, &block).call
       end
 
       def [](name, attrs = {})

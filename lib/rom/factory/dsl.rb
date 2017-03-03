@@ -22,11 +22,11 @@ module ROM
     class DSL < BasicObject
       attr_reader :_name, :_relation, :_schema, :_factories
 
-      def initialize(name, relation:, factories:, &block)
+      def initialize(name, schema: {}, relation:, factories:, &block)
         @_name = name
         @_relation = relation
         @_factories = factories
-        @_schema = {}
+        @_schema = schema.dup
         yield(self)
       end
 

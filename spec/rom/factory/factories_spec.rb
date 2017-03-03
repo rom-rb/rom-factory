@@ -170,4 +170,29 @@ RSpec.describe ROM::Factory do
       expect(user2.updated_at).not_to eq(user1.updated_at)
     end
   end
+
+  context 'traits' do
+    it 'sets up a new builder based on another' do
+      factories.define(:jane, relation: :users) do |f|
+        f.first_name 'Jane'
+        f.last_name 'Doe'
+        f.email 'jane@doe.org'
+        f.timestamps
+      end
+
+      factories.define(john: :jane) do |f|
+        f.first_name 'John'
+        f.email 'john@doe.org'
+      end
+
+      jane = factories[:jane]
+      john = factories[:john]
+
+      expect(jane.first_name).to eql('Jane')
+      expect(jane.email).to eql('jane@doe.org')
+
+      expect(john.first_name).to eql('John')
+      expect(john.email).to eql('john@doe.org')
+    end
+  end
 end
