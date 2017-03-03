@@ -13,6 +13,8 @@
 [![Test Coverage](https://codeclimate.com/github/rom-rb/rom-factory/badges/coverage.svg)][codeclimate]
 [![Inline docs](http://inch-ci.org/github/rom-rb/rom-factory.svg?branch=master)][inchpages]
 
+Data generator with support for persistence backends, built on top of [rom-rb](http://rom-rb.org) and [dry-rb](http://dry-rb.org).
+
 ## Installation
 
 Add this line to your application's Gemfile:
