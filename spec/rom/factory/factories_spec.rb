@@ -15,6 +15,12 @@ RSpec.describe ROM::Factory do
         column :created_at, Time, null: false
         column :updated_at, Time, null: false
       end
+
+      conf.default.create_table(:tasks) do
+        primary_key :id
+        foreign_key :user_id, :users
+        column :title, String, null: false
+      end
     end
   end
 
@@ -216,6 +222,27 @@ RSpec.describe ROM::Factory do
       expect(user.email).to_not be(nil)
       expect(user.created_at).to_not be(nil)
       expect(user.created_at).to_not be(nil)
+    end
+  end
+
+  context 'using builders within callable blocks' do
+    it 'exposes "create" method in callable attribute blocks' do
+      factories.define(:user) do |f|
+        f.first_name 'Jane'
+        f.last_name 'Doe'
+        f.email 'jane@doe.org'
+        f.timestamps
+      end
+
+      factories.define(:task) do |f|
+        f.title 'A task'
+        f.user_id { create(:user).id }
+      end
+
+      task = factories[:task]
+
+      expect(task.title).to eql('A task')
+      expect(task.user_id).to_not be(nil)
     end
   end
 end
