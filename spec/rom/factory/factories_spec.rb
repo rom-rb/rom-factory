@@ -1,296 +1,314 @@
 RSpec.describe ROM::Factory do
-  subject(:factories) do
-    ROM::Factory.configure do |config|
-      config.rom = rom
+  with_adapters do
+    subject(:factories) do
+      ROM::Factory.configure do |config|
+        config.rom = rom
+      end
     end
-  end
 
-  let(:rom) do
-    uri = RUBY_ENGINE == 'jruby' ? 'jdbc:sqlite::memory:' : 'sqlite::memory'
+    let(:uri) do |example|
+      meta = example.metadata
+      adapters = ADAPTERS.select { |adapter| meta[adapter] }
 
-    ROM.container(:sql, uri) do |conf|
-      conf.default.create_table(:users) do
-        primary_key :id
-        column :last_name, String, null: false
-        column :first_name, String, null: false
-        column :email, String, null: false
-        column :created_at, Time, null: false
-        column :updated_at, Time, null: false
-        column :age, Integer
+      case adapters.size
+      when 1 then DB_URIS.fetch(adapters.first)
+      when 0 then raise 'No adapter specified'
+      else
+        raise "Ambiguous adapter configuration, got #{adapters.inspect}"
       end
+    end
 
-      conf.default.create_table(:tasks) do
-        primary_key :id
-        foreign_key :user_id, :users
-        column :title, String, null: false
-      end
+    let(:conn) { Sequel.connect(uri) }
 
-      conf.relation(:tasks) do
-        schema(infer: true) do
-          associations do
-            belongs_to :users, as: :user
+    let(:rom) do
+      ROM.container(:sql, conn) do |conf|
+        conf.default.create_table(:users) do
+          primary_key :id
+          column :last_name, String, null: false
+          column :first_name, String, null: false
+          column :email, String, null: false
+          column :created_at, Time, null: false
+          column :updated_at, Time, null: false
+          column :age, Integer
+        end
+
+        conf.default.create_table(:tasks) do
+          primary_key :id
+          foreign_key :user_id, :users
+          column :title, String, null: false
+        end
+
+        conf.relation(:tasks) do
+          schema(infer: true) do
+            associations do
+              belongs_to :users, as: :user
+            end
           end
         end
       end
     end
-  end
 
-  describe '.structs' do
-    it 'returns a plain struct builder' do
-      factories.define(:user) do |f|
-        f.first_name 'Jane'
-        f.last_name 'Doe'
-        f.email 'jane@doe.org'
-        f.timestamps
-      end
-
-      user1 = factories.structs[:user]
-      user2 = factories.structs[:user]
-
-      expect(user1.id).to_not be(nil)
-      expect(user1.first_name).to eql('Jane')
-      expect(user1.last_name).to_not be(nil)
-      expect(user1.email).to_not be(nil)
-      expect(user1.created_at).to_not be(nil)
-      expect(user1.updated_at).to_not be(nil)
-
-      expect(user1.id).to_not eql(user2.id)
-
-      expect(rom.relations[:users].count).to be_zero
-
-      expect(user1.class).to be(user2.class)
-    end
-  end
-
-  describe 'factories builder DSL' do
-    it 'infers relation from the name' do
-      factories.define(:user) do |f|
-        f.first_name 'Janis'
-        f.last_name 'Miezitis'
-        f.email 'janjiss@gmail.com'
-        f.timestamps
-      end
-
-      user = factories[:user]
-
-      expect(user.id).to_not be(nil)
-      expect(user.first_name).to eql('Janis')
+    before do
+      %i(tasks users).each { |t| conn.drop_table?(t) }
     end
 
-    it 'raises an error if arguments are not part of schema' do
-      expect {
-        factories.define(:user, relation: :users) do |f|
-          f.boobly 'Janis'
+    describe '.structs' do
+      it 'returns a plain struct builder' do
+        factories.define(:user) do |f|
+          f.first_name 'Jane'
+          f.last_name 'Doe'
+          f.email 'jane@doe.org'
+          f.timestamps
         end
-      }.to raise_error(NoMethodError)
-    end
-  end
 
-  context 'creation of records' do
-    it 'creates a record based on defined factories' do
-      factories.define(:user, relation: :users) do |f|
-        f.first_name 'Janis'
-        f.last_name 'Miezitis'
-        f.email 'janjiss@gmail.com'
-        f.created_at Time.now
-        f.updated_at Time.now
+        user1 = factories.structs[:user]
+        user2 = factories.structs[:user]
+
+        expect(user1.id).to_not be(nil)
+        expect(user1.first_name).to eql('Jane')
+        expect(user1.last_name).to_not be(nil)
+        expect(user1.email).to_not be(nil)
+        expect(user1.created_at).to_not be(nil)
+        expect(user1.updated_at).to_not be(nil)
+
+        expect(user1.id).to_not eql(user2.id)
+
+        expect(rom.relations[:users].count).to be_zero
+
+        expect(user1.class).to be(user2.class)
       end
-
-      user = factories[:user]
-
-      expect(user.email).not_to be_empty
-      expect(user.first_name).not_to be_empty
-      expect(user.last_name).not_to be_empty
     end
 
-    it 'supports callable values' do
-      factories.define(:user, relation: :users) do |f|
-        f.first_name 'Janis'
-        f.last_name 'Miezitis'
-        f.email 'janjiss@gmail.com'
-        f.created_at {Time.now}
-        f.updated_at {Time.now}
+    describe 'factories builder DSL' do
+      it 'infers relation from the name' do
+        factories.define(:user) do |f|
+          f.first_name 'Janis'
+          f.last_name 'Miezitis'
+          f.email 'janjiss@gmail.com'
+          f.timestamps
+        end
+
+        user = factories[:user]
+
+        expect(user.id).to_not be(nil)
+        expect(user.first_name).to eql('Janis')
       end
 
-      user = factories[:user]
-
-      expect(user.email).not_to be_empty
-      expect(user.first_name).not_to be_empty
-      expect(user.last_name).not_to be_empty
-      expect(user.created_at).not_to be_nil
-      expect(user.updated_at).not_to be_nil
+      it 'raises an error if arguments are not part of schema' do
+        expect {
+          factories.define(:user, relation: :users) do |f|
+            f.boobly 'Janis'
+          end
+        }.to raise_error(NoMethodError)
+      end
     end
-  end
 
-  context 'changing values' do
-    it 'supports overwriting of values' do
-      factories.define(:user, relation: :users) do |f|
-        f.first_name 'Janis'
-        f.last_name 'Miezitis'
-        f.email 'janjiss@gmail.com'
-        f.created_at Time.now
-        f.updated_at Time.now
+    context 'creation of records' do
+      it 'creates a record based on defined factories' do
+        factories.define(:user, relation: :users) do |f|
+          f.first_name 'Janis'
+          f.last_name 'Miezitis'
+          f.email 'janjiss@gmail.com'
+          f.created_at Time.now
+          f.updated_at Time.now
+        end
+
+        user = factories[:user]
+
+        expect(user.email).not_to be_empty
+        expect(user.first_name).not_to be_empty
+        expect(user.last_name).not_to be_empty
       end
 
-      user = factories[:user, email: 'holla@gmail.com']
+      it 'supports callable values' do
+        factories.define(:user, relation: :users) do |f|
+          f.first_name 'Janis'
+          f.last_name 'Miezitis'
+          f.email 'janjiss@gmail.com'
+          f.created_at {Time.now}
+          f.updated_at {Time.now}
+        end
 
-      expect(user.email).to eq('holla@gmail.com')
+        user = factories[:user]
+
+        expect(user.email).not_to be_empty
+        expect(user.first_name).not_to be_empty
+        expect(user.last_name).not_to be_empty
+        expect(user.created_at).not_to be_nil
+        expect(user.updated_at).not_to be_nil
+      end
     end
-  end
 
-  context 'incomplete schema' do
-    it 'builds structs with projected schemas' do
-      factories.define(:user, relation: :users) do |f|
-        f.first_name 'Janis'
-        f.last_name 'Miezitis'
-        f.email 'janjiss@gmail.com'
-        f.timestamps
+    context 'changing values' do
+      it 'supports overwriting of values' do
+        factories.define(:user, relation: :users) do |f|
+          f.first_name 'Janis'
+          f.last_name 'Miezitis'
+          f.email 'janjiss@gmail.com'
+          f.created_at Time.now
+          f.updated_at Time.now
+        end
+
+        user = factories[:user, email: 'holla@gmail.com']
+
+        expect(user.email).to eq('holla@gmail.com')
       end
-
-      user = factories[:user]
-
-      expect(user.id).to_not be(nil)
-      expect(user).not_to respond_to(:age)
     end
-  end
 
-  context 'errors' do
-    it 'raises error if factories with the same name is registered' do
-      define = -> {
-        factories.define(:user, relation: :users) { }
-      }
+    context 'incomplete schema' do
+      it 'builds structs with projected schemas' do
+        factories.define(:user, relation: :users) do |f|
+          f.first_name 'Janis'
+          f.last_name 'Miezitis'
+          f.email 'janjiss@gmail.com'
+          f.timestamps
+        end
 
-      define.()
+        user = factories[:user]
 
-      expect { define.() }.to raise_error(ArgumentError)
+        expect(user.id).to_not be(nil)
+        expect(user).not_to respond_to(:age)
+      end
     end
-  end
 
-  context 'sequence' do
-    it 'supports sequencing of values' do
-      factories.define(:user, relation: :users) do |f|
-        f.sequence(:email) { |n| "janjiss#{n}@gmail.com" }
-        f.first_name 'Janis'
-        f.last_name 'Miezitis'
-        f.created_at Time.now
-        f.updated_at Time.now
+    context 'errors' do
+      it 'raises error if factories with the same name is registered' do
+        define = -> {
+          factories.define(:user, relation: :users) { }
+        }
+
+        define.()
+
+        expect { define.() }.to raise_error(ArgumentError)
       end
-
-      user1 = factories[:user]
-      user2 = factories[:user]
-
-      expect(user1.email).to eq('janjiss1@gmail.com')
-      expect(user2.email).to eq('janjiss2@gmail.com')
     end
-  end
 
-  context 'timestamps' do
-    it 'creates timestamps, created_at and updated_at, based on callable property' do
-      factories.define(:user, relation: :users) do |f|
-        f.first_name 'Janis'
-        f.last_name 'Miezitis'
-        f.email 'janjiss@gmail.com'
-        f.timestamps
+    context 'sequence' do
+      it 'supports sequencing of values' do
+        factories.define(:user, relation: :users) do |f|
+          f.sequence(:email) { |n| "janjiss#{n}@gmail.com" }
+          f.first_name 'Janis'
+          f.last_name 'Miezitis'
+          f.created_at Time.now
+          f.updated_at Time.now
+        end
+
+        user1 = factories[:user]
+        user2 = factories[:user]
+
+        expect(user1.email).to eq('janjiss1@gmail.com')
+        expect(user2.email).to eq('janjiss2@gmail.com')
       end
-
-      user1 = factories[:user]
-      user2 = factories[:user]
-
-      expect(user1.created_at.class).to eq(Time)
-      expect(user1.updated_at.class).to eq(Time)
-
-      expect(user2.created_at).not_to eq(user1.created_at)
-      expect(user2.updated_at).not_to eq(user1.updated_at)
     end
-  end
 
-  context 'traits' do
-    it 'sets up a new builder based on another' do
-      factories.define(:user) do |f|
-        f.timestamps
+    context 'timestamps' do
+      it 'creates timestamps, created_at and updated_at, based on callable property' do
+        factories.define(:user, relation: :users) do |f|
+          f.first_name 'Janis'
+          f.last_name 'Miezitis'
+          f.email 'janjiss@gmail.com'
+          f.timestamps
+        end
+
+        user1 = factories[:user]
+        user2 = factories[:user]
+
+        expect(user1.created_at.class).to eq(Time)
+        expect(user1.updated_at.class).to eq(Time)
+
+        expect(user2.created_at).not_to eq(user1.created_at)
+        expect(user2.updated_at).not_to eq(user1.updated_at)
       end
-
-      factories.define(jane: :user) do |f|
-        f.first_name 'Jane'
-        f.last_name 'Doe'
-        f.email 'jane@doe.org'
-      end
-
-      factories.define(john: :jane) do |f|
-        f.first_name 'John'
-        f.email 'john@doe.org'
-      end
-
-      jane = factories[:jane]
-      john = factories[:john]
-
-      expect(jane.first_name).to eql('Jane')
-      expect(jane.email).to eql('jane@doe.org')
-
-      expect(john.first_name).to eql('John')
-      expect(john.email).to eql('john@doe.org')
     end
-  end
 
-  context 'faker' do
-    it 'exposes faker API in the DSL' do
-      factories.define(:user) do |f|
-        f.first_name { fake(:name, :first_name) }
-        f.last_name { fake(:name, :last_name) }
-        f.email { fake(:internet, :email) }
-        f.timestamps
+    context 'traits' do
+      it 'sets up a new builder based on another' do
+        factories.define(:user) do |f|
+          f.timestamps
+        end
+
+        factories.define(jane: :user) do |f|
+          f.first_name 'Jane'
+          f.last_name 'Doe'
+          f.email 'jane@doe.org'
+        end
+
+        factories.define(john: :jane) do |f|
+          f.first_name 'John'
+          f.email 'john@doe.org'
+        end
+
+        jane = factories[:jane]
+        john = factories[:john]
+
+        expect(jane.first_name).to eql('Jane')
+        expect(jane.email).to eql('jane@doe.org')
+
+        expect(john.first_name).to eql('John')
+        expect(john.email).to eql('john@doe.org')
       end
-
-      user = factories[:user]
-
-      expect(user.id).to_not be(nil)
-      expect(user.first_name).to_not be(nil)
-      expect(user.last_name).to_not be(nil)
-      expect(user.email).to_not be(nil)
-      expect(user.created_at).to_not be(nil)
-      expect(user.created_at).to_not be(nil)
     end
-  end
 
-  context 'using builders within callable blocks' do
-    it 'exposes "create" method in callable attribute blocks' do
-      factories.define(:user) do |f|
-        f.first_name 'Jane'
-        f.last_name 'Doe'
-        f.email 'jane@doe.org'
-        f.timestamps
+    context 'faker' do
+      it 'exposes faker API in the DSL' do
+        factories.define(:user) do |f|
+          f.first_name { fake(:name, :first_name) }
+          f.last_name { fake(:name, :last_name) }
+          f.email { fake(:internet, :email) }
+          f.timestamps
+        end
+
+        user = factories[:user]
+
+        expect(user.id).to_not be(nil)
+        expect(user.first_name).to_not be(nil)
+        expect(user.last_name).to_not be(nil)
+        expect(user.email).to_not be(nil)
+        expect(user.created_at).to_not be(nil)
+        expect(user.created_at).to_not be(nil)
       end
-
-      factories.define(:task) do |f|
-        f.title 'A task'
-        f.user_id { create(:user).id }
-      end
-
-      task = factories[:task]
-
-      expect(task.title).to eql('A task')
-      expect(task.user_id).to_not be(nil)
     end
-  end
 
-  context 'using associations' do
-    it 'exposes "create" method in callable attribute blocks' do
-      factories.define(:user) do |f|
-        f.first_name 'Jane'
-        f.last_name 'Doe'
-        f.email 'jane@doe.org'
-        f.timestamps
+    context 'using builders within callable blocks' do
+      it 'exposes "create" method in callable attribute blocks' do
+        factories.define(:user) do |f|
+          f.first_name 'Jane'
+          f.last_name 'Doe'
+          f.email 'jane@doe.org'
+          f.timestamps
+        end
+
+        factories.define(:task) do |f|
+          f.title 'A task'
+          f.user_id { create(:user).id }
+        end
+
+        task = factories[:task]
+
+        expect(task.title).to eql('A task')
+        expect(task.user_id).to_not be(nil)
       end
+    end
 
-      factories.define(:task) do |f|
-        f.title 'A task'
-        f.association(:user)
+    context 'using associations' do
+      it 'exposes "create" method in callable attribute blocks' do
+        factories.define(:user) do |f|
+          f.first_name 'Jane'
+          f.last_name 'Doe'
+          f.email 'jane@doe.org'
+          f.timestamps
+        end
+
+        factories.define(:task) do |f|
+          f.title 'A task'
+          f.association(:user)
+        end
+
+        task = factories[:task]
+
+        expect(task.title).to eql('A task')
+        expect(task.user_id).to_not be(nil)
       end
-
-      task = factories[:task]
-
-      expect(task.title).to eql('A task')
-      expect(task.user_id).to_not be(nil)
     end
   end
 end
