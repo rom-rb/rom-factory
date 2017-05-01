@@ -2,16 +2,23 @@ language: ruby
 dist: trusty
 sudo: required
 cache: bundler
+services:
+  - postgresql
+  - mysql
 bundler_args: --without tools benchmarks
+before_script:
+  - psql -c 'create database rom_sql;' -U postgres
+  - mysql -u root -e 'create database rom_sql;'
+  - rvm get master
 script: "bundle exec rake spec"
 after_success:
-  - '[ "${TRAVIS_JOB_NUMBER#*.}" = "1" ] && [ "$TRAVIS_BRANCH" = "master" ] && bundle exec codeclimate-test-reporter'
+  - '[ -d coverage ] && bundle exec codeclimate-test-reporter'
 rvm:
-  - 2.4.0
-  - 2.3
-  - 2.2
+  - 2.2.7
+  - 2.3.4
+  - 2.4.1
   - rbx-3
-  - jruby-9.1.6.0
+  - jruby-9.1.8.0
 env:
   global:
     - COVERAGE='true'
