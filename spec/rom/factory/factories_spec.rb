@@ -1,25 +1,29 @@
 RSpec.describe ROM::Factory do
+  subject(:factories) do
+    ROM::Factory.configure do |config|
+      config.rom = rom
+    end
+  end
+
+  let(:uri) do |example|
+    meta = example.metadata
+    adapters = ADAPTERS.select { |adapter| meta[adapter] }
+
+    case adapters.size
+    when 1 then DB_URIS.fetch(adapters.first)
+    when 0 then raise 'No adapter specified'
+    else
+      raise "Ambiguous adapter configuration, got #{adapters.inspect}"
+    end
+  end
+
+  let(:conn) { Sequel.connect(uri) }
+
+  before do
+    %i(tasks users).each { |t| conn.drop_table?(t) }
+  end
+
   with_adapters do
-    subject(:factories) do
-      ROM::Factory.configure do |config|
-        config.rom = rom
-      end
-    end
-
-    let(:uri) do |example|
-      meta = example.metadata
-      adapters = ADAPTERS.select { |adapter| meta[adapter] }
-
-      case adapters.size
-      when 1 then DB_URIS.fetch(adapters.first)
-      when 0 then raise 'No adapter specified'
-      else
-        raise "Ambiguous adapter configuration, got #{adapters.inspect}"
-      end
-    end
-
-    let(:conn) { Sequel.connect(uri) }
-
     let(:rom) do
       ROM.container(:sql, conn) do |conf|
         conf.default.create_table(:users) do
@@ -46,10 +50,6 @@ RSpec.describe ROM::Factory do
           end
         end
       end
-    end
-
-    before do
-      %i(tasks users).each { |t| conn.drop_table?(t) }
     end
 
     describe '.structs' do
@@ -309,6 +309,34 @@ RSpec.describe ROM::Factory do
         expect(task.title).to eql('A task')
         expect(task.user_id).to_not be(nil)
       end
+    end
+  end
+
+  context 'without PK', :postgres do
+    let(:rom) do
+      ROM.container(:sql, conn) do |conf|
+        conf.default.create_table(:users) do
+          column :id, Integer, default: 1
+          column :first_name, String, null: false
+        end
+
+        conf.relation(:users) do
+          schema(infer: true) do
+            attribute :id, ROM::SQL::Types::Serial
+          end
+        end
+      end
+    end
+
+    it "works even if the table doesn't have a PK" do
+      factories.define(:user) do |f|
+        f.first_name 'Jane'
+      end
+
+      user = factories[:user]
+
+      expect(user.id).to be(1)
+      expect(user.first_name).to eql('Jane')
     end
   end
 end
