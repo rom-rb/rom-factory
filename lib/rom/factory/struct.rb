@@ -10,7 +10,7 @@ module ROM::Factory
       fetch_or_store(schema) do
         id = Dry::Core::Inflector.classify(Dry::Core::Inflector.singularize(name))
 
-        Dry::Core::ClassBuilder.new(name: "ROM::Factory::Struct[#{id}]", parent: self).call do |klass|
+        Dry::Core::ClassBuilder.new(name: id, parent: self, namespace: self).call do |klass|
           schema.each do |attr|
             klass.attribute attr.name, attr.type
           end
