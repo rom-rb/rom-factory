@@ -80,6 +80,16 @@ user = Factory[:user]
 user.email #=> "janjiss@gmail.com"
 ```
 
+### Overriding values
+
+You can override individual properties of your factory:
+
+```ruby
+user = Factory[:user, first_name: "Archibald"]
+user.first_name #=> "Archibald"
+user.email #=> "janjiss@gmail.com"
+```
+
 ### Callable properties
 
 You can easily define dynamic (callbale) properties if value needs to change every time it needs to be called.
