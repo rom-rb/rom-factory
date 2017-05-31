@@ -20,6 +20,8 @@ module ROM
     end
 
     class DSL < BasicObject
+      define_method(:rand, ::Kernel.instance_method(:rand))
+
       attr_reader :_name, :_relation, :_schema, :_factories, :_valid_names
 
       def initialize(name, schema: {}, relation:, factories:, &block)

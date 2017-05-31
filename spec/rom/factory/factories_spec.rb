@@ -137,6 +137,19 @@ RSpec.describe ROM::Factory do
         expect(user.created_at).not_to be_nil
         expect(user.updated_at).not_to be_nil
       end
+
+      it 'supports rand inside the DSL' do
+        factories.define(:user) do |f|
+          f.first_name 'Janis'
+          f.last_name 'Miezitis'
+          f.email { "janjiss+#{ rand(300) }@gmail.com" }
+          f.created_at {Time.now}
+          f.updated_at {Time.now}
+        end
+
+        user = factories[:user]
+        expect(user.email).to match /\d{1,3}/
+      end
     end
 
     context 'changing values' do

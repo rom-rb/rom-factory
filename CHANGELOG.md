@@ -1,3 +1,9 @@
+## 0.4.1 to-be-released
+
+### Added
+
+* Support for `rand` inside the generator block (flash-gordon)
+
 ## v0.4.0 2017-03-03
 
 This is a revamp of the original `rom_factory` gem which adds new features and
