@@ -12,7 +12,7 @@ module ROM::Factory
     end
 
     def tuple(attrs)
-      schema.map {|k, v| [k, v.call] }.to_h.merge(attrs)
+      input_schema.(schema.map { |k, v| [k, v.call] }.to_h.merge(attrs))
     end
 
     def create(attrs = {})
@@ -29,6 +29,10 @@ module ROM::Factory
 
     def primary_key
       relation.primary_key
+    end
+
+    def input_schema
+      relation.input_schema
     end
 
     private

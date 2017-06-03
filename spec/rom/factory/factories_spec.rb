@@ -352,4 +352,34 @@ RSpec.describe ROM::Factory do
       expect(user.first_name).to eql('Jane')
     end
   end
+
+  context 'input schema', :postgres do |f|
+    let(:rom) do
+      ROM.container(:sql, conn) do |conf|
+        conf.default.create_table(:users) do
+          column :id, Integer, default: 1
+          column :first_name, String, null: false
+        end
+
+        conf.relation(:users) do
+          schema(infer: true) do
+            attribute :id, ROM::SQL::Types::Serial
+            attribute :first_name, ROM::SQL::Types::String.constructor(&:upcase)
+          end
+        end
+      end
+    end
+
+    it 'uses input schema' do
+      factories.define(:user) do |f|
+        f.first_name 'Jane'
+      end
+
+      user = factories[:user, first_name: 'John']
+
+      expect(user.id).to be(1)
+      expect(user.first_name).to eql('JOHN')
+      expect(rom.relation(:users).one[:first_name]).to eql('JOHN')
+    end
+  end
 end
