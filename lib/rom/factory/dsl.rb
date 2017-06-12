@@ -58,7 +58,7 @@ module ROM
 
       def association(name)
         assoc = _relation.associations[name]
-        other = _relation.__registry__[assoc.target]
+        other = assoc.target
 
         fk = _relation.foreign_key(other)
         pk = other.primary_key

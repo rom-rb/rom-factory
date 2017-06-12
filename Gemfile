@@ -7,8 +7,13 @@ gem 'simplecov', require: false, platform: :mri
 gem 'codeclimate-test-reporter', require: false, platform: :mri
 
 gem 'rspec', '~> 3.0'
-gem 'rom', '~> 3.0'
-gem 'rom-sql', '~> 1.0'
+
+gem 'rom', git: 'https://github.com/rom-rb/rom.git', branch: 'master' do
+  gem 'rom-core'
+  gem 'rom-mapper'
+end
+
+gem 'rom-sql', git: 'https://github.com/rom-rb/rom-sql.git', branch: 'master'
 
 group :test do
   gem 'pry-byebug', platforms: :mri
