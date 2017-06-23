@@ -56,15 +56,9 @@ module ROM::Factory
 
     def create(attrs = {})
       tuple = builder.tuple(attrs)
+      result = relation.command(:create).call(tuple)
 
-      # FIXME: This relies on rom-sql but instead adapter-specific code must be in a plugin/extension
-      if relation.class.adapter == :sql && relation.dataset.supports_returning?(:insert)
-        pk = relation.dataset.returning(primary_key).insert(tuple)[0][primary_key]
-      else
-        pk = relation.insert(tuple)
-      end
-
-      struct(tuple.merge(primary_key => pk))
+      struct(result)
     end
   end
 end

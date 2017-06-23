@@ -232,6 +232,7 @@ RSpec.describe ROM::Factory do
         end
 
         user1 = factories[:user]
+        sleep 1
         user2 = factories[:user]
 
         expect(user1.created_at.class).to eq(Time)
