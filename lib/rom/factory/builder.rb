@@ -1,14 +1,17 @@
 require 'delegate'
-require 'rom/factory/struct'
 
 module ROM::Factory
   class Builder
-    attr_reader :schema, :relation
+    attr_reader :schema, :relation, :model, :default_attrs
 
     def initialize(schema, relation)
       @schema = schema
       @relation = relation
+      @model = relation.with(auto_struct: true).mapper.model
       @sequence = 0
+      @default_attrs = relation.schema.each_with_object({}) { |a, h|
+        h[a.name] = nil
+      }
     end
 
     def tuple(attrs)
@@ -20,7 +23,7 @@ module ROM::Factory
     end
 
     def struct(attrs)
-      Struct.define(relation.name.relation, relation.schema.project(*attrs.keys)).new(attrs)
+      model.new(default_attrs.merge(attrs))
     end
 
     def persistable
