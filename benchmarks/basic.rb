@@ -5,7 +5,7 @@ require 'factory_girl'
 require 'fabrication'
 require 'benchmark/ips'
 
-DATABASE_URL = 'postgres://localhost/rom_factory'.freeze
+DATABASE_URL = 'postgres://localhost/rom_factory_bench'.freeze
 
 rom = ROM.container(:sql, DATABASE_URL) do |conf|
   conf.default.connection.create_table?(:users) do
@@ -13,6 +13,10 @@ rom = ROM.container(:sql, DATABASE_URL) do |conf|
     column :last_name, String, null: false
     column :first_name, String, null: false
     column :admin, TrueClass
+  end
+
+  conf.relation(:users) do
+    schema(infer: true)
   end
 end
 
