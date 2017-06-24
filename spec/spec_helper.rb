@@ -11,15 +11,23 @@ if RUBY_ENGINE == 'ruby' && ENV['COVERAGE'] == 'true'
   end
 end
 
-require 'rom'
-require 'rom-factory'
-require 'rom-sql'
-require 'rspec'
+SPEC_ROOT = root = Pathname(__FILE__).dirname
 
 begin
   require 'pry-byebug'
 rescue LoadError
   require 'pry'
+end
+
+require 'rom-factory'
+require 'rspec'
+
+Dir[root.join('support/*.rb').to_s].each do |f|
+  require f
+end
+
+Dir[root.join('shared/*.rb').to_s].each do |f|
+  require f
 end
 
 if defined? JRUBY_VERSION

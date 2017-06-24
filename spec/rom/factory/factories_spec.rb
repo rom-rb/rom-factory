@@ -1,65 +1,13 @@
 RSpec.describe ROM::Factory do
+  include_context 'database'
+
   subject(:factories) do
     ROM::Factory.configure do |config|
       config.rom = rom
     end
   end
 
-  let(:uri) do |example|
-    meta = example.metadata
-    adapters = ADAPTERS.select { |adapter| meta[adapter] }
-
-    case adapters.size
-    when 1 then DB_URIS.fetch(adapters.first)
-    when 0 then raise 'No adapter specified'
-    else
-      raise "Ambiguous adapter configuration, got #{adapters.inspect}"
-    end
-  end
-
-  let(:conn) { Sequel.connect(uri) }
-
-  before do
-    %i(tasks users).each { |t| conn.drop_table?(t) }
-  end
-
   with_adapters do
-    let(:rom) do
-      ROM.container(:sql, conn) do |conf|
-        conf.default.create_table(:users) do
-          primary_key :id
-          column :last_name, String, null: false
-          column :first_name, String, null: false
-          column :email, String, null: false
-          column :created_at, Time, null: false
-          column :updated_at, Time, null: false
-          column :age, Integer
-        end
-
-        conf.default.create_table(:tasks) do
-          primary_key :id
-          foreign_key :user_id, :users
-          column :title, String, null: false
-        end
-
-        conf.relation(:tasks) do
-          schema(infer: true) do
-            associations do
-              belongs_to :users, as: :user
-            end
-          end
-        end
-
-        conf.relation(:users) do
-          schema(infer: true) do
-            associations do
-              has_many :tasks
-            end
-          end
-        end
-      end
-    end
-
     describe '.structs' do
       it 'returns a plain struct builder' do
         factories.define(:user) do |f|
@@ -150,7 +98,7 @@ RSpec.describe ROM::Factory do
         factories.define(:user) do |f|
           f.first_name 'Janis'
           f.last_name 'Miezitis'
-          f.email { "janjiss+#{ rand(300) }@gmail.com" }
+          f.email { 'janjiss+#{ rand(300) }@gmail.com' }
           f.created_at {Time.now}
           f.updated_at {Time.now}
         end
@@ -292,7 +240,7 @@ RSpec.describe ROM::Factory do
     end
 
     context 'using builders within callable blocks' do
-      it 'exposes "create" method in callable attribute blocks' do
+      it 'exposes create method in callable attribute blocks' do
         factories.define(:user) do |f|
           f.first_name 'Jane'
           f.last_name 'Doe'
@@ -313,7 +261,7 @@ RSpec.describe ROM::Factory do
     end
 
     context 'using associations' do
-      it 'exposes "create" method in callable attribute blocks' do
+      it 'exposes create method in callable attribute blocks' do
         factories.define(:user) do |f|
           f.first_name 'Jane'
           f.last_name 'Doe'
@@ -337,12 +285,12 @@ RSpec.describe ROM::Factory do
   context 'without PK', :postgres do
     let(:rom) do
       ROM.container(:sql, conn) do |conf|
-        conf.default.create_table(:users) do
+        conf.default.create_table(:dummies) do
           column :id, Integer, default: 1
-          column :first_name, String, null: false
+          column :name, String, null: false
         end
 
-        conf.relation(:users) do
+        conf.relation(:dummies) do
           schema(infer: true) do
             attribute :id, ROM::SQL::Types::Serial
           end
@@ -350,45 +298,19 @@ RSpec.describe ROM::Factory do
       end
     end
 
-    it "works even if the table doesn't have a PK" do
-      factories.define(:user) do |f|
-        f.first_name 'Jane'
-      end
-
-      user = factories[:user]
-
-      expect(user.id).to be(1)
-      expect(user.first_name).to eql('Jane')
-    end
-  end
-
-  context 'input schema', :postgres do |f|
-    let(:rom) do
-      ROM.container(:sql, conn) do |conf|
-        conf.default.create_table(:users) do
-          column :id, Integer, default: 1
-          column :first_name, String, null: false
-        end
-
-        conf.relation(:users) do
-          schema(infer: true) do
-            attribute :id, ROM::SQL::Types::Serial
-            attribute :first_name, ROM::SQL::Types::String.constructor(&:upcase)
-          end
-        end
-      end
+    before do
+      conn.drop_table?(:dummies)
     end
 
-    it 'uses input schema' do
-      factories.define(:user) do |f|
-        f.first_name 'Jane'
+    it 'works even if the table does not have a PK' do
+      factories.define(:dummy) do |f|
+        f.name 'Jane'
       end
 
-      user = factories[:user, first_name: 'John']
+      result = factories[:dummy]
 
-      expect(user.id).to be(1)
-      expect(user.first_name).to eql('JOHN')
-      expect(rom.relation(:users).one[:first_name]).to eql('JOHN')
+      expect(result.id).to be(1)
+      expect(result.name).to eql('Jane')
     end
   end
 end
