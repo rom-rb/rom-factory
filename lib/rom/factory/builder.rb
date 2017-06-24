@@ -16,11 +16,11 @@ module ROM::Factory
     end
 
     def create(attrs = {})
-      struct(struct_attrs.merge(attrs))
+      struct(attrs)
     end
 
     def struct(attrs)
-      model.new(tuple(attrs))
+      model.new(struct_attrs.merge(attrs))
     end
 
     def persistable
