@@ -2,20 +2,17 @@ require 'delegate'
 
 module ROM::Factory
   class Builder
-    attr_reader :schema, :relation, :model, :default_attrs
+    attr_reader :schema, :relation, :model
 
     def initialize(schema, relation)
       @schema = schema
-      @relation = relation
-      @model = relation.with(auto_struct: true).mapper.model
+      @relation = relation.with(auto_map: true, auto_struct: true)
+      @model = @relation.mapper.model
       @sequence = 0
-      @default_attrs = relation.schema.each_with_object({}) { |a, h|
-        h[a.name] = nil
-      }
     end
 
     def tuple(attrs)
-      input_schema.(schema.map { |k, v| [k, v.call] }.to_h.merge(attrs))
+      default_attrs.merge(attrs)
     end
 
     def create(attrs = {})
@@ -23,7 +20,7 @@ module ROM::Factory
     end
 
     def struct(attrs)
-      model.new(default_attrs.merge(attrs))
+      model.new(tuple(attrs))
     end
 
     def persistable
@@ -34,14 +31,14 @@ module ROM::Factory
       relation.primary_key
     end
 
-    def input_schema
-      relation.input_schema
-    end
-
     private
 
     def next_id
       @sequence += 1
+    end
+
+    def default_attrs
+      schema.map { |name, attr| [name, attr.()] }.to_h
     end
   end
 
@@ -55,10 +52,7 @@ module ROM::Factory
     end
 
     def create(attrs = {})
-      tuple = builder.tuple(attrs)
-      result = relation.command(:create).call(tuple)
-
-      struct(result)
+      relation.command(:create).call(tuple(attrs))
     end
   end
 end
