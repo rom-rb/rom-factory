@@ -16,7 +16,7 @@ module ROM::Factory
     end
 
     def create(attrs = {})
-      struct(tuple(attrs.merge(primary_key => next_id)))
+      struct(struct_attrs.merge(attrs))
     end
 
     def struct(attrs)
@@ -39,6 +39,15 @@ module ROM::Factory
 
     def default_attrs
       schema.map { |name, attr| [name, attr.()] }.to_h
+    end
+
+    def struct_attrs
+      relation.schema.
+        reject(&:primary_key?).
+        map { |attr| [attr.name, nil] }.
+        to_h.
+        merge(default_attrs).
+        merge(primary_key => next_id)
     end
   end
 
