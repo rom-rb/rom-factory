@@ -18,9 +18,9 @@ end
 gem 'rom-sql', git: 'https://github.com/rom-rb/rom-sql.git', branch: 'master'
 
 group :test do
+  gem 'inflecto'
   gem 'pry-byebug', platforms: :mri
   gem 'pry', platforms: %i(jruby rbx)
-  gem 'activesupport', '~> 5.0'
   gem 'codeclimate-test-reporter', require: false
   gem 'simplecov', require: false
 
