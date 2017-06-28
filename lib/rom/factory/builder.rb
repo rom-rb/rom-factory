@@ -12,7 +12,11 @@ module ROM::Factory
     end
 
     def tuple(attrs)
-      input_schema.(schema.map { |k, v| [k, v.call] }.to_h.merge(attrs))
+      input_attrs = schema.each_with_object(attrs) { |(k, v), memo|
+        memo[k] = v.call unless memo.key?(k)
+      }
+
+      input_schema.(input_attrs)
     end
 
     def create(attrs = {})
