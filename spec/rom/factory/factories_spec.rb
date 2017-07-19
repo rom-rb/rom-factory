@@ -261,7 +261,7 @@ RSpec.describe ROM::Factory do
     end
 
     context 'using associations' do
-      it 'exposes create method in callable attribute blocks' do
+      before do
         factories.define(:user) do |f|
           f.first_name 'Jane'
           f.last_name 'Doe'
@@ -274,10 +274,23 @@ RSpec.describe ROM::Factory do
           f.association(:user)
         end
 
+      end
+
+      it 'exposes create method in callable attribute blocks' do
         task = factories[:task]
 
         expect(task.title).to eql('A task')
         expect(task.user_id).to_not be(nil)
+      end
+
+      it 'allows overrides' do
+        user = factories[:user, name: "Joe"]
+        task = factories[:task, user: user]
+
+        expect(task.title).to eql('A task')
+        expect(task.user_id).to_not be(user.id)
+
+        expect(rom.relations[:users].count).to be(1)
       end
     end
   end
