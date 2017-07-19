@@ -8,14 +8,8 @@ gem 'codeclimate-test-reporter', require: false, platform: :mri
 
 gem 'rspec', '~> 3.0'
 
-gem 'dry-types', git: 'https://github.com/dry-rb/dry-types', branch: 'master'
-
-gem 'rom', git: 'https://github.com/rom-rb/rom.git', branch: 'master' do
-  gem 'rom-core'
-  gem 'rom-mapper'
-end
-
-gem 'rom-sql', git: 'https://github.com/rom-rb/rom-sql.git', branch: 'master'
+gem 'rom', '~> 4.0.0.beta'
+gem 'rom-sql', '~> 2.0.0.beta'
 
 group :test do
   gem 'inflecto'
