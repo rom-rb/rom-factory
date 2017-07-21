@@ -1,7 +1,7 @@
 require "bundler/gem_tasks"
 require "rspec/core/rake_task"
 
-task :specs do
+task :spec do
   require 'rspec/core'
   DB_URIS = [
     'sqlite::memory',
@@ -16,4 +16,4 @@ task :specs do
 
 end
 
-task :default => :specs
+task :default => :spec
