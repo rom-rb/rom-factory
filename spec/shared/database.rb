@@ -1,28 +1,16 @@
 require 'rom'
 
 RSpec.shared_context 'database' do
-  let(:uri) do |example|
-    meta = example.metadata
-    adapters = ADAPTERS.select { |adapter| meta[adapter] }
-
-    case adapters.size
-    when 1 then DB_URIS.fetch(adapters.first)
-    when 0 then raise 'No adapter specified'
-    else
-      raise "Ambiguous adapter configuration, got #{adapters.inspect}"
-    end
-  end
-
   let(:conf) do
-    ROM::Configuration.new(:sql, uri)
+    Test::CONF
   end
 
   let(:rom) do
-    ROM.container(conf)
+    Test::ROM
   end
 
   let(:conn) do
-    conf.gateways[:default].connection
+    Test::CONN
   end
 
   before do
@@ -42,22 +30,6 @@ RSpec.shared_context 'database' do
       primary_key :id
       foreign_key :user_id, :users
       column :title, String, null: false
-    end
-
-    conf.relation(:tasks) do
-      schema(infer: true) do
-        associations do
-          belongs_to :user
-        end
-      end
-    end
-
-    conf.relation(:users) do
-      schema(infer: true) do
-        associations do
-          has_many :tasks
-        end
-      end
     end
   end
 end

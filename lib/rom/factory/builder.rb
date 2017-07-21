@@ -12,7 +12,9 @@ module ROM::Factory
     end
 
     def tuple(attrs)
-      default_attrs(skip_key_names(attrs.keys)).merge(attrs)
+      default_attrs(skip_key_names(attrs.keys)).
+        merge(associations_args(attrs)).
+        merge(attrs)
     end
 
     def create(attrs = {})
@@ -39,6 +41,15 @@ module ROM::Factory
 
     def default_attrs(skip = [])
       schema.map { |name, attr| [name, attr.()] unless skip.include?(name) }.compact.to_h
+    end
+
+    def associations_args(attrs)
+      attrs.each_with_object({}) do |(key, value), hash|
+        if associations.key?(key)
+          hash[associations[key].foreign_key] = value.send(associations[key].target_attr.name)
+        end
+        hash
+      end
     end
 
     def struct_attrs
