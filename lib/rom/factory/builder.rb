@@ -46,7 +46,10 @@ module ROM::Factory
     def associations_args(attrs)
       attrs.each_with_object({}) do |(key, value), hash|
         if associations.key?(key)
-          hash[associations[key].foreign_key] = value.send(associations[key].target_attr.name)
+          assoc = associations[key]
+          fk = assoc.foreign_key
+          pk = assoc.target.primary_key
+          hash[fk] = value.send(pk)
         end
         hash
       end
