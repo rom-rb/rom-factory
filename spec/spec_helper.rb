@@ -44,17 +44,11 @@ module SileneceWarnings
   end
 end
 
-def adapter
-  ENV['ADAPTER'] || 'sqlite'
-end
-
-def database_url
-  ENV['DATABASE_URL'] || 'sqlite::memory'
-end
-
-def with_adapters(*args, &block)
-  context("with #{adapter}", &block)
-end
+database_url = if defined? JRUBY_VERSION
+                 'jdbc:postgresql://localhost/rom_factory'
+               else
+                 'postgres://localhost/rom_factory'
+               end
 
 Test.setup(database_url)
 
@@ -68,10 +62,5 @@ RSpec.configure do |config|
     Test::CONN.transaction do
       example.run
     end
-  end
-
-  config.after(:suite) do
-    ENV.delete('DATABASE_URL')
-    ENV.delete('ADAPTER')
   end
 end
