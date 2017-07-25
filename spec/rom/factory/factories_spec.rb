@@ -238,6 +238,53 @@ RSpec.describe ROM::Factory do
     end
   end
 
+  context 'custom non integer sequence primary_key' do
+    let(:rom) do
+      ROM.container(:sql, conn) do |conf|
+        conf.default.create_table(:custom_primary_keys) do
+          column :custom_id, String
+          column :name, String
+        end
+
+        conf.relation(:custom_primary_keys) do
+          schema(infer: true) do
+            attribute :custom_id, ROM::SQL::Types::String.meta(primary_key: true)
+          end
+        end
+      end
+    end
+
+    before do
+      conn.drop_table?(:custom_primary_keys)
+    end
+
+    it 'doesnt asume primary_key is an integer sequence' do
+      factories.define(:custom_primary_key) do |f|
+        f.custom_id { fake(:pokemon, :name) }
+        f.name { fake(:name, :name) }
+      end
+
+      result = factories[:custom_primary_key]
+
+      expect(result.custom_id).not_to be(nil)
+      expect(result.custom_id).not_to be_a(Integer)
+      expect(result.custom_id).to be_a(String)
+    end
+
+    it 'doesnt asume primary_key is an integer sequence for a struct' do
+      factories.define(:custom_primary_key) do |f|
+        f.custom_id { fake(:pokemon, :name) }
+        f.name { fake(:name, :name) }
+      end
+
+      result = factories.structs[:custom_primary_key]
+
+      expect(result.custom_id).not_to be(nil)
+      expect(result.custom_id).not_to be_a(Integer)
+      expect(result.custom_id).to be_a(String)
+    end
+  end
+
   context 'using builders within callable blocks' do
     it 'exposes create method in callable attribute blocks' do
       factories.define(:user) do |f|
