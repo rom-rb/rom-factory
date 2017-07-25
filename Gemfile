@@ -7,13 +7,14 @@ gem 'simplecov', require: false, platform: :mri
 gem 'codeclimate-test-reporter', require: false, platform: :mri
 
 gem 'rspec', '~> 3.0'
-gem 'rom', '~> 3.0'
-gem 'rom-sql', '~> 1.0'
+
+gem 'rom', '~> 4.0.0.beta'
+gem 'rom-sql', '~> 2.0.0.beta'
 
 group :test do
+  gem 'inflecto'
   gem 'pry-byebug', platforms: :mri
   gem 'pry', platforms: %i(jruby rbx)
-  gem 'activesupport', '~> 5.0'
   gem 'codeclimate-test-reporter', require: false
   gem 'simplecov', require: false
 

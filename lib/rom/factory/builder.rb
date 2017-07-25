@@ -1,26 +1,28 @@
 require 'delegate'
-require 'rom/factory/struct'
 
 module ROM::Factory
   class Builder
-    attr_reader :schema, :relation
+    attr_reader :schema, :relation, :model
 
     def initialize(schema, relation)
       @schema = schema
-      @relation = relation
+      @relation = relation.with(auto_map: true, auto_struct: true)
+      @model = @relation.mapper.model
       @sequence = 0
     end
 
     def tuple(attrs)
-      input_schema.(schema.map { |k, v| [k, v.call] }.to_h.merge(attrs))
+      default_attrs(skip_key_names(attrs.keys)).
+        merge(associations_args(attrs)).
+        merge(attrs)
     end
 
     def create(attrs = {})
-      struct(tuple(attrs.merge(primary_key => next_id)))
+      struct(attrs)
     end
 
     def struct(attrs)
-      Struct.define(relation.name.relation, relation.schema.project(*attrs.keys)).new(attrs)
+      model.new(struct_attrs.merge(tuple(attrs)))
     end
 
     def persistable
@@ -31,14 +33,41 @@ module ROM::Factory
       relation.primary_key
     end
 
-    def input_schema
-      relation.input_schema
-    end
-
     private
 
     def next_id
       @sequence += 1
+    end
+
+    def default_attrs(skip = [])
+      schema.map { |name, attr| [name, attr.()] unless skip.include?(name) }.compact.to_h
+    end
+
+    def associations_args(attrs)
+      attrs.each_with_object({}) do |(key, value), hash|
+        if associations.key?(key)
+          assoc = associations[key]
+          fk = assoc.foreign_key
+          pk = assoc.target.primary_key
+          hash[fk] = value.send(pk)
+        end
+      end
+    end
+
+    def struct_attrs
+      relation.schema.
+        reject(&:primary_key?).
+        map { |attr| [attr.name, nil] }.
+        to_h.
+        merge(primary_key => next_id)
+    end
+
+    def skip_key_names(keys)
+      keys.map { |name| associations.key?(name) ? associations[name].foreign_key : name }
+    end
+
+    def associations
+      relation.associations
     end
   end
 
@@ -52,16 +81,7 @@ module ROM::Factory
     end
 
     def create(attrs = {})
-      tuple = builder.tuple(attrs)
-
-      # FIXME: This relies on rom-sql but instead adapter-specific code must be in a plugin/extension
-      if relation.class.adapter == :sql && relation.dataset.supports_returning?(:insert)
-        pk = relation.dataset.returning(primary_key).insert(tuple)[0][primary_key]
-      else
-        pk = relation.insert(tuple)
-      end
-
-      struct(tuple.merge(primary_key => pk))
+      relation.command(:create).call(tuple(attrs))
     end
   end
 end

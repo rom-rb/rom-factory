@@ -58,9 +58,9 @@ module ROM
 
       def association(name)
         assoc = _relation.associations[name]
-        other = _relation.__registry__[assoc.target]
+        other = assoc.target
 
-        fk = _relation.foreign_key(other)
+        fk = assoc.foreign_key
         pk = other.primary_key
 
         block = -> { create(name)[pk] }
@@ -76,6 +76,10 @@ module ROM
         else
           super
         end
+      end
+
+      def respond_to_missing?(method_name, include_private = false)
+        _valid_names.include?(meth) || super
       end
 
       def define_sequence(name, block)
