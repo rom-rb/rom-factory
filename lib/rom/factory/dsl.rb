@@ -60,7 +60,7 @@ module ROM
         assoc = _relation.associations[name]
         other = assoc.target
 
-        fk = _relation.foreign_key(other.name)
+        fk = assoc.foreign_key
         pk = other.primary_key
 
         block = -> { create(name)[pk] }
