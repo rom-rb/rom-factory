@@ -97,7 +97,7 @@ RSpec.describe ROM::Factory do
       factories.define(:user) do |f|
         f.first_name 'Janis'
         f.last_name 'Miezitis'
-        f.email { 'janjiss+#{ rand(300) }@gmail.com' }
+        f.email { "janjiss+#{ rand(300) }@gmail.com" }
         f.created_at {Time.now}
         f.updated_at {Time.now}
       end
