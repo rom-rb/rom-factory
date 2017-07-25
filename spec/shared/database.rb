@@ -1,20 +1,8 @@
 require 'rom'
 
 RSpec.shared_context 'database' do
-  let(:uri) do |example|
-    meta = example.metadata
-    adapters = ADAPTERS.select { |adapter| meta[adapter] }
-
-    case adapters.size
-    when 1 then DB_URIS.fetch(adapters.first)
-    when 0 then raise 'No adapter specified'
-    else
-      raise "Ambiguous adapter configuration, got #{adapters.inspect}"
-    end
-  end
-
   let(:conf) do
-    ROM::Configuration.new(:sql, uri)
+    ROM::Configuration.new(:sql, DB_URI)
   end
 
   let(:rom) do

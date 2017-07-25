@@ -12,7 +12,9 @@ module ROM::Factory
     end
 
     def tuple(attrs)
-      default_attrs(skip_key_names(attrs.keys)).merge(attrs)
+      default_attrs(skip_key_names(attrs.keys)).
+        merge(associations_args(attrs)).
+        merge(attrs)
     end
 
     def create(attrs = {})
@@ -20,7 +22,7 @@ module ROM::Factory
     end
 
     def struct(attrs)
-      model.new(struct_attrs.merge(attrs))
+      model.new(struct_attrs.merge(tuple(attrs)))
     end
 
     def persistable
@@ -41,12 +43,22 @@ module ROM::Factory
       schema.map { |name, attr| [name, attr.()] unless skip.include?(name) }.compact.to_h
     end
 
+    def associations_args(attrs)
+      attrs.each_with_object({}) do |(key, value), hash|
+        if associations.key?(key)
+          assoc = associations[key]
+          fk = assoc.foreign_key
+          pk = assoc.target.primary_key
+          hash[fk] = value.send(pk)
+        end
+      end
+    end
+
     def struct_attrs
       relation.schema.
         reject(&:primary_key?).
         map { |attr| [attr.name, nil] }.
         to_h.
-        merge(default_attrs).
         merge(primary_key => next_id)
     end
 

@@ -30,30 +30,11 @@ Dir[root.join('shared/*.rb').to_s].each do |f|
   require f
 end
 
-if defined? JRUBY_VERSION
-  DB_URIS = {
-    sqlite: 'jdbc:sqlite:::memory',
-    postgres: 'jdbc:postgresql://localhost/rom_factory',
-    mysql: 'jdbc:mysql://localhost/rom_factory?user=root&sql_mode=STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION'
-  }
-else
-  DB_URIS = {
-    sqlite: 'sqlite::memory',
-    postgres: 'postgres://localhost/rom_factory',
-    mysql: 'mysql2://root@localhost/rom_factory?sql_mode=STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION'
-  }
-end
-
-ADAPTERS = DB_URIS.keys
-
-def with_adapters(*args, &block)
-  reset_adapter = Hash[*ADAPTERS.flat_map { |a| [a, false] }]
-  adapters = args.empty? || args[0] == :all ? ADAPTERS : args
-
-  adapters.each do |adapter|
-    context("with #{adapter}", **reset_adapter, adapter => true, &block)
-  end
-end
+DB_URI = if defined? JRUBY_VERSION
+           'jdbc:postgresql://localhost/rom_factory'
+         else
+           'postgres://localhost/rom_factory'
+         end
 
 warning_api_available = RUBY_VERSION >= '2.4.0'
 
