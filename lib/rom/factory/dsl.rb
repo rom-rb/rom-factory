@@ -78,6 +78,10 @@ module ROM
         end
       end
 
+      def respond_to_missing?(method_name, include_private = false)
+        _valid_names.include?(meth) || super
+      end
+
       def define_sequence(name, block)
         _schema[name] = attributes::Callable.new(self, attributes::Sequence.new(&block))
       end
