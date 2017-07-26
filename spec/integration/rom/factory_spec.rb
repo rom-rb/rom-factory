@@ -7,6 +7,20 @@ RSpec.describe ROM::Factory do
     end
   end
 
+  describe 'factory is not defined' do
+    it 'raises error for persistable' do
+      expect {
+        factories[:not_defined]
+      }.to raise_error(ROM::Factory::NotDefinedFactory)
+    end
+
+    it 'raises error for structs' do
+      expect {
+        factories.structs[:not_defined]
+      }.to raise_error(ROM::Factory::NotDefinedFactory)
+    end
+  end
+
   describe '.structs' do
     it 'returns a plain struct builder' do
       factories.define(:user) do |f|

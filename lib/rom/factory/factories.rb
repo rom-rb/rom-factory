@@ -2,6 +2,8 @@ require 'dry/configurable'
 require 'dry/core/inflector'
 
 require 'rom/factory/dsl'
+require 'rom/factory/constants'
+require 'rom/factory/registry'
 
 module ROM::Factory
   class Structs
@@ -27,7 +29,7 @@ module ROM::Factory
       attr_reader :structs
 
       def inherited(klass)
-        registry = {}
+        registry = Registry.new
         klass.instance_variable_set(:'@registry', registry)
         klass.instance_variable_set(:'@structs', Structs.new(registry))
         super
