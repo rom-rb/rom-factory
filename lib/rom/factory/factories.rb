@@ -4,6 +4,7 @@ require 'dry/core/inflector'
 require 'rom/initializer'
 require 'rom/struct'
 require 'rom/factory/dsl'
+require 'rom/factory/registry'
 
 module ROM::Factory
   # In-memory builder API
@@ -62,7 +63,7 @@ module ROM::Factory
 
     # @!attribute [r] registry
     #   @return [Hash<Symbol=>Builder>] a map with defined db-backed builders
-    option :registry, default: proc { Hash.new }
+    option :registry, default: proc { Registry.new }
 
     # Define a new builder
     #
@@ -195,7 +196,7 @@ module ROM::Factory
 
     # @api private
     def for_relation(relation)
-      registry.fetch(infer_factory_name(relation.name.to_sym))
+      registry[infer_factory_name(relation.name.to_sym)]
     end
 
     # @api private
