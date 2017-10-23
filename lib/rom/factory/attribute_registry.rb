@@ -31,6 +31,14 @@ module ROM
         self.class.new(elements.dup)
       end
 
+      def values
+        self.class.new(elements.select(&:value?))
+      end
+
+      def associations
+        self.class.new(elements.select { |e| e.kind_of?(Attributes::Association::Core) })
+      end
+
       private
 
       def tsort_each_node(&block)

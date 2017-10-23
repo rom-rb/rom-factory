@@ -52,6 +52,14 @@ module ROM::Factory
         registry[name] = builder
       end
 
+      def for_relation(relation)
+        registry.fetch(infer_factory_name(relation.name.to_sym))
+      end
+
+      def infer_factory_name(name)
+        ::Dry::Core::Inflector.singularize(name).to_sym
+      end
+
       def infer_relation(name)
         ::Dry::Core::Inflector.pluralize(name).to_sym
       end

@@ -6,13 +6,13 @@ module ROM::Factory
 
     def initialize(attributes, relation)
       @attributes = attributes
-      @relation = relation.with(auto_map: true, auto_struct: true)
+      @relation = relation.with(auto_struct: true)
       @model = @relation.combine(*assoc_names).mapper.model
       @sequence = 0
     end
 
     def assoc_names
-      attributes.select { |attr| attr.is_a?(Attributes::Association::Core) }.map(&:name)
+      attributes.associations.map(&:name)
     end
 
     def tuple(attrs)
@@ -42,7 +42,7 @@ module ROM::Factory
     end
 
     def default_attrs(attrs)
-      attributes.tsort.each_with_object({}) do |attr, h|
+      defaults = attributes.values.tsort.each_with_object({}) do |attr, h|
         deps = attr.dependency_names.map { |k| h[k] }.compact
         result = attr.(attrs, *deps)
 
@@ -50,6 +50,16 @@ module ROM::Factory
           h.update(result)
         end
       end
+
+      attributes.associations.each_with_object(defaults) do |assoc, h|
+        if assoc.dependency?(relation)
+          h[assoc.name] = -> struct { assoc.call(attrs, struct) }
+        else
+          h.update(assoc.(attrs))
+        end
+      end
+
+      defaults
     end
 
     def struct_attrs
@@ -71,7 +81,22 @@ module ROM::Factory
     end
 
     def create(attrs = {})
-      relation.command(:create).call(tuple(attrs))
+      tuple_attrs = tuple(attrs)
+      persisted = relation.with(auto_struct: false).command(:create).call(tuple_attrs)
+
+      tuple_attrs.each do |name, attr|
+        if attr.is_a?(Proc)
+          attr.(persisted)
+        end
+      end
+
+      pk = persisted[relation.primary_key]
+
+      if assoc_names.any?
+        relation.by_pk(pk).combine(*assoc_names).one
+      else
+        relation.by_pk(pk).one
+      end
     end
   end
 end

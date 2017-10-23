@@ -22,6 +22,10 @@ module ROM::Factory
         { name => result }
       end
 
+      def value?
+        true
+      end
+
       def dependency?(other)
         dependency_names.include?(other.name)
       end

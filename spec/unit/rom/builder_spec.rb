@@ -1,7 +1,9 @@
 require 'rom/factory/builder'
 
 RSpec.describe ROM::Factory::Builder do
-  subject(:builder) { ROM::Factory::Builder.new(ROM::Factory::AttributeRegistry.new(attributes), relation) }
+  subject(:builder) do
+    ROM::Factory::Builder.new(ROM::Factory::AttributeRegistry.new(attributes), relation).persistable
+  end
 
   include_context 'database'
 
@@ -46,7 +48,7 @@ RSpec.describe ROM::Factory::Builder do
   describe 'belongs_to association' do
     let(:attributes) do
       [attribute(:Regular, :title, 'To-do'),
-       attribute(:Association, tasks.associations[:user], factories.registry[:user])]
+       attribute(:Association, tasks.associations[:user], -> { factories.registry[:user] })]
     end
 
     let(:tasks) { relations[:tasks] }
@@ -93,6 +95,72 @@ RSpec.describe ROM::Factory::Builder do
 
         expect(task.title).to eql('To-do')
         expect(task.user.name).to eql('Jane')
+      end
+    end
+  end
+
+  describe 'has_many association' do
+    let(:attributes) do
+      [attribute(:Regular, :name, 'Jane'),
+       attribute(:Association, users.associations[:tasks], -> { factories.registry[:task] }, count: 2)]
+    end
+
+    let(:tasks) { relations[:tasks] }
+    let(:users) { relations[:users] }
+    let(:relation) { users }
+
+    before do
+      conn.create_table(:users) do
+        primary_key :id
+        column :name, String
+      end
+
+      conn.create_table(:tasks) do
+        primary_key :id
+        foreign_key :user_id, :users, null: false
+        column :title, String, null: false
+      end
+
+      conf.relation(:tasks) do
+        schema(infer: true) do
+          associations do
+            belongs_to :user
+          end
+        end
+      end
+
+      conf.relation(:users) do
+        schema(infer: true) do
+          associations do
+            has_many :tasks
+          end
+        end
+      end
+
+      factories.define(:task) do |f|
+        f.sequence(:title) { |n| "Task #{n}" }
+      end
+    end
+
+    after do
+      conn.drop_table(:tasks)
+      conn.drop_table(:users)
+    end
+
+    describe '#create' do
+      it 'builds associated structs' do
+        user = builder.create
+
+        expect(user.name).to eql('Jane')
+        expect(user.tasks.size).to be(2)
+
+        t1, t2 = user.tasks
+
+        expect(t1.title).to eql('Task 1')
+        expect(t1.user_id).to be(user.id)
+
+        expect(t2.title).to eql('Task 2')
+        expect(t2.user_id).to be(user.id)
       end
     end
   end
