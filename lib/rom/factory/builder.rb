@@ -12,7 +12,7 @@ module ROM::Factory
     end
 
     def assoc_names
-      schema.keys.select { |key| schema[key].is_a?(Attributes::Association) }
+      schema.keys.select { |key| schema[key].is_a?(Attributes::Association::Core) }
     end
 
     def tuple(attrs)
