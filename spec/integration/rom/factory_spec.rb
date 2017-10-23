@@ -307,49 +307,82 @@ RSpec.describe ROM::Factory do
   end
 
   context 'using associations' do
-    before do
-      factories.define(:user) do |f|
-        f.first_name 'Jane'
-        f.last_name 'Doe'
-        f.email 'jane@doe.org'
-        f.timestamps
+    context 'has_many' do
+      before do
+        factories.define(:user) do |f|
+          f.first_name 'Jane'
+          f.last_name 'Doe'
+          f.email 'jane@doe.org'
+          f.timestamps
+          f.association(:tasks, count: 2)
+        end
+
+        factories.define(:task) do |f|
+          f.sequence(:title) { |n| "Task #{n}" }
+        end
       end
 
-      factories.define(:task) do |f|
-        f.title 'A task'
-        f.association(:user)
+      it 'creates associated records' do
+        user = factories[:user]
+
+        expect(user.tasks.count).to be(2)
+
+        t1, t2 = user.tasks
+
+        expect(t1.user_id).to be(user.id)
+        expect(t1.title).to eql('Task 1')
+
+        expect(t2.user_id).to be(user.id)
+        expect(t2.title).to eql('Task 2')
       end
     end
 
-    it 'exposes create method in callable attribute blocks' do
-      task = factories[:task]
+    context 'belongs_to' do
+      before do
+        factories.define(:user) do |f|
+          f.first_name 'Jane'
+          f.last_name 'Doe'
+          f.email 'jane@doe.org'
+          f.timestamps
+        end
 
-      expect(task.title).to eql('A task')
-      expect(task.user_id).to_not be(nil)
-    end
+        factories.define(:task) do |f|
+          f.title 'A task'
+          f.association(:user)
+        end
+      end
 
-    it 'allows overrides' do
-      user = factories[:user, name: "Joe"]
-      task = factories[:task, user: user]
+      it 'exposes create method in callable attribute blocks' do
+        task = factories[:task]
 
-      expect(task.title).to eql('A task')
-      expect(task.user_id).to be(user.id)
+        expect(task.title).to eql('A task')
+        expect(task.user_id).to_not be(nil)
+      end
 
-      expect(rom.relations[:users].count).to be(1)
-      expect(rom.relations[:tasks].count).to be(1)
-    end
+      it 'allows overrides' do
+        user = factories[:user, name: "Joe"]
+        task = factories[:task, user: user]
 
-    it 'works with structs' do
-      user = factories.structs[:user, name: "Joe"]
-      task = factories.structs[:task, user: user]
+        expect(task.title).to eql('A task')
+        expect(task.user_id).to be(user.id)
 
-      expect(task.title).to eql('A task')
-      expect(task.user_id).to be(user.id)
+        expect(rom.relations[:users].count).to be(1)
+        expect(rom.relations[:tasks].count).to be(1)
+      end
 
-      expect(rom.relations[:users].count).to be(0)
-      expect(rom.relations[:tasks].count).to be(0)
+      it 'works with structs' do
+        user = factories.structs[:user, name: "Joe"]
+        task = factories.structs[:task, user: user]
+
+        expect(task.title).to eql('A task')
+        expect(task.user_id).to be(user.id)
+
+        expect(rom.relations[:users].count).to be(0)
+        expect(rom.relations[:tasks].count).to be(0)
+      end
     end
   end
+
   context 'without PK' do
     let(:rom) do
       ROM.container(:sql, conn) do |conf|

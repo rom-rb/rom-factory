@@ -58,11 +58,11 @@ module ROM
         ::ROM::Factory.fake(*args)
       end
 
-      def association(name)
+      def association(name, options = {})
         assoc = _relation.associations[name]
-        builder = _factories.registry[name]
+        builder = -> { _factories.for_relation(assoc.target) }
 
-        _attributes << attributes::Association.new(assoc, builder)
+        _attributes << attributes::Association.new(assoc, builder, options)
       end
 
       private

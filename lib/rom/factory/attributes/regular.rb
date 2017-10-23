@@ -14,6 +14,10 @@ module ROM::Factory
         { name => value }
       end
 
+      def value?
+        true
+      end
+
       def dependency?(*)
         false
       end
