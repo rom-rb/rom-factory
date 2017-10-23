@@ -48,9 +48,16 @@ module SileneceWarnings
   end
 end
 
+module Helpers
+  def attribute(type, name, *args, &block)
+    ROM::Factory::Attributes.const_get(type).new(name, *args, &block)
+  end
+end
+
 Warning.extend(SileneceWarnings) if warning_api_available
 
 RSpec.configure do |config|
   config.disable_monkey_patching!
+  config.include(Helpers)
   # config.warnings = warning_api_available
 end
