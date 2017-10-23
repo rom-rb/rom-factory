@@ -42,7 +42,14 @@ module ROM::Factory
     end
 
     def default_attrs(attrs)
-      attributes.map { |attr| attr.(attrs) }.compact.reduce(:merge)
+      attributes.tsort.each_with_object({}) do |attr, h|
+        deps = attr.dependency_names.map { |k| h[k] }.compact
+        result = attr.(attrs, *deps)
+
+        if result
+          h.update(result)
+        end
+      end
     end
 
     def struct_attrs

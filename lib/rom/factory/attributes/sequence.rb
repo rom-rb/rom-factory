@@ -21,6 +21,10 @@ module ROM::Factory
       def increment
         @count += 1
       end
+
+      def dependency_names
+        []
+      end
     end
   end
 end

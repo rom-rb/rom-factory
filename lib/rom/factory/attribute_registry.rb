@@ -38,7 +38,7 @@ module ROM
       end
 
       def tsort_each_child(attr, &block)
-        attr.dependency_names.map { |name| self[name] }.each(&block)
+        attr.dependency_names.map { |name| self[name] }.compact.each(&block)
       end
     end
   end

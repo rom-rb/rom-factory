@@ -16,6 +16,10 @@ module ROM::Factory
         def name
           assoc.key
         end
+
+        def dependency_names
+          []
+        end
       end
 
       class ManyToOne < Core

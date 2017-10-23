@@ -9,12 +9,12 @@ module ROM::Factory
         @block = block
       end
 
-      def call(attrs)
+      def call(attrs, *args)
         return if attrs.key?(name)
 
         result =
           if block.is_a?(Proc)
-            dsl.instance_exec(&block)
+            dsl.instance_exec(*args, &block)
           else
             block.call
           end
