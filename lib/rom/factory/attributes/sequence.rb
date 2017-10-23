@@ -14,6 +14,10 @@ module ROM::Factory
         block.call(increment)
       end
 
+      def to_proc
+        method(:call).to_proc
+      end
+
       def increment
         @count += 1
       end

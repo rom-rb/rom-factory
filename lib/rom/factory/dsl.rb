@@ -2,6 +2,7 @@ require 'faker'
 require 'dry/core/inflector'
 
 require 'rom/factory/builder'
+require 'rom/factory/attribute_registry'
 require 'rom/factory/attributes/regular'
 require 'rom/factory/attributes/callable'
 require 'rom/factory/attributes/sequence'
@@ -25,7 +26,7 @@ module ROM
 
       attr_reader :_name, :_relation, :_attributes, :_factories, :_valid_names
 
-      def initialize(name, attributes: [], relation:, factories:, &block)
+      def initialize(name, attributes: AttributeRegistry.new, relation:, factories:, &block)
         @_name = name
         @_relation = relation
         @_factories = factories
@@ -79,12 +80,12 @@ module ROM
       end
 
       def define_sequence(name, block)
-        _attributes << attributes::Callable.new(name, self, attributes::Sequence.new(name, &block))
+        _attributes << attributes::Callable.new(name, self, &attributes::Sequence.new(name, &block))
       end
 
       def define_attr(name, *args, &block)
         if block
-          _attributes << attributes::Callable.new(name, self, block)
+          _attributes << attributes::Callable.new(name, self, &block)
         else
           _attributes << attributes::Regular.new(name, *args)
         end
