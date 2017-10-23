@@ -319,7 +319,6 @@ RSpec.describe ROM::Factory do
         f.title 'A task'
         f.association(:user)
       end
-
     end
 
     it 'exposes create method in callable attribute blocks' do

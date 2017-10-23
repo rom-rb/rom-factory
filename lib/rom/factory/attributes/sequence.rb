@@ -1,13 +1,17 @@
 module ROM::Factory
   module Attributes
     class Sequence
-      def initialize(&block)
+      attr_reader :name, :count, :block
+
+      def initialize(name, &block)
+        @name = name
         @count = 0
         @block = block
       end
 
-      def call
-        @block.call(increment)
+      def call(attrs = {})
+        return if attrs.key?(name)
+        block.call(increment)
       end
 
       def increment

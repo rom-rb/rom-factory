@@ -2,19 +2,21 @@ require 'delegate'
 
 module ROM::Factory
   class Builder
-    attr_reader :schema, :relation, :model
+    attr_reader :attributes, :relation, :model
 
-    def initialize(schema, relation)
-      @schema = schema
+    def initialize(attributes, relation)
+      @attributes = attributes
       @relation = relation.with(auto_map: true, auto_struct: true)
-      @model = @relation.mapper.model
+      @model = @relation.combine(*assoc_names).mapper.model
       @sequence = 0
     end
 
+    def assoc_names
+      attributes.select { |attr| attr.is_a?(Attributes::Association::Core) }.map(&:name)
+    end
+
     def tuple(attrs)
-      default_attrs(skip_key_names(attrs.keys)).
-        merge(associations_args(attrs)).
-        merge(attrs)
+      default_attrs(attrs).merge(attrs)
     end
 
     def create(attrs = {})
@@ -39,19 +41,8 @@ module ROM::Factory
       @sequence += 1
     end
 
-    def default_attrs(skip = [])
-      schema.map { |name, attr| [name, attr.()] unless skip.include?(name) }.compact.to_h
-    end
-
-    def associations_args(attrs)
-      attrs.each_with_object({}) do |(key, value), hash|
-        if associations.key?(key)
-          assoc = associations[key]
-          fk = assoc.foreign_key
-          pk = assoc.target.primary_key
-          hash[fk] = value.send(pk)
-        end
-      end
+    def default_attrs(attrs)
+      attributes.map { |attr| attr.(attrs) }.compact.reduce(:merge)
     end
 
     def struct_attrs
@@ -60,14 +51,6 @@ module ROM::Factory
         map { |attr| [attr.name, nil] }.
         to_h.
         merge(primary_key => next_id)
-    end
-
-    def skip_key_names(keys)
-      keys.map { |name| associations.key?(name) ? associations[name].foreign_key : name }
-    end
-
-    def associations
-      relation.associations
     end
   end
 

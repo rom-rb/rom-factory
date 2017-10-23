@@ -5,6 +5,7 @@ require 'rom/factory/builder'
 require 'rom/factory/attributes/regular'
 require 'rom/factory/attributes/callable'
 require 'rom/factory/attributes/sequence'
+require 'rom/factory/attributes/association'
 
 module ROM
   module Factory
@@ -22,19 +23,19 @@ module ROM
     class DSL < BasicObject
       define_method(:rand, ::Kernel.instance_method(:rand))
 
-      attr_reader :_name, :_relation, :_schema, :_factories, :_valid_names
+      attr_reader :_name, :_relation, :_attributes, :_factories, :_valid_names
 
-      def initialize(name, schema: {}, relation:, factories:, &block)
+      def initialize(name, attributes: [], relation:, factories:, &block)
         @_name = name
         @_relation = relation
         @_factories = factories
-        @_schema = schema.dup
+        @_attributes = attributes.dup
         @_valid_names = _relation.schema.attributes.map(&:name)
         yield(self)
       end
 
       def call
-        ::ROM::Factory::Builder.new(_schema, _relation)
+        ::ROM::Factory::Builder.new(_attributes, _relation)
       end
 
       def create(name, *args)
@@ -58,14 +59,9 @@ module ROM
 
       def association(name)
         assoc = _relation.associations[name]
-        other = assoc.target
+        builder = _factories.registry[name]
 
-        fk = assoc.foreign_key
-        pk = other.primary_key
-
-        block = -> { create(name)[pk] }
-
-        _schema[fk] = attributes::Callable.new(self, block)
+        _attributes << attributes::Association.new(assoc, builder)
       end
 
       private
@@ -83,14 +79,14 @@ module ROM
       end
 
       def define_sequence(name, block)
-        _schema[name] = attributes::Callable.new(self, attributes::Sequence.new(&block))
+        _attributes << attributes::Callable.new(name, self, attributes::Sequence.new(name, &block))
       end
 
       def define_attr(name, *args, &block)
         if block
-          _schema[name] = attributes::Callable.new(self, block)
+          _attributes << attributes::Callable.new(name, self, block)
         else
-          _schema[name] = attributes::Regular.new(*args)
+          _attributes << attributes::Regular.new(name, *args)
         end
       end
 
