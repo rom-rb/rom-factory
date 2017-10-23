@@ -3,23 +3,31 @@ module ROM::Factory
     class Callable
       attr_reader :name, :dsl, :block
 
-      def initialize(name, dsl, block)
+      def initialize(name, dsl = nil, &block)
         @name = name
         @dsl = dsl
         @block = block
       end
 
-      def call(attrs)
+      def call(attrs, *args)
         return if attrs.key?(name)
 
         result =
           if block.is_a?(Proc)
-            dsl.instance_exec(&block)
+            dsl.instance_exec(*args, &block)
           else
             block.call
           end
 
         { name => result }
+      end
+
+      def dependency?(other)
+        dependency_names.include?(other.name)
+      end
+
+      def dependency_names
+        block.parameters.map(&:last)
       end
     end
   end

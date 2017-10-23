@@ -1,7 +1,7 @@
 require 'rom/factory/builder'
 
 RSpec.describe ROM::Factory::Builder do
-  subject(:builder) { ROM::Factory::Builder.new(attributes, relation) }
+  subject(:builder) { ROM::Factory::Builder.new(ROM::Factory::AttributeRegistry.new(attributes), relation) }
 
   include_context 'database'
 
@@ -11,10 +11,42 @@ RSpec.describe ROM::Factory::Builder do
     end
   end
 
+  describe 'dependant attributes' do
+    let(:attributes) do
+      [attribute(:Callable, :email) { |name| "#{name.downcase}@rom-rb.org" },
+       attribute(:Regular, :name, 'Jane')]
+    end
+
+    let(:relation) { relations[:users] }
+
+    before do
+      conn.create_table(:users) do
+        primary_key :id
+        column :name, String
+        column :email, String
+      end
+
+      conf.relation(:users) do
+        schema(infer: true)
+      end
+    end
+
+    after do
+      conn.drop_table(:users)
+    end
+
+    it 'evaluates attributes in correct order' do
+      user = builder.create
+
+      expect(user.name).to eql('Jane')
+      expect(user.email).to eql('jane@rom-rb.org')
+    end
+  end
+
   describe 'belongs_to association' do
     let(:attributes) do
-      [ROM::Factory::Attributes::Regular.new(:title, 'To-do'),
-       ROM::Factory::Attributes::Association.new(tasks.associations[:user], factories.registry[:user])]
+      [attribute(:Regular, :title, 'To-do'),
+       attribute(:Association, tasks.associations[:user], factories.registry[:user])]
     end
 
     let(:tasks) { relations[:tasks] }

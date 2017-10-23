@@ -13,6 +13,14 @@ module ROM::Factory
 
         { name => value }
       end
+
+      def dependency?(*)
+        false
+      end
+
+      def dependency_names
+        []
+      end
     end
   end
 end
