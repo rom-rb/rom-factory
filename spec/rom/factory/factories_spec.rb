@@ -1,5 +1,5 @@
 RSpec.describe ROM::Factory do
-  include_context 'database'
+  include_context 'relations'
 
   subject(:factories) do
     ROM::Factory.configure do |config|
