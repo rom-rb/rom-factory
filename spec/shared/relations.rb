@@ -2,8 +2,6 @@ RSpec.shared_context 'relations' do
   include_context 'database'
 
   before do
-    %i(tasks users).each { |t| conn.drop_table?(t) }
-
     conn.create_table(:users) do
       primary_key :id
       column :last_name, String, null: false
@@ -35,5 +33,10 @@ RSpec.shared_context 'relations' do
         end
       end
     end
+  end
+
+  after do
+    conn.drop_table(:tasks)
+    conn.drop_table(:users)
   end
 end
