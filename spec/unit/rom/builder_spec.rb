@@ -164,4 +164,63 @@ RSpec.describe ROM::Factory::Builder do
       end
     end
   end
+
+  describe 'has_one association' do
+    let(:attributes) do
+      [attribute(:Regular, :name, 'Jane'),
+       attribute(:Association, users.associations[:tasks], -> { factories.registry[:task] })]
+    end
+
+    let(:tasks) { relations[:tasks] }
+    let(:users) { relations[:users] }
+    let(:relation) { users }
+
+    before do
+      conn.create_table(:users) do
+        primary_key :id
+        column :name, String
+      end
+
+      conn.create_table(:tasks) do
+        primary_key :id
+        foreign_key :user_id, :users, null: false
+        column :title, String, null: false
+      end
+
+      conf.relation(:tasks) do
+        schema(infer: true) do
+          associations do
+            belongs_to :user
+          end
+        end
+      end
+
+      conf.relation(:users) do
+        schema(infer: true) do
+          associations do
+            has_one :task
+          end
+        end
+      end
+
+      factories.define(:task) do |f|
+        f.title 'To-do'
+      end
+    end
+
+    after do
+      conn.drop_table(:tasks)
+      conn.drop_table(:users)
+    end
+
+    describe '#create' do
+      it 'builds associated structs' do
+        user = builder.create
+
+        expect(user.name).to eql('Jane')
+        expect(user.task.title).to eql('To-do')
+        expect(user.task.user_id).to be(user.id)
+      end
+    end
+  end
 end

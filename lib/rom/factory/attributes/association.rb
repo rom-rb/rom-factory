@@ -87,6 +87,16 @@ module ROM::Factory
           assoc.foreign_key
         end
       end
+
+      class OneToOne < OneToMany
+        def call(attrs = {}, parent)
+          return if attrs.key?(name)
+
+          struct = builder.persistable.create(foreign_key => parent[source_key])
+
+          { name => struct }
+        end
+      end
     end
   end
 end
