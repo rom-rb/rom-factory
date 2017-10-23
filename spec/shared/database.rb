@@ -1,4 +1,4 @@
-require 'rom'
+require 'rom-core'
 
 RSpec.shared_context 'database' do
   let(:conf) do
