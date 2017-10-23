@@ -1,73 +1,32 @@
 require 'delegate'
+require 'rom/factory/tuple_evaluator'
 
 module ROM::Factory
   class Builder
-    attr_reader :attributes, :relation, :model
+    attr_reader :attributes
+
+    attr_reader :tuple_evaluator
 
     def initialize(attributes, relation)
       @attributes = attributes
-      @relation = relation.with(auto_struct: true)
-      @model = @relation.combine(*assoc_names).mapper.model
-      @sequence = 0
+      @tuple_evaluator = TupleEvaluator.new(attributes, relation)
     end
 
-    def assoc_names
-      attributes.associations.map(&:name)
+    def tuple(attrs = {})
+      tuple_evaluator.defaults(attrs)
     end
 
-    def tuple(attrs)
-      default_attrs(attrs).merge(attrs)
+    def struct(attrs = {})
+      tuple_evaluator.struct(attrs)
     end
-
-    def create(attrs = {})
-      struct(attrs)
-    end
-
-    def struct(attrs)
-      model.new(struct_attrs.merge(tuple(attrs)))
-    end
+    alias_method :create, :struct
 
     def persistable
       Persistable.new(self)
     end
 
-    def primary_key
-      relation.primary_key
-    end
-
-    private
-
-    def next_id
-      @sequence += 1
-    end
-
-    def default_attrs(attrs)
-      defaults = attributes.values.tsort.each_with_object({}) do |attr, h|
-        deps = attr.dependency_names.map { |k| h[k] }.compact
-        result = attr.(attrs, *deps)
-
-        if result
-          h.update(result)
-        end
-      end
-
-      attributes.associations.each_with_object(defaults) do |assoc, h|
-        if assoc.dependency?(relation)
-          h[assoc.name] = -> struct { assoc.call(attrs, struct) }
-        else
-          h.update(assoc.(attrs))
-        end
-      end
-
-      defaults
-    end
-
-    def struct_attrs
-      relation.schema.
-        reject(&:primary_key?).
-        map { |attr| [attr.name, nil] }.
-        to_h.
-        merge(primary_key => next_id)
+    def relation
+      tuple_evaluator.relation
     end
   end
 
@@ -90,12 +49,12 @@ module ROM::Factory
         end
       end
 
-      pk = persisted[relation.primary_key]
+      pk = persisted.values_at(*relation.schema.primary_key_names)
 
-      if assoc_names.any?
-        relation.by_pk(pk).combine(*assoc_names).one
+      if tuple_evaluator.has_associations?
+        relation.by_pk(*pk).combine(*tuple_evaluator.assoc_names).first
       else
-        relation.by_pk(pk).one
+        relation.by_pk(*pk).first
       end
     end
   end
