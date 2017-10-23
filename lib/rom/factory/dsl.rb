@@ -5,6 +5,7 @@ require 'rom/factory/builder'
 require 'rom/factory/attributes/regular'
 require 'rom/factory/attributes/callable'
 require 'rom/factory/attributes/sequence'
+require 'rom/factory/attributes/association'
 
 module ROM
   module Factory
@@ -58,14 +59,9 @@ module ROM
 
       def association(name)
         assoc = _relation.associations[name]
-        other = assoc.target
+        builder = _factories.registry[name]
 
-        fk = assoc.foreign_key
-        pk = other.primary_key
-
-        block = -> { create(name)[pk] }
-
-        _schema[fk] = attributes::Callable.new(self, block)
+        _schema[name] = attributes::Association.new(assoc, builder)
       end
 
       private
@@ -83,14 +79,14 @@ module ROM
       end
 
       def define_sequence(name, block)
-        _schema[name] = attributes::Callable.new(self, attributes::Sequence.new(&block))
+        _schema[name] = attributes::Callable.new(name, self, attributes::Sequence.new(name, &block))
       end
 
       def define_attr(name, *args, &block)
         if block
-          _schema[name] = attributes::Callable.new(self, block)
+          _schema[name] = attributes::Callable.new(name, self, block)
         else
-          _schema[name] = attributes::Regular.new(*args)
+          _schema[name] = attributes::Regular.new(name, *args)
         end
       end
 
