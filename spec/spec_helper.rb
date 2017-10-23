@@ -58,6 +58,6 @@ Warning.extend(SileneceWarnings) if warning_api_available
 
 RSpec.configure do |config|
   config.disable_monkey_patching!
+  config.warnings = warning_api_available
   config.include(Helpers)
-  # config.warnings = warning_api_available
 end
