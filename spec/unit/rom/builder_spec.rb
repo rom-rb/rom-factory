@@ -1,7 +1,7 @@
 require 'rom/factory/builder'
 
 RSpec.describe ROM::Factory::Builder do
-  subject(:builder) { ROM::Factory::Builder.new(schema, relation) }
+  subject(:builder) { ROM::Factory::Builder.new(attributes, relation) }
 
   include_context 'database'
 
@@ -12,11 +12,9 @@ RSpec.describe ROM::Factory::Builder do
   end
 
   describe 'belongs_to association' do
-    let(:schema) do
-      {
-        title: ROM::Factory::Attributes::Regular.new(:title, 'To-do'),
-        user: ROM::Factory::Attributes::Association.new(tasks.associations[:user], factories.registry[:user])
-      }
+    let(:attributes) do
+      [ROM::Factory::Attributes::Regular.new(:title, 'To-do'),
+       ROM::Factory::Attributes::Association.new(tasks.associations[:user], factories.registry[:user])]
     end
 
     let(:tasks) { relations[:tasks] }

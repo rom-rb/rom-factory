@@ -57,7 +57,7 @@ module ROM::Factory
       end
 
       def extend_builder(name, parent, &block)
-        DSL.new(name, schema: parent.schema, relation: parent.relation, factories: self, &block).call
+        DSL.new(name, attributes: parent.attributes, relation: parent.relation, factories: self, &block).call
       end
 
       def [](name, attrs = {})

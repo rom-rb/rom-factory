@@ -2,17 +2,17 @@ require 'delegate'
 
 module ROM::Factory
   class Builder
-    attr_reader :schema, :relation, :model
+    attr_reader :attributes, :relation, :model
 
-    def initialize(schema, relation)
-      @schema = schema
+    def initialize(attributes, relation)
+      @attributes = attributes
       @relation = relation.with(auto_map: true, auto_struct: true)
       @model = @relation.combine(*assoc_names).mapper.model
       @sequence = 0
     end
 
     def assoc_names
-      schema.keys.select { |key| schema[key].is_a?(Attributes::Association::Core) }
+      attributes.select { |attr| attr.is_a?(Attributes::Association::Core) }.map(&:name)
     end
 
     def tuple(attrs)
@@ -42,7 +42,7 @@ module ROM::Factory
     end
 
     def default_attrs(attrs)
-      schema.values.map { |attr| attr.(attrs) }.compact.reduce(:merge)
+      attributes.map { |attr| attr.(attrs) }.compact.reduce(:merge)
     end
 
     def struct_attrs
