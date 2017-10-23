@@ -13,8 +13,8 @@ RSpec.describe ROM::Factory::Builder do
 
   describe 'belongs_to association' do
     let(:attributes) do
-      [ROM::Factory::Attributes::Regular.new(:title, 'To-do'),
-       ROM::Factory::Attributes::Association.new(tasks.associations[:user], factories.registry[:user])]
+      [attribute(:Regular, :title, 'To-do'),
+       attribute(:Association, tasks.associations[:user], factories.registry[:user])]
     end
 
     let(:tasks) { relations[:tasks] }
