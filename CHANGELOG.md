@@ -1,8 +1,13 @@
-## 0.4.1 to-be-released
+## 0.5.0 to-be-released
 
 ### Added
 
+* Updated to rom 4.0 (solnic)
+* Support for `has_many` and `has_one` associations (solnic)
+* Support for attributes depending on values from other attributes (solnic)
 * Support for `rand` inside the generator block (flash-gordon)
+
+[Compare v0.4.0...v0.5.0](https://github.com/rom-rb/rom-factory/compare/v0.4.0...v0.5.0)
 
 ## v0.4.0 2017-03-03
 
