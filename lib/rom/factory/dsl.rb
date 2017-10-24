@@ -14,12 +14,7 @@ module ROM
     def self.fake(type, *args)
       api = Faker.const_get(Dry::Core::Inflector.classify(type.to_s))
       meth, *rest = args
-
-      if meth.is_a?(Symbol)
-        api.public_send(meth, *rest)
-      else
-        api.public_send(type, *args)
-      end
+      api.public_send(meth, *rest)
     end
 
     # @api private

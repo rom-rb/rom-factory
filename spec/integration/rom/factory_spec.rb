@@ -224,6 +224,7 @@ RSpec.describe ROM::Factory do
         f.first_name { fake(:name, :first_name) }
         f.last_name { fake(:name, :last_name) }
         f.email { fake(:internet, :email) }
+        f.age { fake(:number, :between, 13, 100) }
         f.timestamps
       end
 
@@ -233,6 +234,7 @@ RSpec.describe ROM::Factory do
       expect(user.first_name).to_not be(nil)
       expect(user.last_name).to_not be(nil)
       expect(user.email).to_not be(nil)
+      expect(user.age).to be_instance_of(Integer)
       expect(user.created_at).to_not be(nil)
       expect(user.created_at).to_not be(nil)
     end
