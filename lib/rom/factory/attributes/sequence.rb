@@ -22,10 +22,6 @@ module ROM::Factory
         @count += 1
       end
 
-      def value?
-        true
-      end
-
       def dependency_names
         []
       end
