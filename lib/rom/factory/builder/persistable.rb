@@ -13,18 +13,28 @@ module ROM
         end
 
         def create(attrs = {})
-          tuple_attrs = tuple(attrs)
-          persisted = relation.with(auto_struct: false).command(:create).call(tuple_attrs)
-
-          tuple_evaluator.persist_associations(tuple_attrs, persisted)
-
-          pk = persisted.values_at(*relation.schema.primary_key_names)
+          tuple = tuple(attrs)
+          persisted = persist(tuple)
 
           if tuple_evaluator.has_associations?
+            tuple_evaluator.persist_associations(tuple, persisted)
+
+            pk = primary_key_names.map { |key| persisted[key] }
+
             relation.by_pk(*pk).combine(*tuple_evaluator.assoc_names).first
           else
-            relation.by_pk(*pk).first
+            persisted
           end
+        end
+
+        private
+
+        def persist(attrs)
+          relation.with(auto_struct: !tuple_evaluator.has_associations?).command(:create).call(attrs)
+        end
+
+        def primary_key_names
+          relation.schema.primary_key_names
         end
       end
     end

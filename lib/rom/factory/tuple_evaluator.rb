@@ -63,7 +63,7 @@ module ROM
       def evaluate_associations(attrs)
         attributes.associations.each_with_object({}) do |assoc, h|
           if assoc.dependency?(relation)
-            h[assoc.name] = -> parent { assoc.call(attrs, parent) }
+            h[assoc.name] = -> parent { assoc.call(parent) }
           else
             h.update(assoc.(attrs))
           end
