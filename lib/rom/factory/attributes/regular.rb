@@ -23,11 +23,6 @@ module ROM::Factory
       end
 
       # @api private
-      def dependency?(*)
-        false
-      end
-
-      # @api private
       def dependency_names
         []
       end

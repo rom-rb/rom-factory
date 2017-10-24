@@ -31,11 +31,6 @@ module ROM::Factory
       end
 
       # @api private
-      def dependency?(other)
-        dependency_names.include?(other.name)
-      end
-
-      # @api private
       def dependency_names
         block.parameters.map(&:last)
       end
