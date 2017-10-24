@@ -94,7 +94,26 @@ RSpec.describe ROM::Factory::Builder do
         task = builder.create
 
         expect(task.title).to eql('To-do')
+        expect(task.user_id).to be(task.user.id)
         expect(task.user.name).to eql('Jane')
+      end
+
+      it 'sets existing parent and fills in FK' do
+        user = users.command(:create).call(id: 312, name: "Jade")
+        task = builder.create(user: user)
+
+        expect(task.title).to eql('To-do')
+        expect(task.user_id).to eql(user[:id])
+        expect(task.user.name).to eql(user[:name])
+      end
+
+      it 'respects existing data' do
+        user = users.command(:create).call(id: 312, name: "Jade")
+        task = builder.create(user: user, user_id: 312)
+
+        expect(task.title).to eql('To-do')
+        expect(task.user_id).to eql(user[:id])
+        expect(task.user.name).to eql(user[:name])
       end
     end
   end
