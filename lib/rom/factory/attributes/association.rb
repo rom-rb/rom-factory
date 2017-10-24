@@ -38,7 +38,7 @@ module ROM::Factory
       class ManyToOne < Core
         def call(attrs = {})
           if attrs.key?(name) && !attrs.key?(foreign_key)
-            { foreign_key => attrs[name].public_send(target_key) }
+            assoc.associate(attrs, attrs[name])
           else
             struct = builder.persistable.create
             tuple = { name => struct }
@@ -46,13 +46,9 @@ module ROM::Factory
             if attrs.key?(foreign_key)
               tuple
             else
-              tuple.merge(foreign_key => struct.public_send(target_key))
+              assoc.associate(tuple, struct)
             end
           end
-        end
-
-        def target_key
-          assoc.target.primary_key
         end
 
         def foreign_key
@@ -65,7 +61,7 @@ module ROM::Factory
           return if attrs.key?(name)
 
           structs = count.times.map {
-            builder.persistable.create(foreign_key => parent[source_key])
+            builder.persistable.create(assoc.associate(attrs, parent))
           }
 
           { name => structs }
@@ -78,21 +74,13 @@ module ROM::Factory
         def count
           options.fetch(:count)
         end
-
-        def source_key
-          assoc.source.primary_key
-        end
-
-        def foreign_key
-          assoc.foreign_key
-        end
       end
 
       class OneToOne < OneToMany
         def call(attrs = {}, parent)
           return if attrs.key?(name)
 
-          struct = builder.persistable.create(foreign_key => parent[source_key])
+          struct = builder.persistable.create(assoc.associate(attrs, parent))
 
           { name => struct }
         end
