@@ -19,9 +19,7 @@ module ROM
           if tuple_evaluator.has_associations?
             tuple_evaluator.persist_associations(tuple, persisted)
 
-            pk = primary_key_names.map { |key| persisted[key] }
-
-            relation.by_pk(*pk).combine(*tuple_evaluator.assoc_names).first
+            relation.by_pk(persisted[primary_key]).combine(*tuple_evaluator.assoc_names).first
           else
             persisted
           end
@@ -33,8 +31,8 @@ module ROM
           relation.with(auto_struct: !tuple_evaluator.has_associations?).command(:create).call(attrs)
         end
 
-        def primary_key_names
-          relation.schema.primary_key_names
+        def primary_key
+          relation.primary_key
         end
       end
     end
