@@ -31,6 +31,7 @@ end
 
 group :tools do
   gem 'byebug', platform: :mri
+  gem 'redcarpet' # for yard
 end
 
 group :benchmarks do

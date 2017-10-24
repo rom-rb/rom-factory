@@ -1,0 +1,7 @@
+--plugin junk
+--query '@api.text != "private"'
+--embed-mixins
+-r README.md
+--markup-provider=redcarpet
+--markup=markdown
+--files CHANGELOG.md
