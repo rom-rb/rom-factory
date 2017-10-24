@@ -14,7 +14,12 @@ module ROM
     def self.fake(type, *args)
       api = Faker.const_get(Dry::Core::Inflector.classify(type.to_s))
       meth, *rest = args
-      api.public_send(meth, *rest)
+
+      if meth.is_a?(Symbol)
+        api.public_send(meth, *rest)
+      else
+        api.public_send(type, *args)
+      end
     end
 
     # Factory builder DSL
@@ -70,12 +75,18 @@ module ROM
 
       # Create a fake value using Faker gem
       #
+      # @overload fake(type)
+      #   @example
+      #     f.email { fake(:name) }
+      #
+      #   @param [Symbol] type The value type to generate
+      #
       # @overload fake(api, type)
       #   @example
       #     f.email { fake(:internet, :email) }
       #
       #   @param [Symbol] api The faker API identifier ie. :internet, :product etc.
-      #   @param [Symbol] type Value type to generate
+      #   @param [Symbol] type The value type to generate
       #
       # @overload fake(api, type, *args)
       #   @example

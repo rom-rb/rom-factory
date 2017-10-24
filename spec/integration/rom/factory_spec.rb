@@ -221,10 +221,9 @@ RSpec.describe ROM::Factory do
   context 'faker' do
     it 'exposes faker API in the DSL' do
       factories.define(:user) do |f|
-        f.first_name { fake(:name, :first_name) }
+        f.first_name { fake(:name) }
         f.last_name { fake(:name, :last_name) }
         f.email { fake(:internet, :email) }
-        f.age { fake(:number, :between, 13, 100) }
         f.timestamps
       end
 
@@ -234,7 +233,6 @@ RSpec.describe ROM::Factory do
       expect(user.first_name).to_not be(nil)
       expect(user.last_name).to_not be(nil)
       expect(user.email).to_not be(nil)
-      expect(user.age).to_not be(nil)
       expect(user.created_at).to_not be(nil)
       expect(user.created_at).to_not be(nil)
     end
