@@ -3,7 +3,7 @@ require 'dry/core/inflector'
 
 require 'rom/factory/builder'
 require 'rom/factory/attribute_registry'
-require 'rom/factory/attributes/regular'
+require 'rom/factory/attributes/value'
 require 'rom/factory/attributes/callable'
 require 'rom/factory/attributes/sequence'
 require 'rom/factory/attributes/association'
@@ -100,7 +100,7 @@ module ROM
         if block
           _attributes << attributes::Callable.new(name, self, &block)
         else
-          _attributes << attributes::Regular.new(name, *args)
+          _attributes << attributes::Value.new(name, *args)
         end
       end
 

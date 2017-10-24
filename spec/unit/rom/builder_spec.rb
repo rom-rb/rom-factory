@@ -16,7 +16,7 @@ RSpec.describe ROM::Factory::Builder do
   describe 'dependant attributes' do
     let(:attributes) do
       [attribute(:Callable, :email) { |name| "#{name.downcase}@rom-rb.org" },
-       attribute(:Regular, :name, 'Jane')]
+       attribute(:Value, :name, 'Jane')]
     end
 
     let(:relation) { relations[:users] }
@@ -47,7 +47,7 @@ RSpec.describe ROM::Factory::Builder do
 
   describe 'belongs_to association' do
     let(:attributes) do
-      [attribute(:Regular, :title, 'To-do'),
+      [attribute(:Value, :title, 'To-do'),
        attribute(:Association, tasks.associations[:user], -> { factories.registry[:user] })]
     end
 
@@ -101,7 +101,7 @@ RSpec.describe ROM::Factory::Builder do
 
   describe 'has_many association' do
     let(:attributes) do
-      [attribute(:Regular, :name, 'Jane'),
+      [attribute(:Value, :name, 'Jane'),
        attribute(:Association, users.associations[:tasks], -> { factories.registry[:task] }, count: 2)]
     end
 
@@ -167,7 +167,7 @@ RSpec.describe ROM::Factory::Builder do
 
   describe 'has_one association' do
     let(:attributes) do
-      [attribute(:Regular, :name, 'Jane'),
+      [attribute(:Value, :name, 'Jane'),
        attribute(:Association, users.associations[:tasks], -> { factories.registry[:task] })]
     end
 

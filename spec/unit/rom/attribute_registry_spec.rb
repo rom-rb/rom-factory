@@ -8,7 +8,7 @@ RSpec.describe ROM::Factory::AttributeRegistry do
   end
 
   let(:name_attr) do
-    attribute(:Regular, :name, 'Jane')
+    attribute(:Value, :name, 'Jane')
   end
 
   let(:email_attr) do

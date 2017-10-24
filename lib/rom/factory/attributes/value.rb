@@ -1,7 +1,7 @@
 module ROM::Factory
   module Attributes
     # @api private
-    class Regular
+    class Value
       attr_reader :name, :value
 
       # @api private
