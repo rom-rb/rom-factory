@@ -105,6 +105,8 @@ RSpec.describe ROM::Factory::Builder do
         expect(task.title).to eql('To-do')
         expect(task.user_id).to eql(user[:id])
         expect(task.user.name).to eql(user[:name])
+
+        expect(users.count).to be(1)
       end
 
       it 'respects existing data' do
@@ -114,6 +116,8 @@ RSpec.describe ROM::Factory::Builder do
         expect(task.title).to eql('To-do')
         expect(task.user_id).to eql(user[:id])
         expect(task.user.name).to eql(user[:name])
+
+        expect(users.count).to be(1)
       end
     end
   end

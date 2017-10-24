@@ -80,7 +80,8 @@ module ROM
           if assoc.dependency?(relation)
             h[assoc.name] = -> parent { assoc.call(parent) }
           else
-            h.update(assoc.(attrs))
+            result = assoc.(attrs)
+            h.update(result) if result
           end
         end
       end
