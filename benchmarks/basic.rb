@@ -1,5 +1,5 @@
 require 'rom-factory'
-require 'rom'
+require 'rom-core'
 require 'active_record'
 require 'factory_girl'
 require 'fabrication'
