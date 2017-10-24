@@ -16,11 +16,7 @@ module ROM
           tuple_attrs = tuple(attrs)
           persisted = relation.with(auto_struct: false).command(:create).call(tuple_attrs)
 
-          tuple_attrs.each do |name, attr|
-            if attr.is_a?(Proc)
-              attr.(persisted)
-            end
-          end
+          tuple_evaluator.persist_associations(tuple_attrs, persisted)
 
           pk = persisted.values_at(*relation.schema.primary_key_names)
 

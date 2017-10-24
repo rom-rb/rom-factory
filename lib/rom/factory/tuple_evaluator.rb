@@ -24,6 +24,13 @@ module ROM
         model.new(struct_attrs.merge(defaults(attrs)))
       end
 
+      def persist_associations(tuple, parent)
+        assoc_names.each do |name|
+          assoc = tuple[name]
+          assoc.(parent) if assoc.is_a?(Proc)
+        end
+      end
+
       def assoc_names
         attributes.associations.map(&:name)
       end
@@ -39,7 +46,11 @@ module ROM
       private
 
       def evaluate(attrs)
-        defaults = attributes.values.tsort.each_with_object({}) do |attr, h|
+        evaluate_values(attrs).merge(evaluate_associations(attrs))
+      end
+
+      def evaluate_values(attrs)
+        attributes.values.tsort.each_with_object({}) do |attr, h|
           deps = attr.dependency_names.map { |k| h[k] }.compact
           result = attr.(attrs, *deps)
 
@@ -47,16 +58,16 @@ module ROM
             h.update(result)
           end
         end
+      end
 
-        attributes.associations.each_with_object(defaults) do |assoc, h|
+      def evaluate_associations(attrs)
+        attributes.associations.each_with_object({}) do |assoc, h|
           if assoc.dependency?(relation)
-            h[assoc.name] = -> struct { assoc.call(attrs, struct) }
+            h[assoc.name] = -> parent { assoc.call(attrs, parent) }
           else
             h.update(assoc.(attrs))
           end
         end
-
-        defaults
       end
 
       def struct_attrs
