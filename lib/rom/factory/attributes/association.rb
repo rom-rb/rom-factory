@@ -41,7 +41,7 @@ module ROM::Factory
       # @api private
       class ManyToOne < Core
         # @api private
-        def call(attrs = {})
+        def call(attrs = EMPTY_HASH)
           if attrs.key?(name) && !attrs[foreign_key]
             assoc.associate(attrs, attrs[name])
           elsif !attrs[foreign_key]
@@ -61,7 +61,7 @@ module ROM::Factory
       # @api private
       class OneToMany < Core
         # @api private
-        def call(attrs = {}, parent)
+        def call(attrs = EMPTY_HASH, parent)
           return if attrs.key?(name)
 
           structs = count.times.map {
@@ -85,7 +85,7 @@ module ROM::Factory
       # @api private
       class OneToOne < OneToMany
         # @api private
-        def call(attrs = {}, parent)
+        def call(attrs = EMPTY_HASH, parent)
           return if attrs.key?(name)
 
           struct = builder.persistable.create(assoc.associate(attrs, parent))

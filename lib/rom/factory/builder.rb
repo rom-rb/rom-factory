@@ -1,9 +1,13 @@
+require 'dry/core/constants'
+
 require 'rom/factory/tuple_evaluator'
 require 'rom/factory/builder/persistable'
 
 module ROM::Factory
   # @api private
   class Builder
+    include Dry::Core::Constants
+
     # @api private
     attr_reader :attributes
 
@@ -17,12 +21,12 @@ module ROM::Factory
     end
 
     # @api private
-    def tuple(attrs = {})
+    def tuple(attrs = EMPTY_HASH)
       tuple_evaluator.defaults(attrs)
     end
 
     # @api private
-    def struct(attrs = {})
+    def struct(attrs = EMPTY_HASH)
       tuple_evaluator.struct(attrs)
     end
     alias_method :create, :struct

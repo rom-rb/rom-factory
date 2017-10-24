@@ -9,7 +9,7 @@ module ROM::Factory
         @block = block
       end
 
-      def call(attrs = {})
+      def call(attrs = EMPTY_HASH)
         return if attrs.key?(name)
         block.call(increment)
       end
@@ -23,7 +23,7 @@ module ROM::Factory
       end
 
       def dependency_names
-        []
+        EMPTY_ARRAY
       end
     end
   end

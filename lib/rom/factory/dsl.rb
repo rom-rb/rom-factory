@@ -3,10 +3,7 @@ require 'dry/core/inflector'
 
 require 'rom/factory/builder'
 require 'rom/factory/attribute_registry'
-require 'rom/factory/attributes/value'
-require 'rom/factory/attributes/callable'
-require 'rom/factory/attributes/sequence'
-require 'rom/factory/attributes/association'
+require 'rom/factory/attributes'
 
 module ROM
   module Factory

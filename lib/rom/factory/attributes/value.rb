@@ -11,7 +11,7 @@ module ROM::Factory
       end
 
       # @api private
-      def call(attrs = {})
+      def call(attrs = EMPTY_HASH)
         return if attrs.key?(name)
 
         { name => value }
@@ -24,7 +24,7 @@ module ROM::Factory
 
       # @api private
       def dependency_names
-        []
+        EMPTY_ARRAY
       end
     end
   end
