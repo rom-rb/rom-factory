@@ -29,7 +29,7 @@ module ROM
       attr_reader :_name, :_relation, :_attributes, :_factories, :_valid_names
 
       # @api private
-      def initialize(name, attributes: AttributeRegistry.new, relation:, factories:, &block)
+      def initialize(name, attributes: AttributeRegistry.new, relation:, factories:)
         @_name = name
         @_relation = relation
         @_factories = factories
