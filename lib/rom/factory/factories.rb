@@ -116,11 +116,11 @@ module ROM::Factory
       #     f.admin true
       #   end
       #
-      # @param [Symbol, Hash<Symbol=>Symbol>] Builder identifier, can point to a parent builder too
+      # @param [Symbol, Hash<Symbol=>Symbol>] spec Builder identifier, can point to a parent builder too
       # @param [Hash] opts Additional options
       # @option opts [Symbol] relation An optional relation name (defaults to pluralized builder name)
       #
-      # @return [Builder]
+      # @return [ROM::Factory::Builder]
       #
       # @api public
       def define(spec, **opts, &block)
