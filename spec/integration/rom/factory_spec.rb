@@ -234,7 +234,7 @@ RSpec.describe ROM::Factory do
       expect(user.first_name).to_not be(nil)
       expect(user.last_name).to_not be(nil)
       expect(user.email).to_not be(nil)
-      expect(user.age).to be_instance_of(Integer)
+      expect(user.age).to_not be(nil)
       expect(user.created_at).to_not be(nil)
       expect(user.created_at).to_not be(nil)
     end
