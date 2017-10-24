@@ -17,7 +17,9 @@ module ROM
       api.public_send(meth, *rest)
     end
 
-    # @api private
+    # Factory builder DSL
+    #
+    # @api public
     class DSL < BasicObject
       define_method(:rand, ::Kernel.instance_method(:rand))
 
@@ -38,11 +40,19 @@ module ROM
         ::ROM::Factory::Builder.new(_attributes, _relation)
       end
 
-      # @api private
+      # Delegate to a builder and persist a struct
+      #
+      # @param [Symbol] The name of the registered builder
+      #
+      # @api public
       def create(name, *args)
         _factories[name, *args]
       end
 
+      # Create a sequence attribute
+      #
+      # @param [Symbol] name The attribute name
+      #
       # @api private
       def sequence(meth, &block)
         if _valid_names.include?(meth)
@@ -50,18 +60,51 @@ module ROM
         end
       end
 
-      # @api private
+      # Set timestamp attributes
+      #
+      # @api public
       def timestamps
         created_at { ::Time.now }
         updated_at { ::Time.now }
       end
 
-      # @api private
+      # Create a fake value using Faker gem
+      #
+      # @overload fake(api, type)
+      #   @example
+      #     f.email { fake(:internet, :email) }
+      #
+      #   @param [Symbol] api The faker API identifier ie. :internet, :product etc.
+      #   @param [Symbol] type Value type to generate
+      #
+      # @overload fake(api, type, *args)
+      #   @example
+      #     f.email { fake(:number, :between, 10, 100) }
+      #
+      #   @param [Symbol] api The faker API identifier ie. :internet, :product etc.
+      #   @param [Symbol] type The value type to generate
+      #   @param [Array] args Additional arguments
+      #
+      # @see https://github.com/stympy/faker/tree/master/doc
+      #
+      # @api public
       def fake(*args)
         ::ROM::Factory.fake(*args)
       end
 
-      # @api private
+      # Create an association attribute
+      #
+      # @example belongs-to
+      #   f.association(:group)
+      #
+      # @example has-many
+      #   f.association(:posts, count: 2)
+      #
+      # @param [Symbol] name The name of the configured association
+      # @param [Hash] options Additional options
+      # @option options [Integer] count Number of objects to generate (has-many only)
+      #
+      # @api public
       def association(name, options = {})
         assoc = _relation.associations[name]
         builder = -> { _factories.for_relation(assoc.target) }
