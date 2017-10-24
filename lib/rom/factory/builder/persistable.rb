@@ -3,15 +3,22 @@ require 'delegate'
 module ROM
   module Factory
     class Builder
+      # @api private
       class Persistable < SimpleDelegator
-        attr_reader :builder, :relation
+        # @api private
+        attr_reader :builder
 
+        # @api private
+        attr_reader :relation
+
+        # @api private
         def initialize(builder, relation = builder.relation)
           super(builder)
           @builder = builder
           @relation = relation
         end
 
+        # @api private
         def create(attrs = {})
           tuple = tuple(attrs)
           persisted = persist(tuple)
@@ -27,10 +34,12 @@ module ROM
 
         private
 
+        # @api private
         def persist(attrs)
           relation.with(auto_struct: !tuple_evaluator.has_associations?).command(:create).call(attrs)
         end
 
+        # @api private
         def primary_key
           relation.primary_key
         end
