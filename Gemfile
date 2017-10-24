@@ -9,6 +9,7 @@ gem 'codeclimate-test-reporter', require: false, platform: :mri
 gem 'rspec', '~> 3.0'
 
 group :test do
+  gem 'rom-sql', '~> 2.1'
   gem 'inflecto'
   gem 'pry-byebug', platforms: :mri
   gem 'pry', platforms: %i(jruby rbx)
