@@ -7,6 +7,10 @@
 * Support for attributes depending on values from other attributes (solnic)
 * Support for `rand` inside the generator block (flash-gordon)
 
+### Changed
+
+* Depends on `rom-core` now (solnic)
+
 [Compare v0.4.0...v0.5.0](https://github.com/rom-rb/rom-factory/compare/v0.4.0...v0.5.0)
 
 ## v0.4.0 2017-03-03
