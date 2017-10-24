@@ -118,6 +118,84 @@ RSpec.describe ROM::Factory::Builder do
     end
   end
 
+  describe 'belongs_to association with composite pk' do
+    let(:attributes) do
+      [attribute(:Association, users_tasks.associations[:user], -> { factories.registry[:user] }),
+       attribute(:Association, users_tasks.associations[:task], -> { factories.registry[:task] })]
+    end
+
+    let(:tasks) { relations[:tasks] }
+    let(:users) { relations[:users] }
+    let(:users_tasks) { relations[:users_tasks] }
+    let(:relation) { users_tasks }
+
+    before do
+      conn.create_table(:users) do
+        primary_key :id
+        column :name, String
+      end
+
+      conn.create_table(:tasks) do
+        primary_key :id
+        column :title, String, null: false
+      end
+
+      conn.create_table(:users_tasks) do
+        primary_key [:user_id, :task_id]
+        foreign_key :user_id, :users, null: false
+        foreign_key :task_id, :tasks, null: false
+      end
+
+      conf.relation(:users) do
+        schema(infer: true) do
+          associations do
+            has_many :users, through: :users_tasks
+          end
+        end
+      end
+
+      conf.relation(:tasks) do
+        schema(infer: true) do
+          associations do
+            has_many :users, through: :users_tasks
+          end
+        end
+      end
+
+      conf.relation(:users_tasks) do
+        schema(infer: true) do
+          associations do
+            belongs_to :user
+            belongs_to :task
+          end
+        end
+      end
+
+      factories.define(:user) do |f|
+        f.name 'Jane'
+      end
+
+      factories.define(:task) do |f|
+        f.title 'To-do'
+      end
+    end
+
+    after do
+      conn.drop_table(:users_tasks)
+      conn.drop_table(:tasks)
+      conn.drop_table(:users)
+    end
+
+    describe '#create' do
+      it 'builds associated structs' do
+        user_task = builder.create
+
+        expect(user_task.user.name).to eql('Jane')
+        expect(user_task.task.title).to eql('To-do')
+      end
+    end
+  end
+
   describe 'has_many association' do
     let(:attributes) do
       [attribute(:Value, :name, 'Jane'),

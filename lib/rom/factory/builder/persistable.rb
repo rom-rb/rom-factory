@@ -26,7 +26,9 @@ module ROM
           if tuple_evaluator.has_associations?
             tuple_evaluator.persist_associations(tuple, persisted)
 
-            relation.by_pk(persisted[primary_key]).combine(*tuple_evaluator.assoc_names).first
+            pk = primary_key_names.map { |key| persisted[key] }
+
+            relation.by_pk(*pk).combine(*tuple_evaluator.assoc_names).first
           else
             persisted
           end
@@ -40,8 +42,8 @@ module ROM
         end
 
         # @api private
-        def primary_key
-          relation.primary_key
+        def primary_key_names
+          relation.schema.primary_key.map(&:name)
         end
       end
     end
