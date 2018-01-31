@@ -2,7 +2,7 @@ require 'rom/factory/builder'
 
 RSpec.describe ROM::Factory::Builder do
   subject(:builder) do
-    ROM::Factory::Builder.new(ROM::Factory::AttributeRegistry.new(attributes), relation).persistable
+    ROM::Factory::Builder.new(ROM::Factory::AttributeRegistry.new(attributes), relation: relation).persistable
   end
 
   include_context 'database'

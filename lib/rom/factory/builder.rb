@@ -1,24 +1,24 @@
 require 'dry/core/constants'
 
+require 'rom/struct'
+require 'rom/initializer'
 require 'rom/factory/tuple_evaluator'
 require 'rom/factory/builder/persistable'
 
 module ROM::Factory
   # @api private
   class Builder
+    extend ROM::Initializer
+
     include Dry::Core::Constants
 
-    # @api private
-    attr_reader :attributes
+    # @!attribute [r] attributes
+    #   @return [ROM::Factory::Attributes]
+    param :attributes
 
-    # @api private
-    attr_reader :tuple_evaluator
-
-    # @api private
-    def initialize(attributes, relation)
-      @attributes = attributes
-      @tuple_evaluator = TupleEvaluator.new(attributes, relation)
-    end
+    # @!attribute [r] relation
+    #   @return [ROM::Relation]
+    option :relation, reader: false
 
     # @api private
     def tuple(attrs = EMPTY_HASH)
@@ -32,8 +32,18 @@ module ROM::Factory
     alias_method :create, :struct
 
     # @api private
-    def persistable
-      Persistable.new(self)
+    def struct_namespace(namespace)
+      with(relation: relation.struct_namespace(namespace))
+    end
+
+    # @api private
+    def persistable(struct_namespace = ROM::Struct)
+      Persistable.new(self, relation.struct_namespace(struct_namespace))
+    end
+
+    # @api private
+    def tuple_evaluator
+      @__tuple_evaluator__ ||= TupleEvaluator.new(attributes, options[:relation])
     end
 
     # @api private
