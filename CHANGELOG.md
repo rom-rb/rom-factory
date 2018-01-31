@@ -1,8 +1,12 @@
-## 0.6.0 to-be-released
+## 0.6.0 2018-01-31
 
 ### Added
 
 * Support for factories with custom struct namespaces (solnic)
+
+### Fixed
+
+* Using dependent attributes with sequences works correctly, ie `f.sequence(:login) { |i, name| "name-#{i}"}` (solnic)
 
 [Compare v0.5.0...v0.6.0](https://github.com/rom-rb/rom-factory/compare/v0.5.0...v0.6.0)
 
