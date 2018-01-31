@@ -1,4 +1,12 @@
-## 0.5.0 to-be-released
+## 0.6.0 to-be-released
+
+### Added
+
+* Support for factories with custom struct namespaces (solnic)
+
+[Compare v0.5.0...v0.6.0](https://github.com/rom-rb/rom-factory/compare/v0.5.0...v0.6.0)
+
+## 0.5.0 2017-10-24
 
 ### Added
 
