@@ -3,29 +3,21 @@ source 'https://rubygems.org'
 gemspec
 
 gem 'rake', '~> 12.0'
-gem 'simplecov', require: false, platform: :mri
-gem 'codeclimate-test-reporter', require: false, platform: :mri
-
 gem 'rspec', '~> 3.0'
 
 group :test do
   gem 'rom-sql', '~> 2.1'
   gem 'inflecto'
   gem 'pry-byebug', platforms: :mri
-  gem 'pry', platforms: %i(jruby rbx)
-  gem 'codeclimate-test-reporter', require: false
-  gem 'simplecov', require: false
+  gem 'pry', platforms: :jruby
+  gem 'codeclimate-test-reporter'
+  gem 'simplecov'
 
-  if RUBY_ENGINE == 'rbx'
-    gem 'pg', '~> 0.18.0', platforms: :rbx
-  else
-    gem 'pg', platforms: :mri
-  end
-
-  gem 'mysql2', platforms: [:mri, :rbx]
+  gem 'pg', '~> 0.21', platforms: :mri
+  gem 'mysql2', platforms: :mri
   gem 'jdbc-postgres', platforms: :jruby
   gem 'jdbc-mysql', platforms: :jruby
-  gem 'sqlite3', '~> 1.3', platforms: [:mri, :rbx]
+  gem 'sqlite3', '~> 1.3', platforms: :mri
   gem 'jdbc-sqlite3', platforms: :jruby
 end
 
@@ -37,7 +29,6 @@ end
 group :benchmarks do
   gem 'activerecord'
   gem 'benchmark-ips'
-  gem 'factory_girl'
+  gem 'factory_bot'
   gem 'fabrication'
-  gem 'pg', platforms: :mri
 end
