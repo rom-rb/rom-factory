@@ -4,6 +4,10 @@
 
 * Support for factories with custom struct namespaces (solnic)
 
+### Changed
+
+* Accessing a factory which is not defined will result in `FactoryNotDefinedError` exception (GustavoCaso + solnic)
+
 ### Fixed
 
 * Using dependent attributes with sequences works correctly, ie `f.sequence(:login) { |i, name| "name-#{i}"}` (solnic)
