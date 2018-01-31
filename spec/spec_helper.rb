@@ -60,4 +60,5 @@ RSpec.configure do |config|
   config.disable_monkey_patching!
   config.warnings = warning_api_available
   config.include(Helpers)
+  config.before { ROM::Factory::Sequences.instance.reset }
 end

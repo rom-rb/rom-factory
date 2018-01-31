@@ -1,3 +1,5 @@
+require 'rom/factory/sequences'
+
 module ROM
   module Factory
     # @api private
@@ -19,7 +21,7 @@ module ROM
         @attributes = attributes
         @relation = relation.with(auto_struct: true)
         @model = @relation.combine(*assoc_names).mapper.model
-        @sequence = 0
+        @sequence = Sequences[relation]
       end
 
       # @api private
@@ -97,7 +99,7 @@ module ROM
 
       # @api private
       def next_id
-        @sequence += 1
+        sequence.()
       end
     end
   end
