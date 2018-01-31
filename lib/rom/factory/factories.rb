@@ -14,9 +14,14 @@ module ROM::Factory
     #   @return [Hash<Symbol=>Builder>]
     attr_reader :registry
 
+    # @!attribute [r] struct_namespace
+    #   @return [Module]
+    attr_reader :struct_namespace
+
     # @api private
-    def initialize(registry)
+    def initialize(registry, struct_namespace)
       @registry = registry
+      @struct_namespace = struct_namespace
     end
 
     # Build an in-memory struct
@@ -34,7 +39,7 @@ module ROM::Factory
     #
     # @api public
     def [](name, attrs = {})
-      registry[name].create(attrs)
+      registry[name].struct_namespace(struct_namespace).create(attrs)
     end
   end
 
@@ -51,17 +56,13 @@ module ROM::Factory
     #   @return [ROM::Container] configured rom container
     param :rom
 
-    # @!attribute [r] registry
-    #   @return [Hash<Symbol=>Builder>] a map with defined db-backed builders
-    option :registry, default: proc { Hash.new }
-
-    # @!attribute [r] structs
-    #   @return [Structs] in-memory struct builder instance
-    option :structs, optional: true, default: proc { Structs.new(registry) }
-
     # @!attribute [r] struct_namespace
     #   @return [Structs] in-memory struct builder instance
     option :struct_namespace, optional: true, default: proc { ROM::Struct }
+
+    # @!attribute [r] registry
+    #   @return [Hash<Symbol=>Builder>] a map with defined db-backed builders
+    option :registry, default: proc { Hash.new }
 
     # Define a new builder
     #
@@ -160,6 +161,15 @@ module ROM::Factory
     # @api public
     def [](name, attrs = {})
       registry[name].persistable(struct_namespace).create(attrs)
+    end
+
+    # Return in-memory struct builder
+    #
+    # @return [Structs]
+    #
+    # @api public
+    def structs
+      @__structs__ ||= Structs.new(registry, struct_namespace)
     end
 
     # Get factories with a custom struct namespace

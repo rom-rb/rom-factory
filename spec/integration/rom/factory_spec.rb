@@ -416,7 +416,9 @@ RSpec.describe ROM::Factory do
   end
 
   context 'with custom struct namespace' do
-    it 'returns an instance of a custom struct' do
+    let(:entities) { factories.struct_namespace(Test::Entities) }
+
+    before do
       module Test
         module Entities
           class User < ROM::Struct
@@ -430,19 +432,36 @@ RSpec.describe ROM::Factory do
         f.email 'jane@doe.org'
         f.timestamps
       end
+    end
 
-      entities = factories.struct_namespace(Test::Entities)
+    context 'using in-memory structs' do
+      it 'returns an instance of a custom struct' do
+        result = entities.structs[:user]
 
-      result = entities[:user]
+        expect(result).to be_kind_of(Test::Entities::User)
 
-      expect(result).to be_kind_of(Test::Entities::User)
+        expect(result.id).to be(1)
+        expect(result.first_name).to eql('Jane')
+        expect(result.last_name).to eql('Doe')
+        expect(result.email).to eql('jane@doe.org')
+        expect(result.created_at).to_not be(nil)
+        expect(result.updated_at).to_not be(nil)
+      end
+    end
 
-      expect(result.id).to be(1)
-      expect(result.first_name).to eql('Jane')
-      expect(result.last_name).to eql('Doe')
-      expect(result.email).to eql('jane@doe.org')
-      expect(result.created_at).to_not be(nil)
-      expect(result.updated_at).to_not be(nil)
+    context 'using persistable structs' do
+      it 'returns an instance of a custom struct' do
+        result = entities[:user]
+
+        expect(result).to be_kind_of(Test::Entities::User)
+
+        expect(result.id).to be(1)
+        expect(result.first_name).to eql('Jane')
+        expect(result.last_name).to eql('Doe')
+        expect(result.email).to eql('jane@doe.org')
+        expect(result.created_at).to_not be(nil)
+        expect(result.updated_at).to_not be(nil)
+      end
     end
   end
 end
