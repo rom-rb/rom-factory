@@ -1,5 +1,6 @@
 require 'dry/core/constants'
 
+require 'rom/struct'
 require 'rom/factory/tuple_evaluator'
 require 'rom/factory/builder/persistable'
 
@@ -32,8 +33,8 @@ module ROM::Factory
     alias_method :create, :struct
 
     # @api private
-    def persistable
-      Persistable.new(self)
+    def persistable(struct_namespace = ROM::Struct)
+      Persistable.new(self, relation.struct_namespace(struct_namespace))
     end
 
     # @api private

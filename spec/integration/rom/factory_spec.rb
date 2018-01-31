@@ -414,4 +414,35 @@ RSpec.describe ROM::Factory do
       expect(result.name).to eql('Jane')
     end
   end
+
+  context 'with custom struct namespace' do
+    it 'returns an instance of a custom struct' do
+      module Test
+        module Entities
+          class User < ROM::Struct
+          end
+        end
+      end
+
+      factories.define(:user) do |f|
+        f.first_name 'Jane'
+        f.last_name 'Doe'
+        f.email 'jane@doe.org'
+        f.timestamps
+      end
+
+      entities = factories.struct_namespace(Test::Entities)
+
+      result = entities[:user]
+
+      expect(result).to be_kind_of(Test::Entities::User)
+
+      expect(result.id).to be(1)
+      expect(result.first_name).to eql('Jane')
+      expect(result.last_name).to eql('Doe')
+      expect(result.email).to eql('jane@doe.org')
+      expect(result.created_at).to_not be(nil)
+      expect(result.updated_at).to_not be(nil)
+    end
+  end
 end

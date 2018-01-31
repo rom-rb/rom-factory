@@ -2,6 +2,7 @@ require 'dry/configurable'
 require 'dry/core/inflector'
 
 require 'rom/initializer'
+require 'rom/struct'
 require 'rom/factory/dsl'
 
 module ROM::Factory
@@ -57,6 +58,10 @@ module ROM::Factory
     # @!attribute [r] structs
     #   @return [Structs] in-memory struct builder instance
     option :structs, optional: true, default: proc { Structs.new(registry) }
+
+    # @!attribute [r] struct_namespace
+    #   @return [Structs] in-memory struct builder instance
+    option :struct_namespace, optional: true, default: proc { ROM::Struct }
 
     # Define a new builder
     #
@@ -133,7 +138,7 @@ module ROM::Factory
         else
           relation_name = opts.fetch(:relation) { infer_relation(name) }
           relation = rom.relations[relation_name]
-          DSL.new(name, relation: relation, factories: self, &block).call
+          DSL.new(name, relation: relation.struct_namespace(struct_namespace), factories: self, &block).call
         end
 
       registry[name] = builder
@@ -154,7 +159,28 @@ module ROM::Factory
     #
     # @api public
     def [](name, attrs = {})
-      registry[name].persistable.create(attrs)
+      registry[name].persistable(struct_namespace).create(attrs)
+    end
+
+    # Get factories with a custom struct namespace
+    #
+    # @example
+    #   EntityFactory = MyFactory.struct_namespace(MyApp::Entities)
+    #
+    #   EntityFactory[:user]
+    #   # => #<MyApp::Entities::User id=2 ...>
+    #
+    # @param [Module] namespace
+    #
+    # @return [Factories]
+    #
+    # @api public
+    def struct_namespace(namespace = Undefined)
+      if namespace.equal?(Undefined)
+        options[:struct_namespace]
+      else
+        with(struct_namespace: namespace)
+      end
     end
 
     # @api private
