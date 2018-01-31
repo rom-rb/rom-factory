@@ -1,7 +1,7 @@
 require 'rom-factory'
 require 'rom-core'
 require 'active_record'
-require 'factory_girl'
+require 'factory_bot'
 require 'fabrication'
 require 'benchmark/ips'
 
@@ -33,7 +33,7 @@ end
 
 ActiveRecord::Base.establish_connection(DATABASE_URL)
 
-FactoryGirl.define do
+FactoryBot.define do
   factory(:user) do
     first_name "John"
     last_name  "Doe"
@@ -54,9 +54,9 @@ Benchmark.ips do |x|
     end
   end
 
-  x.report('factory_girl') do
+  x.report('factory_bot') do
     1000.times do
-      FactoryGirl.create(:user)
+      FactoryBot.create(:user)
     end
   end
 
