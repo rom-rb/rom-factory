@@ -8,15 +8,15 @@ RSpec.describe ROM::Factory::AttributeRegistry do
   end
 
   let(:name_attr) do
-    attribute(:Value, :name, 'Jane')
+    value(:name, 'Jane')
   end
 
   let(:email_attr) do
-    attribute(:Callable, :email) { |name| "#{name}@rom-rb.org" }
+    callable(:email) { |name| "#{name}@rom-rb.org" }
   end
 
   let(:id_attr) do
-    attribute(:Sequence, :id) { |n| n }
+    sequence(:id) { |n| n }
   end
 
   describe '#tsort' do

@@ -15,8 +15,8 @@ RSpec.describe ROM::Factory::Builder do
 
   describe 'dependant attributes' do
     let(:attributes) do
-      [attribute(:Callable, :email) { |name| "#{name.downcase}@rom-rb.org" },
-       attribute(:Value, :name, 'Jane')]
+      [callable(:email) { |name| "#{name.downcase}@rom-rb.org" },
+       value(:name, 'Jane')]
     end
 
     let(:relation) { relations[:users] }

@@ -5,7 +5,7 @@ module ROM::Factory
       attr_reader :name, :dsl, :block
 
       # @api private
-      def initialize(name, dsl = nil, &block)
+      def initialize(name, dsl, block)
         @name = name
         @dsl = dsl
         @block = block

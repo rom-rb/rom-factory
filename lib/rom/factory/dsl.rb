@@ -138,13 +138,13 @@ module ROM
 
       # @api private
       def define_sequence(name, block)
-        _attributes << attributes::Callable.new(name, self, &attributes::Sequence.new(name, &block))
+        _attributes << attributes::Callable.new(name, self, attributes::Sequence.new(name, &block))
       end
 
       # @api private
       def define_attr(name, *args, &block)
         if block
-          _attributes << attributes::Callable.new(name, self, &block)
+          _attributes << attributes::Callable.new(name, self, block)
         else
           _attributes << attributes::Value.new(name, *args)
         end

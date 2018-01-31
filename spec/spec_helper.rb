@@ -49,8 +49,20 @@ module SileneceWarnings
 end
 
 module Helpers
-  def attribute(type, name, *args, &block)
-    ROM::Factory::Attributes.const_get(type).new(name, *args, &block)
+  def attribute(type, name, *args)
+    ROM::Factory::Attributes.const_get(type).new(name, *args)
+  end
+
+  def value(name, *args)
+    attribute(:Value, name, *args)
+  end
+
+  def sequence(name, &block)
+    attribute(:Sequence, name, &block)
+  end
+
+  def callable(name, *args, &block)
+    attribute(:Callable, name, *args, nil, block)
   end
 end
 

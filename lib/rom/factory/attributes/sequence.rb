@@ -9,9 +9,8 @@ module ROM::Factory
         @block = block
       end
 
-      def call(attrs = EMPTY_HASH)
-        return if attrs.key?(name)
-        block.call(increment)
+      def call(*args)
+        block.call(increment, *args)
       end
 
       def to_proc
@@ -24,6 +23,10 @@ module ROM::Factory
 
       def dependency_names
         EMPTY_ARRAY
+      end
+
+      def parameters
+        block.parameters
       end
     end
   end

@@ -123,6 +123,21 @@ RSpec.describe ROM::Factory do
     end
   end
 
+  context 'dependant attributes' do
+    it 'passes generated value to the block of another attribute' do
+      factories.define(:user, relation: :users) do |f|
+        f.first_name { fake(:name) }
+        f.last_name { fake(:name) }
+        f.sequence(:email) { |i, first_name, last_name| "#{first_name}.#{last_name}@test-#{i}.org" }
+        f.timestamps
+      end
+
+      user = factories[:user]
+
+      expect(user.email).to eql("#{user.first_name}.#{user.last_name}@test-1.org")
+    end
+  end
+
   context 'incomplete schema' do
     it 'fills in missing attributes' do
       factories.define(:user, relation: :users) do |f|
