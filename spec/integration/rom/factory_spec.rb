@@ -219,7 +219,7 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  context 'traits' do
+  context 'inheritance' do
     it 'sets up a new builder based on another' do
       factories.define(:user) do |f|
         f.timestamps
@@ -243,7 +243,37 @@ RSpec.describe ROM::Factory do
       expect(jane.email).to eql('jane@doe.org')
 
       expect(john.first_name).to eql('John')
+      expect(john.last_name).to eql('Doe')
       expect(john.email).to eql('john@doe.org')
+    end
+  end
+
+  context 'traits' do
+    it do
+      factories.define(:user) do |f|
+        f.timestamps
+
+        f.trait :jane do |t|
+          t.first_name 'Jane'
+          t.email 'jane@doe.org'
+        end
+
+        f.trait :doe do |t|
+          t.last_name 'Doe'
+        end
+      end
+
+      jane = factories.structs[:user, :jane]
+
+      expect(jane.first_name).to eql('Jane')
+      expect(jane.last_name).to eql nil
+      expect(jane.email).to eql('jane@doe.org')
+
+      jane_doe = factories.structs[:user, :jane, :doe]
+
+      expect(jane_doe.first_name).to eql('Jane')
+      expect(jane_doe.last_name).to eql('Doe')
+      expect(jane_doe.email).to eql('jane@doe.org')
     end
   end
 

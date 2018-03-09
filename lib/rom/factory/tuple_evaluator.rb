@@ -11,27 +11,31 @@ module ROM
       attr_reader :relation
 
       # @api private
+      attr_reader :traits
+
+      # @api private
       attr_reader :model
 
       # @api private
       attr_reader :sequence
 
       # @api private
-      def initialize(attributes, relation)
+      def initialize(attributes, relation, traits = {})
         @attributes = attributes
         @relation = relation.with(auto_struct: true)
+        @traits = traits
         @model = @relation.combine(*assoc_names).mapper.model
         @sequence = Sequences[relation]
       end
 
       # @api private
-      def defaults(attrs)
-        evaluate(attrs).merge(attrs)
+      def defaults(*traits, **attrs)
+        evaluate(*traits, attrs).merge(attrs)
       end
 
       # @api private
-      def struct(attrs)
-        model.new(struct_attrs.merge(defaults(attrs)))
+      def struct(*traits, attrs)
+        model.new(struct_attrs.merge(defaults(*traits, attrs)))
       end
 
       # @api private
@@ -60,8 +64,10 @@ module ROM
       private
 
       # @api private
-      def evaluate(attrs)
-        evaluate_values(attrs).merge(evaluate_associations(attrs))
+      def evaluate(*traits, **attrs)
+        evaluate_values(attrs)
+          .merge(evaluate_associations(attrs))
+          .merge(evaluate_traits(*traits, **attrs))
       end
 
       # @api private
@@ -74,6 +80,14 @@ module ROM
             h.update(result)
           end
         end
+      end
+
+      def evaluate_traits(*traits, **attrs)
+        return {} if traits.empty?
+
+        traits_attrs = self.traits.slice(*traits).values.flat_map(&:elements)
+        registry = AttributeRegistry.new(traits_attrs)
+        self.class.new(registry, relation).defaults(**attrs)
       end
 
       # @api private

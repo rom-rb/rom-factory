@@ -19,7 +19,7 @@ module ROM
         end
 
         # @api private
-        def create(attrs = {})
+        def create(*traits, **attrs)
           tuple = tuple(attrs)
           persisted = persist(tuple)
 
