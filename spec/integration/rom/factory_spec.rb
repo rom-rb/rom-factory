@@ -248,8 +248,8 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  context 'traits' do
-    it do
+  context 'with traits' do
+    it 'allows to define traits' do
       factories.define(:user) do |f|
         f.timestamps
 
@@ -274,6 +274,27 @@ RSpec.describe ROM::Factory do
       expect(jane_doe.first_name).to eql('Jane')
       expect(jane_doe.last_name).to eql('Doe')
       expect(jane_doe.email).to eql('jane@doe.org')
+    end
+
+    it 'allows to define nested traits' do
+      factories.define(:user) do |f|
+        f.timestamps
+
+        f.trait :jane do |t|
+          t.first_name 'Jane'
+          t.email 'jane@doe.org'
+        end
+
+        f.trait :jane_doe, %i[jane] do |t|
+          t.last_name 'Doe'
+        end
+      end
+
+      jane = factories.structs[:user, :jane_doe]
+
+      expect(jane.first_name).to eql('Jane')
+      expect(jane.last_name).to eql('Doe')
+      expect(jane.email).to eql('jane@doe.org')
     end
   end
 

@@ -102,9 +102,12 @@ module ROM
         ::ROM::Factory.fake(*args)
       end
 
-      def trait(name, &block)
+      def trait(name, parents = [], &block)
         _traits[name] = DSL.new(
           "#{_name}_#{name}",
+          attributes: _traits.values_at(*parents).flat_map(&:elements).inject(
+            AttributeRegistry.new, :<<
+          ),
           relation: _relation,
           factories: _factories,
           &block
