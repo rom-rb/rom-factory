@@ -25,8 +25,8 @@ module ROM::Factory
     option :relation, reader: false
 
     # @api private
-    def tuple(attrs = EMPTY_HASH)
-      tuple_evaluator.defaults(attrs)
+    def tuple(*traits, **attrs)
+      tuple_evaluator.defaults(*traits, attrs)
     end
 
     # @api private

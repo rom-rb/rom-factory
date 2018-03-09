@@ -39,21 +39,28 @@ module ROM
       end
 
       # @api private
-      def persist_associations(tuple, parent)
-        assoc_names.each do |name|
+      def persist_associations(tuple, parent, traits = [])
+        assoc_names(traits).each do |name|
           assoc = tuple[name]
           assoc.(parent) if assoc.is_a?(Proc)
         end
       end
 
       # @api private
-      def assoc_names
-        attributes.associations.map(&:name)
+      def assoc_names(traits = [])
+        assocs(traits).map(&:name)
+      end
+
+      def assocs(traits_names = [])
+        traits
+          .values_at(*traits_names)
+          .map(&:associations).flat_map(&:elements)
+          .inject(AttributeRegistry.new(attributes.associations.elements), :<<)
       end
 
       # @api private
-      def has_associations?
-        assoc_names.size > 0
+      def has_associations?(traits = [])
+        !assoc_names(traits).empty?
       end
 
       # @api private
@@ -67,7 +74,7 @@ module ROM
       def evaluate(*traits, **attrs)
         evaluate_values(attrs)
           .merge(evaluate_associations(attrs))
-          .merge(evaluate_traits(*traits, **attrs))
+          .merge(evaluate_traits(*traits, attrs))
       end
 
       # @api private
@@ -85,7 +92,7 @@ module ROM
       def evaluate_traits(*traits, **attrs)
         return {} if traits.empty?
 
-        traits_attrs = self.traits.slice(*traits).values.flat_map(&:elements)
+        traits_attrs = self.traits.values_at(*traits).flat_map(&:elements)
         registry = AttributeRegistry.new(traits_attrs)
         self.class.new(registry, relation).defaults(**attrs)
       end

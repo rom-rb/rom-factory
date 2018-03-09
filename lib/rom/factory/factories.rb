@@ -161,7 +161,7 @@ module ROM::Factory
     #
     # @api public
     def [](name, *traits, **attrs)
-      registry[name].persistable(struct_namespace).create(traits, attrs)
+      registry[name].persistable(struct_namespace).create(*traits, attrs)
     end
 
     # Return in-memory struct builder
