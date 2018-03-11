@@ -219,7 +219,7 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  context 'traits' do
+  context 'inheritance' do
     it 'sets up a new builder based on another' do
       factories.define(:user) do |f|
         f.timestamps
@@ -243,7 +243,111 @@ RSpec.describe ROM::Factory do
       expect(jane.email).to eql('jane@doe.org')
 
       expect(john.first_name).to eql('John')
+      expect(john.last_name).to eql('Doe')
       expect(john.email).to eql('john@doe.org')
+    end
+  end
+
+  context 'with traits' do
+    it 'allows to define traits' do
+      factories.define(:user) do |f|
+        f.timestamps
+
+        f.trait :jane do |t|
+          t.first_name 'Jane'
+          t.email 'jane@doe.org'
+        end
+
+        f.trait :doe do |t|
+          t.last_name 'Doe'
+        end
+      end
+
+      jane = factories.structs[:user, :jane]
+
+      expect(jane.first_name).to eql('Jane')
+      expect(jane.last_name).to eql nil
+      expect(jane.email).to eql('jane@doe.org')
+
+      jane_doe = factories.structs[:user, :jane, :doe]
+
+      expect(jane_doe.first_name).to eql('Jane')
+      expect(jane_doe.last_name).to eql('Doe')
+      expect(jane_doe.email).to eql('jane@doe.org')
+    end
+
+    it 'allows to define nested traits' do
+      factories.define(:user) do |f|
+        f.timestamps
+
+        f.trait :jane do |t|
+          t.first_name 'Jane'
+          t.email 'jane@doe.org'
+        end
+
+        f.trait :jane_doe, %i[jane] do |t|
+          t.last_name 'Doe'
+        end
+      end
+
+      jane = factories.structs[:user, :jane_doe]
+
+      expect(jane.first_name).to eql('Jane')
+      expect(jane.last_name).to eql('Doe')
+      expect(jane.email).to eql('jane@doe.org')
+    end
+
+    it 'allows to define traits for persisted' do
+      factories.define(:user) do |f|
+        f.timestamps
+
+        f.trait :jane do |t|
+          t.first_name 'Jane'
+          t.last_name 'Doe'
+          t.email 'jane@doe.org'
+        end
+      end
+
+      jane = factories[:user, :jane]
+
+      expect(jane.first_name).to eql('Jane')
+      expect(jane.email).to eql('jane@doe.org')
+    end
+
+    it 'allows to define traits with associations' do
+      factories.define(:task) do |f|
+        f.sequence(:title) { |n| "Task #{n}" }
+      end
+
+      factories.define(:user) do |f|
+        f.first_name 'Jane'
+        f.last_name 'Doe'
+        f.email 'jane@doe.org'
+        f.timestamps
+
+        f.trait :with_tasks do |t|
+          t.association(:tasks, count: 2)
+        end
+      end
+
+      user = factories[:user]
+      expect(user).not_to be_respond_to(:tasks)
+
+      user_with_tasks = factories[:user, :with_tasks]
+
+      expect(user_with_tasks.first_name).to eql('Jane')
+      expect(user_with_tasks.last_name).to eql('Doe')
+      expect(user_with_tasks.email).to eql('jane@doe.org')
+
+      expect(user_with_tasks.tasks.count).to be(2)
+
+      t1, t2 = user_with_tasks.tasks
+
+      expect(t1.user_id).to be(user_with_tasks.id)
+      expect(t1.title).to eql('Task 1')
+
+      expect(t2.user_id).to be(user_with_tasks.id)
+      expect(t2.title).to eql('Task 2')
     end
   end
 

@@ -11,45 +11,56 @@ module ROM
       attr_reader :relation
 
       # @api private
+      attr_reader :traits
+
+      # @api private
       attr_reader :model
 
       # @api private
       attr_reader :sequence
 
       # @api private
-      def initialize(attributes, relation)
+      def initialize(attributes, relation, traits = {})
         @attributes = attributes
         @relation = relation.with(auto_struct: true)
+        @traits = traits
         @model = @relation.combine(*assoc_names).mapper.model
         @sequence = Sequences[relation]
       end
 
       # @api private
-      def defaults(attrs)
-        evaluate(attrs).merge(attrs)
+      def defaults(*traits, **attrs)
+        evaluate(*traits, attrs).merge(attrs)
       end
 
       # @api private
-      def struct(attrs)
-        model.new(struct_attrs.merge(defaults(attrs)))
+      def struct(*traits, attrs)
+        model.new(struct_attrs.merge(defaults(*traits, attrs)))
       end
 
       # @api private
-      def persist_associations(tuple, parent)
-        assoc_names.each do |name|
+      def persist_associations(tuple, parent, traits = [])
+        assoc_names(traits).each do |name|
           assoc = tuple[name]
           assoc.(parent) if assoc.is_a?(Proc)
         end
       end
 
       # @api private
-      def assoc_names
-        attributes.associations.map(&:name)
+      def assoc_names(traits = [])
+        assocs(traits).map(&:name)
+      end
+
+      def assocs(traits_names = [])
+        traits
+          .values_at(*traits_names)
+          .map(&:associations).flat_map(&:elements)
+          .inject(AttributeRegistry.new(attributes.associations.elements), :<<)
       end
 
       # @api private
-      def has_associations?
-        assoc_names.size > 0
+      def has_associations?(traits = [])
+        !assoc_names(traits).empty?
       end
 
       # @api private
@@ -60,8 +71,10 @@ module ROM
       private
 
       # @api private
-      def evaluate(attrs)
-        evaluate_values(attrs).merge(evaluate_associations(attrs))
+      def evaluate(*traits, **attrs)
+        evaluate_values(attrs)
+          .merge(evaluate_associations(attrs))
+          .merge(evaluate_traits(*traits, attrs))
       end
 
       # @api private
@@ -74,6 +87,14 @@ module ROM
             h.update(result)
           end
         end
+      end
+
+      def evaluate_traits(*traits, **attrs)
+        return {} if traits.empty?
+
+        traits_attrs = self.traits.values_at(*traits).flat_map(&:elements)
+        registry = AttributeRegistry.new(traits_attrs)
+        self.class.new(registry, relation).defaults(**attrs)
       end
 
       # @api private

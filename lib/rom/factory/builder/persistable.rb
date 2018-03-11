@@ -19,16 +19,16 @@ module ROM
         end
 
         # @api private
-        def create(attrs = {})
-          tuple = tuple(attrs)
+        def create(*traits, **attrs)
+          tuple = tuple(*traits, attrs)
           persisted = persist(tuple)
 
-          if tuple_evaluator.has_associations?
-            tuple_evaluator.persist_associations(tuple, persisted)
+          if tuple_evaluator.has_associations?(*traits)
+            tuple_evaluator.persist_associations(tuple, persisted, *traits)
 
             pk = primary_key_names.map { |key| persisted[key] }
 
-            relation.by_pk(*pk).combine(*tuple_evaluator.assoc_names).first
+            relation.by_pk(*pk).combine(*tuple_evaluator.assoc_names(*traits)).first
           else
             persisted
           end

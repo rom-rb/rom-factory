@@ -39,8 +39,8 @@ module ROM::Factory
     # @return [ROM::Struct]
     #
     # @api public
-    def [](name, attrs = {})
-      registry[name].struct_namespace(struct_namespace).create(attrs)
+    def [](name, *traits, **attrs)
+      registry[name].struct_namespace(struct_namespace).create(*traits, attrs)
     end
   end
 
@@ -160,8 +160,8 @@ module ROM::Factory
     # @return [ROM::Struct]
     #
     # @api public
-    def [](name, attrs = {})
-      registry[name].persistable(struct_namespace).create(attrs)
+    def [](name, *traits, **attrs)
+      registry[name].persistable(struct_namespace).create(*traits, attrs)
     end
 
     # Return in-memory struct builder

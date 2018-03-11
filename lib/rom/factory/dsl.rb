@@ -26,6 +26,7 @@ module ROM
       define_method(:rand, ::Kernel.instance_method(:rand))
 
       attr_reader :_name, :_relation, :_attributes, :_factories, :_valid_names
+      attr_reader :_traits
 
       # @api private
       def initialize(name, attributes: AttributeRegistry.new, relation:, factories:)
@@ -33,13 +34,14 @@ module ROM
         @_relation = relation
         @_factories = factories
         @_attributes = attributes.dup
+        @_traits = {}
         @_valid_names = _relation.schema.attributes.map(&:name)
         yield(self)
       end
 
       # @api private
       def call
-        ::ROM::Factory::Builder.new(_attributes, relation: _relation)
+        ::ROM::Factory::Builder.new(_attributes, _traits, relation: _relation)
       end
 
       # Delegate to a builder and persist a struct
@@ -98,6 +100,18 @@ module ROM
       # @api public
       def fake(*args)
         ::ROM::Factory.fake(*args)
+      end
+
+      def trait(name, parents = [], &block)
+        _traits[name] = DSL.new(
+          "#{_name}_#{name}",
+          attributes: _traits.values_at(*parents).flat_map(&:elements).inject(
+            AttributeRegistry.new, :<<
+          ),
+          relation: _relation,
+          factories: _factories,
+          &block
+        )._attributes
       end
 
       # Create an association attribute
