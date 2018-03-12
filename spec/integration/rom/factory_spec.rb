@@ -303,14 +303,18 @@ RSpec.describe ROM::Factory do
 
         f.trait :jane do |t|
           t.first_name 'Jane'
-          t.last_name 'Doe'
           t.email 'jane@doe.org'
+        end
+
+        f.trait :doe do |t|
+          t.last_name 'Doe'
         end
       end
 
-      jane = factories[:user, :jane]
+      jane = factories[:user, :jane, :doe]
 
       expect(jane.first_name).to eql('Jane')
+      expect(jane.last_name).to eql('Doe')
       expect(jane.email).to eql('jane@doe.org')
     end
 

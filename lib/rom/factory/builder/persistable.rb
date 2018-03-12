@@ -23,7 +23,7 @@ module ROM
           tuple = tuple(*traits, attrs)
           persisted = persist(tuple)
 
-          if tuple_evaluator.has_associations?(*traits)
+          if tuple_evaluator.has_associations?(traits)
             tuple_evaluator.persist_associations(tuple, persisted, *traits)
 
             pk = primary_key_names.map { |key| persisted[key] }
