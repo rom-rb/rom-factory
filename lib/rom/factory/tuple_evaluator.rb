@@ -1,4 +1,5 @@
 require 'rom/factory/sequences'
+require 'rom/factory/constants'
 
 module ROM
   module Factory
@@ -35,7 +36,11 @@ module ROM
 
       # @api private
       def struct(*traits, attrs)
-        model.new(struct_attrs.merge(defaults(*traits, attrs)))
+        if struct_has_associations?(attributes.associations)
+          raise UnSupportedAssociationsError
+        else
+          model.new(struct_attrs.merge(defaults(*traits, attrs)))
+        end
       end
 
       # @api private
@@ -121,6 +126,10 @@ module ROM
       # @api private
       def next_id
         sequence.()
+      end
+
+      def struct_has_associations?(associations)
+        associations.any? { |assoc| assoc.dependency?(relation) }
       end
     end
   end
