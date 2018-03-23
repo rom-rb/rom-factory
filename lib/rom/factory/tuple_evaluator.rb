@@ -80,7 +80,10 @@ module ROM
       # @api private
       def evaluate_values(attrs)
         attributes.values.tsort.each_with_object({}) do |attr, h|
-          deps = attr.dependency_names.map { |k| h[k] }.compact
+          deps = attr.dependency_names.map do |key|
+            h[dependecy_name(key)]
+          end.compact
+
           result = attr.(attrs, *deps)
 
           if result
@@ -89,6 +92,15 @@ module ROM
         end
       end
 
+      # @param key [Symbol]
+      # @return [Symbol]
+      #
+      # @api private
+      def dependecy_name(key)
+        key.to_s.chomp('_').to_sym
+      end
+
+      # @api private
       def evaluate_traits(*traits, **attrs)
         return {} if traits.empty?
 

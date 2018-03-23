@@ -150,6 +150,19 @@ RSpec.describe ROM::Factory do
 
       expect(user.email).to eql("#{user.first_name}.#{user.last_name}@test-1.org")
     end
+
+    it 'allows to access reserve keywords by apending an underscore at the end' do
+      factories.define(:announcement) do |f|
+        f.when { ROM::SQL::Postgres::Values::Range.new(3, 9, :'[]') }
+        f.begin { |when_| when_.lower }
+        f.end { |when_| when_.upper }
+      end
+
+      announcement = factories[:announcement]
+
+      expect(announcement.begin).to eq 3
+      expect(announcement.end).to eq 9
+    end
   end
 
   context 'incomplete schema' do
