@@ -13,8 +13,7 @@ module ROM::Factory
 
       # @api private
       def call(attrs, *args)
-        return if attrs.key?(name)
-        result = dsl.instance_exec(*args, &block)
+        result = attrs[name] || dsl.instance_exec(*args, &block)
         { name => result }
       end
 

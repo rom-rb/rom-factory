@@ -152,6 +152,23 @@ RSpec.describe ROM::Factory do
     end
   end
 
+  context 'changing values of dependant attributes' do
+    it 'sets correct values to attributes with overwritten dependant attributes' do
+      factories.define(:user) do |f|
+        f.first_name { fake(:name) }
+        f.last_name { fake(:name) }
+        f.email { |last_name| "#{last_name}@gmail.com" }
+        f.timestamps
+      end
+
+      overwritten_last_name = 'ivanov'
+      user = factories[:user, last_name: overwritten_last_name ]
+
+      expect(user.last_name).to eql(overwritten_last_name)
+      expect(user.email).to eq("#{overwritten_last_name}@gmail.com")
+    end
+  end
+
   context 'incomplete schema' do
     it 'fills in missing attributes' do
       factories.define(:user, relation: :users) do |f|
