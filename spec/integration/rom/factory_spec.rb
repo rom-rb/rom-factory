@@ -341,20 +341,26 @@ RSpec.describe ROM::Factory do
       end
 
       factories.define(:user) do |f|
-        f.first_name 'Jane'
-        f.last_name 'Doe'
-        f.email 'jane@doe.org'
         f.timestamps
+
+        f.trait :jane do |t|
+          t.first_name 'Jane'
+          t.email 'jane@doe.org'
+        end
+
+        f.trait :doe do |t|
+          t.last_name 'Doe'
+        end
 
         f.trait :with_tasks do |t|
           t.association(:tasks, count: 2)
         end
       end
 
-      user = factories[:user]
+      user = factories[:user, :jane, :doe]
       expect(user).not_to be_respond_to(:tasks)
 
-      user_with_tasks = factories[:user, :with_tasks]
+      user_with_tasks = factories[:user, :jane, :doe, :with_tasks]
 
       expect(user_with_tasks.first_name).to eql('Jane')
       expect(user_with_tasks.last_name).to eql('Doe')
