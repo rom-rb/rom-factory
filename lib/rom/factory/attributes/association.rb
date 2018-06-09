@@ -2,24 +2,25 @@ module ROM::Factory
   module Attributes
     # @api private
     module Association
-      def self.new(assoc, builder, options = {})
-        const_get(assoc.definition.type).new(assoc, builder, options)
+      def self.new(assoc, builder, *traits, **options)
+        const_get(assoc.definition.type).new(assoc, builder, *traits, **options)
       end
 
       # @api private
       class Core
-        attr_reader :assoc, :options
+        attr_reader :assoc, :options, :traits
 
         # @api private
-        def initialize(assoc, builder, options = {})
+        def initialize(assoc, builder, *traits, **options)
           @assoc = assoc
           @builder_proc = builder
+          @traits = traits
           @options = options
         end
 
         # @api private
         def builder
-          @__builder__ ||= @builder_proc.()
+          @__builder__ ||= @builder_proc.call
         end
 
         # @api private
@@ -45,9 +46,8 @@ module ROM::Factory
           if attrs.key?(name) && !attrs[foreign_key]
             assoc.associate(attrs, attrs[name])
           elsif !attrs[foreign_key]
-            struct = builder.persistable.create
+            struct = builder.persistable.create(*traits)
             tuple = { name => struct }
-
             assoc.associate(tuple, struct)
           end
         end
@@ -64,9 +64,9 @@ module ROM::Factory
         def call(attrs = EMPTY_HASH, parent)
           return if attrs.key?(name)
 
-          structs = count.times.map {
-            builder.persistable.create(assoc.associate(attrs, parent))
-          }
+          structs = count.times.map do
+            builder.persistable.create(*traits, assoc.associate(attrs, parent))
+          end
 
           { name => structs }
         end
@@ -88,7 +88,7 @@ module ROM::Factory
         def call(attrs = EMPTY_HASH, parent)
           return if attrs.key?(name)
 
-          struct = builder.persistable.create(assoc.associate(attrs, parent))
+          struct = builder.persistable.create(*traits, assoc.associate(attrs, parent))
 
           { name => struct }
         end

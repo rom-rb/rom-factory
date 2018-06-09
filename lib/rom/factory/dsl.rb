@@ -59,9 +59,7 @@ module ROM
       #
       # @api private
       def sequence(meth, &block)
-        if _valid_names.include?(meth)
-          define_sequence(meth, block)
-        end
+        define_sequence(meth, block) if _valid_names.include?(meth)
       end
 
       # Set timestamp attributes
@@ -127,11 +125,11 @@ module ROM
       # @option options [Integer] count Number of objects to generate (has-many only)
       #
       # @api public
-      def association(name, options = {})
+      def association(name, *traits, **options)
         assoc = _relation.associations[name]
         builder = -> { _factories.for_relation(assoc.target) }
 
-        _attributes << attributes::Association.new(assoc, builder, options)
+        _attributes << attributes::Association.new(assoc, builder, *traits, **options)
       end
 
       private
@@ -157,11 +155,11 @@ module ROM
 
       # @api private
       def define_attr(name, *args, &block)
-        if block
-          _attributes << attributes::Callable.new(name, self, block)
-        else
-          _attributes << attributes::Value.new(name, *args)
-        end
+        _attributes << if block
+                         attributes::Callable.new(name, self, block)
+                       else
+                         attributes::Value.new(name, *args)
+                       end
       end
 
       # @api private
