@@ -1,6 +1,5 @@
 [gem]: https://rubygems.org/gems/rom-factory
 [travis]: https://travis-ci.org/rom-rb/rom-factory
-[gemnasium]: https://gemnasium.com/rom-rb/rom-factory
 [codeclimate]: https://codeclimate.com/github/rom-rb/rom-factory
 [inchpages]: http://inch-ci.org/github/rom-rb/rom-factory
 
@@ -8,7 +7,6 @@
 
 [![Gem Version](https://badge.fury.io/rb/rom-factory.svg)][gem]
 [![Build Status](https://travis-ci.org/rom-rb/rom-factory.svg?branch=master)][travis]
-[![Dependency Status](https://gemnasium.com/rom-rb/rom-factory.svg)][gemnasium]
 [![Code Climate](https://codeclimate.com/github/rom-rb/rom-factory/badges/gpa.svg)][codeclimate]
 [![Test Coverage](https://codeclimate.com/github/rom-rb/rom-factory/badges/coverage.svg)][codeclimate]
 [![Inline docs](http://inch-ci.org/github/rom-rb/rom-factory.svg?branch=master)][inchpages]
