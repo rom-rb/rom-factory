@@ -467,6 +467,39 @@ RSpec.describe ROM::Factory do
   end
 
   context 'using associations' do
+    context 'with traits' do
+      before do
+        factories.define(:user) do |f|
+          f.first_name 'Jane'
+          f.last_name 'Doe'
+          f.email 'jane@doe.org'
+          f.timestamps
+          f.association(:tasks, :important, count: 2)
+        end
+
+        factories.define(:task) do |f|
+          f.sequence(:title) { |n| "Task #{n}" }
+          f.trait :important do |t|
+            t.sequence(:title) { |n| "Important Task #{n}" }
+          end
+        end
+      end
+
+      it 'creates associated records with the given trait' do
+        user = factories[:user]
+
+        expect(user.tasks.count).to be(2)
+
+        t1, t2 = user.tasks
+
+        expect(t1.user_id).to be(user.id)
+        expect(t1.title).to eql('Important Task 1')
+
+        expect(t2.user_id).to be(user.id)
+        expect(t2.title).to eql('Important Task 2')
+      end
+    end
+
     context 'has_many' do
       before do
         factories.define(:user) do |f|
