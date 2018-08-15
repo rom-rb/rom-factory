@@ -1,3 +1,13 @@
+## Upcomming
+
+### Added
+
+* Support for traits (v-kolesnikov)
+
+### Fixed
+
+* Overwritten attributes with dependencies (JanaVPetrova)
+
 ## 0.6.0 2018-01-31
 
 ### Added
