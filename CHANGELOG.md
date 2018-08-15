@@ -8,6 +8,8 @@
 
 * Overwritten attributes with dependencies (JanaVPetrova)
 
+[Compare v0.6.0...master](https://github.com/rom-rb/rom-factory/compare/v0.6.0...master)
+
 ## 0.6.0 2018-01-31
 
 ### Added
