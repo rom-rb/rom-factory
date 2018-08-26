@@ -7,6 +7,7 @@ gem 'rspec', '~> 3.0'
 
 group :test do
   gem 'rom-sql', '~> 2.1'
+  gem 'rom-core', '~> 4.2', '>= 4.2.1'
   gem 'inflecto'
   gem 'pry-byebug', platforms: :mri
   gem 'pry', platforms: :jruby
