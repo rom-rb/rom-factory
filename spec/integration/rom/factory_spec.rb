@@ -528,6 +528,12 @@ RSpec.describe ROM::Factory do
         expect(t2.user_id).to be(user.id)
         expect(t2.title).to eql('Task 2')
       end
+
+      it 'raises UnSupportedAssociationError when trying to use in memory struct' do
+        expect {
+          factories.structs[:user]
+        }.to raise_error(ROM::Factory::UnSupportedAssociationsError)
+      end
     end
 
     context 'belongs_to' do
