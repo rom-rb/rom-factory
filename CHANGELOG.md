@@ -3,6 +3,7 @@
 ### Added
 
 * Support for traits (v-kolesnikov)
+* Support build building structs with associations (@ianks)
 
 ### Fixed
 
