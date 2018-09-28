@@ -30,11 +30,13 @@ Dir[root.join('shared/*.rb').to_s].each do |f|
   require f
 end
 
-DB_URI = if defined? JRUBY_VERSION
-           'jdbc:postgresql://localhost/rom_factory'
-         else
-           'postgres://localhost/rom_factory'
-         end
+DB_URI = ENV.fetch('DATABASE_URL') do
+  if defined? JRUBY_VERSION
+    'jdbc:postgresql://localhost/rom_factory'
+  else
+    'postgres://localhost/rom_factory'
+  end
+end
 
 warning_api_available = RUBY_VERSION >= '2.4.0'
 
