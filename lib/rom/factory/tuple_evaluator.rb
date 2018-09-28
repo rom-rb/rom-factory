@@ -46,7 +46,10 @@ module ROM
           materialized_callables.merge!(callable.call(attributes, persist: false))
         end
 
-        model.new(attributes.merge(materialized_callables))
+        attributes.merge!(materialized_callables)
+        attributes = relation.output_schema.call(attributes)
+
+        model.new(attributes)
       end
 
       # @api private
