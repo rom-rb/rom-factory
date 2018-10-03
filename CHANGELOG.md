@@ -1,15 +1,15 @@
-## Upcomming
+## 0.7.0 2018-10-03
 
 ### Added
 
 * Support for traits (v-kolesnikov)
-* Support build building structs with associations (@ianks)
+* Support building structs with associations (@ianks)
 
 ### Fixed
 
 * Overwritten attributes with dependencies (JanaVPetrova)
 
-[Compare v0.6.0...master](https://github.com/rom-rb/rom-factory/compare/v0.6.0...master)
+[Compare v0.6.0...v0.7.0](https://github.com/rom-rb/rom-factory/compare/v0.6.0...v0.7.0)
 
 ## 0.6.0 2018-01-31
 
