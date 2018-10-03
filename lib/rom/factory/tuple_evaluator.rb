@@ -29,13 +29,13 @@ module ROM
       end
 
       # @api private
-      def defaults(*traits, **attrs)
-        evaluate(*traits, attrs).merge(attrs)
+      def defaults(traits, attrs, opts = EMPTY_HASH)
+        evaluate(traits, attrs, opts).merge(attrs)
       end
 
       # @api private
       def struct(*traits, attrs)
-        merged_attrs = struct_attrs.merge(defaults(*traits, attrs))
+        merged_attrs = struct_attrs.merge(defaults(traits, attrs, persist: false))
         is_callable = proc { |_name, value| value.respond_to?(:call) }
 
         callables = merged_attrs.select(&is_callable)
@@ -56,7 +56,7 @@ module ROM
       def persist_associations(tuple, parent, traits = [])
         assoc_names(traits).each do |name|
           assoc = tuple[name]
-          assoc.(parent) if assoc.is_a?(Proc)
+          assoc.call(parent, persist: true) if assoc.is_a?(Proc)
         end
       end
 
@@ -85,14 +85,14 @@ module ROM
       private
 
       # @api private
-      def evaluate(*traits, **attrs)
-        evaluate_values(attrs)
-          .merge(evaluate_associations(attrs))
-          .merge(evaluate_traits(*traits, attrs))
+      def evaluate(traits, attrs, opts)
+        evaluate_values(attrs, opts)
+          .merge(evaluate_associations(attrs, opts))
+          .merge(evaluate_traits(traits, attrs, opts))
       end
 
       # @api private
-      def evaluate_values(attrs)
+      def evaluate_values(attrs, opts)
         attributes.values.tsort.each_with_object({}) do |attr, h|
           deps = attr.dependency_names.map { |k| h[k] }.compact
           result = attr.(attrs, *deps)
@@ -103,23 +103,23 @@ module ROM
         end
       end
 
-      def evaluate_traits(*traits, **attrs)
+      def evaluate_traits(traits, attrs, opts)
         return {} if traits.empty?
 
         traits_attrs = self.traits.values_at(*traits).flat_map(&:elements)
         registry = AttributeRegistry.new(traits_attrs)
-        self.class.new(registry, relation).defaults(**attrs)
+        self.class.new(registry, relation).defaults([], attrs, opts)
       end
 
       # @api private
-      def evaluate_associations(attrs)
+      def evaluate_associations(attrs, opts)
         attributes.associations.each_with_object({}) do |assoc, h|
           if assoc.dependency?(relation)
-            h[assoc.name] = ->(parent, persist: true) do
-              assoc.call(parent, persist: persist)
+            h[assoc.name] = ->(parent, call_opts) do
+              assoc.call(parent, opts.merge(call_opts))
             end
           else
-            result = assoc.(attrs)
+            result = assoc.(attrs, opts)
             h.update(result) if result
           end
         end

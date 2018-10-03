@@ -26,7 +26,7 @@ module ROM::Factory
 
     # @api private
     def tuple(*traits, **attrs)
-      tuple_evaluator.defaults(*traits, attrs)
+      tuple_evaluator.defaults(traits, attrs)
     end
 
     # @api private
