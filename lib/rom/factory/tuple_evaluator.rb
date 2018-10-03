@@ -35,7 +35,21 @@ module ROM
 
       # @api private
       def struct(*traits, attrs)
-        model.new(struct_attrs.merge(defaults(*traits, attrs)))
+        merged_attrs = struct_attrs.merge(defaults(*traits, attrs))
+        is_callable = proc { |_name, value| value.respond_to?(:call) }
+
+        callables = merged_attrs.select(&is_callable)
+        attributes = merged_attrs.reject(&is_callable)
+
+        materialized_callables = {}
+        callables.each do |_name, callable|
+          materialized_callables.merge!(callable.call(attributes, persist: false))
+        end
+
+        attributes.merge!(materialized_callables)
+        attributes = relation.output_schema.call(attributes)
+
+        model.new(attributes)
       end
 
       # @api private
@@ -101,7 +115,9 @@ module ROM
       def evaluate_associations(attrs)
         attributes.associations.each_with_object({}) do |assoc, h|
           if assoc.dependency?(relation)
-            h[assoc.name] = -> parent { assoc.call(parent) }
+            h[assoc.name] = ->(parent, persist: true) do
+              assoc.call(parent, persist: persist)
+            end
           else
             result = assoc.(attrs)
             h.update(result) if result

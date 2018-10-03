@@ -42,7 +42,7 @@ module ROM::Factory
       # @api private
       class ManyToOne < Core
         # @api private
-        def call(attrs = EMPTY_HASH)
+        def call(persist: true, **attrs)
           if attrs.key?(name) && !attrs[foreign_key]
             assoc.associate(attrs, attrs[name])
           elsif !attrs[foreign_key]
@@ -61,11 +61,18 @@ module ROM::Factory
       # @api private
       class OneToMany < Core
         # @api private
-        def call(attrs = EMPTY_HASH, parent)
+        def call(attrs = EMPTY_HASH, parent, persist: true)
           return if attrs.key?(name)
 
-          structs = count.times.map do
-            builder.persistable.create(*traits, assoc.associate(attrs, parent))
+          structs = Array.new(count).map do
+            # hash which contains the foreign key info, i.e: { user_id: 1 }
+            association_hash = assoc.associate(attrs, parent)
+
+            if persist
+              builder.persistable.create(*traits, association_hash)
+            else
+              builder.struct(*traits, attrs.merge(association_hash))
+            end
           end
 
           { name => structs }
@@ -85,10 +92,19 @@ module ROM::Factory
       # @api private
       class OneToOne < OneToMany
         # @api private
-        def call(attrs = EMPTY_HASH, parent)
+        def call(attrs = EMPTY_HASH, parent, persist: true)
           return if attrs.key?(name)
 
-          struct = builder.persistable.create(*traits, assoc.associate(attrs, parent))
+          association_hash = assoc.associate(attrs, parent)
+
+          struct = if persist
+                     builder.persistable.create(*traits, association_hash)
+                   else
+                     belongs_to_name = Dry::Core::Inflector.singularize(assoc.source_alias)
+                     belongs_to_associations = { belongs_to_name.to_sym => parent }
+                     final_attrs = attrs.merge(association_hash).merge(belongs_to_associations)
+                     builder.struct(*traits, final_attrs)
+                   end
 
           { name => struct }
         end

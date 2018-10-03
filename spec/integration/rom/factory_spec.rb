@@ -46,6 +46,76 @@ RSpec.describe ROM::Factory do
 
       expect(user1.class).to be(user2.class)
     end
+
+    it 'works with one to many relationships' do
+      factories.define(:task) do |f|
+        f.sequence(:title) { |n| "Task #{n}" }
+      end
+
+      factories.define(:user) do |f|
+        f.timestamps
+        f.association(:tasks, count: 2)
+      end
+
+      user_with_tasks = factories.structs[:user]
+
+      expect(user_with_tasks.tasks.length).to eql(2)
+      expect(relations[:tasks].count).to be_zero
+      expect(user_with_tasks.tasks).to all(respond_to(:title, :user_id))
+      expect(user_with_tasks.tasks).to all(have_attributes(user_id: user_with_tasks.id))
+    end
+
+    context 'one-to-one' do
+      let(:rom) do
+        ROM.container(:sql, conn) do |conf|
+          conf.default.create_table(:basic_users) do
+            primary_key :id
+          end
+
+          conf.default.create_table(:basic_accounts) do
+            primary_key :id
+            foreign_key :basic_user_id, :basic_users
+          end
+
+          conf.relation(:basic_users) do
+            schema(infer: true) do
+              associations do
+                has_one :basic_account
+              end
+            end
+          end
+
+          conf.relation(:basic_accounts) do
+            schema(infer: true) do
+              associations do
+                belongs_to :basic_user
+              end
+            end
+          end
+        end
+      end
+
+      before do
+        conn.drop_table?(:basic_accounts)
+        conn.drop_table?(:basic_users)
+      end
+
+      it 'works with one to one relationships' do
+        factories.define(:basic_user) do |f|
+          f.association(:basic_account)
+        end
+
+        factories.define(:basic_account) do |f|
+          f.association(:basic_user)
+        end
+
+        user = factories.structs[:basic_user]
+
+        expect(relations[:basic_accounts].count).to be_zero
+        expect(relations[:basic_users].count).to be_zero
+        expect(user.basic_account).to have_attributes(basic_user_id: user.id)
+      end
+    end
   end
 
   describe 'factories builder DSL' do
