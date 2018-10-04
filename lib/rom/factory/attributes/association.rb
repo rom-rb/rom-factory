@@ -42,11 +42,15 @@ module ROM::Factory
       # @api private
       class ManyToOne < Core
         # @api private
-        def call(persist: true, **attrs)
+        def call(attrs, opts)
           if attrs.key?(name) && !attrs[foreign_key]
             assoc.associate(attrs, attrs[name])
           elsif !attrs[foreign_key]
-            struct = builder.persistable.create(*traits)
+            struct = if opts.fetch(:persist, true)
+                       builder.persistable.create(*traits)
+                     else
+                       builder.struct(*traits, attrs)
+                     end
             tuple = { name => struct }
             assoc.associate(tuple, struct)
           end
@@ -92,12 +96,12 @@ module ROM::Factory
       # @api private
       class OneToOne < OneToMany
         # @api private
-        def call(attrs = EMPTY_HASH, parent, persist: true)
+        def call(attrs = EMPTY_HASH, parent, opts)
           return if attrs.key?(name)
 
           association_hash = assoc.associate(attrs, parent)
 
-          struct = if persist
+          struct = if opts.fetch(:persist, true)
                      builder.persistable.create(*traits, association_hash)
                    else
                      belongs_to_name = Dry::Core::Inflector.singularize(assoc.source_alias)
