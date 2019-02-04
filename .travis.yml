@@ -1,19 +1,21 @@
 language: ruby
-sudo: false
+
 services:
   - postgresql
   - mysql
 bundler_args: --without tools benchmarks
+before_install:
+  - gem install bundler
 before_script:
   - psql -c 'create database rom_factory;' -U postgres
-script: "bundle exec rake spec"
 after_success:
   - '[ -d coverage ] && bundle exec codeclimate-test-reporter'
 rvm:
-  - 2.5.0
-  - 2.4.2
-  - 2.3.6
-  - jruby-9.1.13.0
+  - 2.6.1
+  - 2.5.3
+  - 2.4.5
+  - 2.3.8
+  - jruby-9.2.5.0
 env:
   global:
     - COVERAGE='true'
