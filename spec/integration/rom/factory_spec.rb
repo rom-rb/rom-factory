@@ -512,7 +512,7 @@ RSpec.describe ROM::Factory do
       conn.drop_table?(:custom_primary_keys)
     end
 
-    it 'doesnt asume primary_key is an integer sequence' do
+    it "doesn't assume primary_key is an integer sequence" do
       factories.define(:custom_primary_key) do |f|
         f.custom_id { fake(:pokemon, :name) }
         f.name { fake(:name, :name) }
@@ -525,7 +525,7 @@ RSpec.describe ROM::Factory do
       expect(result.custom_id).to be_a(String)
     end
 
-    it 'doesnt asume primary_key is an integer sequence for a struct' do
+    it "doesn't assume primary_key is an integer sequence for a struct" do
       factories.define(:custom_primary_key) do |f|
         f.custom_id { fake(:pokemon, :name) }
         f.name { fake(:name, :name) }
