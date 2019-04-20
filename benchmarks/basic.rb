@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rom-factory'
 require 'rom-core'
 require 'active_record'
@@ -23,9 +25,9 @@ end
 factory = ROM::Factory.configure { |c| c.rom = rom }
 
 factory.define(:user) do |f|
-  f.first_name "John"
-  f.last_name "Doe"
-  f.admin false
+  f.first_name { "John" }
+  f.last_name { "Doe" }
+  f.admin { false }
 end
 
 class User < ActiveRecord::Base
@@ -35,35 +37,29 @@ ActiveRecord::Base.establish_connection(DATABASE_URL)
 
 FactoryBot.define do
   factory(:user) do
-    first_name "John"
-    last_name  "Doe"
-    admin false
+    first_name { "John" }
+    last_name  { "Doe" }
+    admin { false }
   end
 end
 
 Fabricator(:user) do
-  first_name "John"
-  last_name  "Doe"
-  admin false
+  first_name { "John" }
+  last_name  { "Doe" }
+  admin { false }
 end
 
 Benchmark.ips do |x|
   x.report('rom-factory persisted struct') do
-    1000.times do
-      factory[:user]
-    end
+    factory[:user]
   end
 
   x.report('factory_bot') do
-    1000.times do
-      FactoryBot.create(:user)
-    end
+    FactoryBot.create(:user)
   end
 
   x.report('fabrication') do
-    1000.times do
-      Fabricate(:user)
-    end
+    Fabricate(:user)
   end
 
   x.compare!
