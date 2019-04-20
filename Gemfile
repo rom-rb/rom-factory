@@ -2,12 +2,21 @@ source 'https://rubygems.org'
 
 gemspec
 
+git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
+
 gem 'rake', '~> 12.0'
 gem 'rspec', '~> 3.0'
 
+gem 'dry-logic', '~> 1.0', github: 'dry-rb/dry-logic', branch: 'master'
+gem 'dry-types', '~> 1.0', github: 'dry-rb/dry-types', branch: 'master'
+gem 'dry-struct', '~> 1.0', github: 'dry-rb/dry-struct', branch: 'master'
+
 group :test do
-  gem 'rom-sql', '~> 2.1'
-  gem 'rom-core', '~> 4.2', '>= 4.2.1'
+  gem 'rom-sql', '~> 3.0', github: 'rom-rb/rom-sql', branch: 'master'
+  gem 'rom', github: 'rom-rb/rom', branch: 'master' do
+    gem 'rom-core'
+  end
+
   gem 'inflecto'
   gem 'pry-byebug', platforms: :mri
   gem 'pry', platforms: :jruby
