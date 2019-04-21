@@ -11,15 +11,13 @@ RSpec.describe ROM::Factory do
 
   describe 'factory is not defined' do
     it 'raises error for persistable' do
-      expect {
-        factories[:not_defined]
-      }.to raise_error(ROM::Factory::FactoryNotDefinedError)
+      expect { factories[:not_defined] }
+        .to raise_error(ROM::Factory::FactoryNotDefinedError)
     end
 
     it 'raises error for structs' do
-      expect {
-        factories.structs[:not_defined]
-      }.to raise_error(ROM::Factory::FactoryNotDefinedError)
+      expect { factories.structs[:not_defined] }
+        .to raise_error(ROM::Factory::FactoryNotDefinedError)
     end
   end
 
