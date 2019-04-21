@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rom/factory/builder'
 
 RSpec.describe ROM::Factory::Builder do

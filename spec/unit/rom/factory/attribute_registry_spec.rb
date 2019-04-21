@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rom/factory/attribute_registry'
 
 RSpec.describe ROM::Factory::AttributeRegistry do

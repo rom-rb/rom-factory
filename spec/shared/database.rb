@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rom-core'
 
 RSpec.shared_context 'database' do
