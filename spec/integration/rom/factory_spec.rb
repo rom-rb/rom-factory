@@ -751,4 +751,39 @@ RSpec.describe ROM::Factory do
       end
     end
   end
+
+  describe 'using read types with one-to-many' do
+    before do
+      conf.relation(:capitalized_tasks) do
+        schema(:tasks, infer: true) do
+          attribute :title, ROM::SQL::Types::String.meta(
+            read: ROM::SQL::Types::String.constructor(&:upcase)
+          )
+
+          associations do
+            belongs_to :user
+          end
+        end
+      end
+    end
+
+    specify do
+      factories.define(:capitalized_task) do |f|
+        f.title 'A task'
+        f.association(:user)
+      end
+
+      factories.define(:user) do |f|
+        f.first_name 'Janis'
+        f.last_name 'Miezitis'
+        f.email 'janjiss@gmail.com'
+        f.timestamps
+      end
+
+      task = factories.structs[:capitalized_task]
+
+      expect(task.title).to eql('A TASK')
+      expect(task.user.first_name).to eql('Janis')
+    end
+  end
 end
