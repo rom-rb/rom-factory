@@ -49,7 +49,14 @@ module ROM
         end
 
         attributes.merge!(materialized_callables)
-        attributes = relation.output_schema.call(attributes)
+
+        associations = assoc_names
+          .map { |key| [key, attributes[key]] if attributes.key?(key) }
+          .compact
+          .to_h
+
+        attributes = relation.output_schema[attributes]
+        attributes.update(associations)
 
         model.new(attributes)
       end
