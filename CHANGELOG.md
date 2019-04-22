@@ -1,3 +1,11 @@
+## 0.8.0 to-be-released
+
+### Fixed
+
+* Loaded association structs are no longer rejected by output schemas (issue #34) (flash-gordon + solnic)
+
+[Compare v0.7.0...v0.8.0](https://github.com/rom-rb/rom-factory/compare/v0.7.0...v0.8.0)
+
 ## 0.7.0 2018-11-17
 
 ### Added
