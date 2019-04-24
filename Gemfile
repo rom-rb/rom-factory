@@ -10,6 +10,7 @@ gem 'rake', '~> 12.0'
 gem 'rspec', '~> 3.0'
 
 group :test do
+  gem 'rom-sql', '~> 3.0'
   gem 'inflecto'
   gem 'pry-byebug', platforms: :mri
   gem 'pry', platforms: :jruby
