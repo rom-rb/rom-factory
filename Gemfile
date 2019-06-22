@@ -8,6 +8,7 @@ git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
 gem 'rake', '~> 12.0'
 gem 'rspec', '~> 3.0'
+gem 'faker', '<= 1.9'
 
 group :test do
   gem 'rom-sql', '~> 3.0'
