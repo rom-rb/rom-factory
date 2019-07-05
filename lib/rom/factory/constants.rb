@@ -7,5 +7,11 @@ module ROM
         super("Factory +#{name}+ not defined")
       end
     end
+
+    class UnknownFactoryAttributes < StandardError
+      def initialize(attrs)
+        super("Unknown attributes: #{attrs.join(', ')}")
+      end
+    end
   end
 end
