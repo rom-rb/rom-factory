@@ -1,4 +1,12 @@
-## 0.8.0 to-be-released
+## 0.9.0 2019-08-12
+
+### Added
+
+* When attributes hash includes unknown attributes, a `ROM::Factory::UnknownAttributeError` will be raised (@rawburt)
+
+[Compare v0.8.0...v0.9.0](https://github.com/rom-rb/rom-factory/compare/v0.8.0...v0.9.0)
+
+## 0.8.0 2019-04-24
 
 ### Fixed
 
