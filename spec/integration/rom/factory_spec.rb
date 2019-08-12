@@ -211,7 +211,7 @@ RSpec.describe ROM::Factory do
       end
 
       user = factories[:user]
-      expect(user.email).to match /\d{1,3}/
+      expect(user.email).to match(/\d{1,3}/)
     end
   end
 
