@@ -289,6 +289,19 @@ RSpec.describe ROM::Factory do
 
       expect { define.() }.to raise_error(ArgumentError)
     end
+
+    it 'raises error when trying to set missing attribute' do
+      factories.define(:user, relation: :users) do |f|
+        f.first_name 'Janis'
+        f.last_name 'Miezitis'
+        f.email 'janjiss@gmail.com'
+        f.timestamps
+      end
+
+      expect {
+        factories[:user, not_real_attribute: "invalid attribute value"]
+      }.to raise_error(ROM::Factory::UnknownFactoryAttributes)
+    end
   end
 
   context 'sequence' do
@@ -647,7 +660,7 @@ RSpec.describe ROM::Factory do
       end
 
       it 'allows overrides' do
-        user = factories[:user, name: "Joe"]
+        user = factories[:user, first_name: "Joe"]
         task = factories[:task, user: user]
 
         expect(task.title).to eql('A task')
