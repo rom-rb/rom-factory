@@ -671,14 +671,20 @@ RSpec.describe ROM::Factory do
       end
 
       it 'works with structs' do
-        user = factories.structs[:user, name: "Joe"]
+        user = factories.structs[:user, first_name: 'Joe']
         task = factories.structs[:task, user: user]
 
+        expect(user.first_name).to eql('Joe')
         expect(task.title).to eql('A task')
         expect(task.user_id).to be(user.id)
 
         expect(rom.relations[:users].count).to be(0)
         expect(rom.relations[:tasks].count).to be(0)
+      end
+
+      it 'raises UnknownFactoryAttributes when unknown attributes are used' do
+        expect { factories.structs[:user, name: 'Joe'] }
+          .to raise_error(ROM::Factory::UnknownFactoryAttributes, /name/)
       end
     end
   end

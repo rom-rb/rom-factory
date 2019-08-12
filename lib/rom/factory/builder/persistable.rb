@@ -23,7 +23,7 @@ module ROM
         # @api private
         def create(*traits, **attrs)
           tuple = tuple(*traits, attrs)
-          validate_keys(traits, tuple)
+          validate_keys(traits, attrs)
           persisted = persist(tuple)
 
           if tuple_evaluator.has_associations?(traits)
@@ -47,15 +47,6 @@ module ROM
         # @api private
         def primary_key_names
           relation.schema.primary_key.map(&:name)
-        end
-
-        # @api private
-        def validate_keys(traits, tuple)
-          schema_keys = relation.schema.attributes.map(&:name)
-          assoc_keys = tuple_evaluator.assoc_names(traits)
-          unknown_keys = tuple.keys - schema_keys - assoc_keys
-
-          raise UnknownFactoryAttributes, unknown_keys unless unknown_keys.empty?
         end
       end
     end
