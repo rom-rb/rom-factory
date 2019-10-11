@@ -51,7 +51,7 @@ module ROM::Factory
             struct = if opts.fetch(:persist, true)
                        builder.persistable.create(*traits)
                      else
-                       builder.struct(*traits, attrs)
+                       builder.struct(*traits)                       
                      end
             tuple = { name => struct }
             assoc.associate(tuple, struct)
