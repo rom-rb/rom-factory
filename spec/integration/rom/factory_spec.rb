@@ -82,6 +82,21 @@ RSpec.describe ROM::Factory do
       expect(relations[:users].count).to be_zero
     end
 
+    context 'many-to-one' do
+      it 'does not pass provided attributes into associations' do
+        factories.define(:task) do |f|
+          f.title { 'Foo' }
+          f.association(:user)
+        end
+
+        factories.define(:user) do |f|
+          f.first_name { 'Joe' }
+        end
+
+        expect { factories.structs[:task, title: 'Bar'] }.not_to raise_error
+      end
+    end
+
     context 'one-to-one' do
       let(:rom) do
         ROM.container(:sql, conn) do |conf|
