@@ -542,7 +542,7 @@ RSpec.describe ROM::Factory do
 
     it "doesn't assume primary_key is an integer sequence" do
       factories.define(:custom_primary_key) do |f|
-        f.custom_id { fake(:internet, :uuid) }
+        f.custom_id { fake(:color, :color_name) }
         f.name { fake(:name, :name) }
       end
 
@@ -555,7 +555,7 @@ RSpec.describe ROM::Factory do
 
     it "doesn't assume primary_key is an integer sequence for a struct" do
       factories.define(:custom_primary_key) do |f|
-        f.custom_id { fake(:internet, :uuid) }
+        f.custom_id { fake(:color, :color_name) }
         f.name { fake(:name, :name) }
       end
 
