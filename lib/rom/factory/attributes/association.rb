@@ -50,7 +50,7 @@ module ROM::Factory
           elsif !attrs[foreign_key]
             struct = if opts.fetch(:persist, true)
                        builder.persistable.create(*traits)
-                     else                       
+                     else
                        builder.struct(*traits)
                      end
             tuple = { name => struct }
