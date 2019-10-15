@@ -90,7 +90,7 @@ RSpec.describe ROM::Factory do
         end
 
         factories.define(:user) do |f|
-          f.first_name { 'Joe' }
+          f.timestamps
         end
 
         expect { factories.structs[:task, title: 'Bar'] }.not_to raise_error
