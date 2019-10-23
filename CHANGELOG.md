@@ -1,3 +1,11 @@
+## 0.9.1 2019-10-23 
+
+### Fixed
+
+* Attributes of a struct are no longer accidentally passed to their associations (@psparrow)
+
+[Compare v0.9.0...v0.9.1](https://github.com/rom-rb/rom-factory/compare/v0.9.0...v0.9.1)
+
 ## 0.9.0 2019-08-12
 
 ### Added
