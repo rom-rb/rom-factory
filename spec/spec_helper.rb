@@ -13,6 +13,7 @@ if RUBY_ENGINE == 'ruby' && ENV['COVERAGE'] == 'true'
   end
 end
 
+require 'pathname'
 SPEC_ROOT = root = Pathname(__FILE__).dirname
 
 begin

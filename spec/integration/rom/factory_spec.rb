@@ -47,39 +47,57 @@ RSpec.describe ROM::Factory do
       expect(user1.class).to be(user2.class)
     end
 
-    it 'works with one to many relationships when building parent' do
-      factories.define(:task) do |f|
-        f.sequence(:title) { |n| "Task #{n}" }
+    context 'one-to-many' do
+      before do
+        factories.define(:task) do |f|
+          f.sequence(:title) { |n| "Task #{n}" }
+        end
+
+        factories.define(:user) do |f|
+          f.timestamps
+          f.association(:tasks, count: 2)
+        end
       end
 
-      factories.define(:user) do |f|
-        f.timestamps
-        f.association(:tasks, count: 2)
+      it 'works when building parent' do
+        user_with_tasks = factories.structs[:user]
+
+        expect(user_with_tasks.tasks.length).to eql(2)
+        expect(relations[:tasks].count).to be_zero
+        expect(relations[:users].count).to be_zero
+        expect(user_with_tasks.tasks).to all(respond_to(:title, :user_id))
+        expect(user_with_tasks.tasks).to all(have_attributes(user_id: user_with_tasks.id))
       end
 
-      user_with_tasks = factories.structs[:user]
+      it 'does not create records when building child' do
+        factories.structs[:task]
 
-      expect(user_with_tasks.tasks.length).to eql(2)
-      expect(relations[:tasks].count).to be_zero
-      expect(relations[:users].count).to be_zero
-      expect(user_with_tasks.tasks).to all(respond_to(:title, :user_id))
-      expect(user_with_tasks.tasks).to all(have_attributes(user_id: user_with_tasks.id))
+        expect(relations[:tasks].count).to be_zero
+        expect(relations[:users].count).to be_zero
+      end
+
+      it 'does not pass provided attributes into associations' do
+        expect {
+          factories.structs[:user, email: 'jane@doe.com']
+        }.not_to raise_error
+      end
     end
 
-    it 'does not create records when building child' do
-      factories.define(:task) do |f|
-        f.sequence(:title) { |n| "Task #{n}" }
+    context 'many-to-one' do
+      before do
+        factories.define(:task) do |f|
+          f.title { 'Foo' }
+          f.association(:user)
+        end
+
+        factories.define(:user) do |f|
+          f.timestamps
+        end
       end
 
-      factories.define(:user) do |f|
-        f.timestamps
-        f.association(:tasks, count: 2)
+      it 'does not pass provided attributes into associations' do
+        expect { factories.structs[:task, title: 'Bar'] }.not_to raise_error
       end
-
-      factories.structs[:task]
-
-      expect(relations[:tasks].count).to be_zero
-      expect(relations[:users].count).to be_zero
     end
 
     context 'one-to-one' do
@@ -92,6 +110,7 @@ RSpec.describe ROM::Factory do
           conf.default.create_table(:basic_accounts) do
             primary_key :id
             foreign_key :basic_user_id, :basic_users
+            column :created_at, Time, null: false
           end
 
           conf.relation(:basic_users) do
@@ -138,6 +157,12 @@ RSpec.describe ROM::Factory do
 
         expect(relations[:basic_accounts].count).to be_zero
         expect(relations[:basic_users].count).to be_zero
+      end
+
+      it 'does not pass provided attributes into associations' do
+        expect {
+          factories.structs[:basic_account, created_at: Time.now]
+        }.not_to raise_error
       end
     end
   end
@@ -527,7 +552,7 @@ RSpec.describe ROM::Factory do
 
     it "doesn't assume primary_key is an integer sequence" do
       factories.define(:custom_primary_key) do |f|
-        f.custom_id { fake(:pokemon, :name) }
+        f.custom_id { fake(:color, :color_name) }
         f.name { fake(:name, :name) }
       end
 
@@ -540,7 +565,7 @@ RSpec.describe ROM::Factory do
 
     it "doesn't assume primary_key is an integer sequence for a struct" do
       factories.define(:custom_primary_key) do |f|
-        f.custom_id { fake(:pokemon, :name) }
+        f.custom_id { fake(:color, :color_name) }
         f.name { fake(:name, :name) }
       end
 
