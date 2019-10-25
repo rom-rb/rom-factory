@@ -131,38 +131,60 @@ RSpec.describe ROM::Factory do
         end
       end
 
-      before do
-        conn.drop_table?(:basic_accounts)
-        conn.drop_table?(:basic_users)
+      context 'when both factories define the associations' do
+        before do
+          conn.drop_table?(:basic_accounts)
+          conn.drop_table?(:basic_users)
 
-        factories.define(:basic_user) do |f|
-          f.association(:basic_account)
+          factories.define(:basic_user) do |f|
+            f.association(:basic_account)
+          end
+
+          factories.define(:basic_account) do |f|
+            f.association(:basic_user)
+          end
         end
 
-        factories.define(:basic_account) do |f|
-          f.association(:basic_user)
+        it 'works with one to one relationships with parent' do
+          user = factories.structs[:basic_user]
+
+          expect(relations[:basic_accounts].count).to be_zero
+          expect(relations[:basic_users].count).to be_zero
+          expect(user.basic_account).to have_attributes(basic_user_id: user.id)
+        end
+
+        it 'does not persist when building a child struct' do
+          factories.structs[:basic_account]
+
+          expect(relations[:basic_accounts].count).to be_zero
+          expect(relations[:basic_users].count).to be_zero
+        end
+
+        it 'does not pass provided attributes into associations' do
+          expect {
+            factories.structs[:basic_account, created_at: Time.now]
+          }.not_to raise_error
         end
       end
 
-      it 'works with one to one relationships with parent' do
-        user = factories.structs[:basic_user]
+      context 'when the child factory does not define the parent association' do
+        before do
+          conn.drop_table?(:basic_accounts)
+          conn.drop_table?(:basic_users)
 
-        expect(relations[:basic_accounts].count).to be_zero
-        expect(relations[:basic_users].count).to be_zero
-        expect(user.basic_account).to have_attributes(basic_user_id: user.id)
-      end
+          factories.define(:basic_user) do |f|
+            f.association(:basic_account)
+          end
 
-      it 'does not persist when building a child struct' do
-        factories.structs[:basic_account]
+          factories.define(:basic_account) do |f|
+          end
+        end
 
-        expect(relations[:basic_accounts].count).to be_zero
-        expect(relations[:basic_users].count).to be_zero
-      end
+        it 'still allows building the parent struct' do
+          basic_user = factories.structs[:basic_user]
 
-      it 'does not pass provided attributes into associations' do
-        expect {
-          factories.structs[:basic_account, created_at: Time.now]
-        }.not_to raise_error
+          expect(basic_user.basic_account).to respond_to(:id)
+        end
       end
     end
   end

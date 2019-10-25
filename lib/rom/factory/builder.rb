@@ -33,7 +33,8 @@ module ROM::Factory
 
     # @api private
     def struct(*traits, **attrs)
-      validate_keys(traits, attrs)
+      validate_keys(traits, attrs, allow_associations: true)
+
       tuple_evaluator.struct(*traits, attrs)
     end
     alias_method :create, :struct
@@ -59,10 +60,12 @@ module ROM::Factory
     end
 
     # @api private
-    def validate_keys(traits, tuple)
+    def validate_keys(traits, tuple, allow_associations: false)
       schema_keys = relation.schema.attributes.map(&:name)
       assoc_keys = tuple_evaluator.assoc_names(traits)
       unknown_keys = tuple.keys - schema_keys - assoc_keys
+
+      unknown_keys = unknown_keys - relation.schema.associations.to_h.keys if allow_associations
 
       raise UnknownFactoryAttributes, unknown_keys unless unknown_keys.empty?
     end
