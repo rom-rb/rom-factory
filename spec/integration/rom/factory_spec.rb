@@ -186,6 +186,33 @@ RSpec.describe ROM::Factory do
           expect(basic_user.basic_account).to respond_to(:id)
         end
       end
+
+      context 'when the count is specified as 0' do
+        before do
+          conn.drop_table?(:basic_accounts)
+          conn.drop_table?(:basic_users)
+
+          factories.define(:basic_user) do |f|
+            f.association(:basic_account, count: 0)
+          end
+
+          factories.define(:basic_account) do |f|
+            f.association(:basic_user)
+          end
+        end
+
+        it 'does not create the related record' do
+          user = factories[:basic_user]
+
+          expect(user.basic_account).to be_nil
+        end
+
+        it 'does not build the related record' do
+          user = factories.structs[:basic_user]
+
+          expect(user.basic_account).to be_nil
+        end
+      end
     end
   end
 
