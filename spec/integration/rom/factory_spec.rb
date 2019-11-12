@@ -213,6 +213,23 @@ RSpec.describe ROM::Factory do
           expect(user.basic_account).to be_nil
         end
       end
+
+      context 'when the count is greater than 0' do
+        before do
+          conn.drop_table?(:basic_accounts)
+          conn.drop_table?(:basic_users)
+        end
+
+        it 'raises an ArgumentError' do
+          defining_with_count_greater_than_zero = proc do
+            factories.define(:basic_user) do |f|
+              f.association(:basic_account, count: 2)
+            end
+          end
+
+          expect(&defining_with_count_greater_than_zero).to raise_error(ArgumentError)
+        end
+      end
     end
   end
 
