@@ -132,6 +132,7 @@ module ROM::Factory
     def define(spec, **opts, &block)
       name, parent = spec.is_a?(Hash) ? spec.flatten(1) : spec
       namespace = opts[:struct_namespace]
+      relation_name = opts.fetch(:relation) { infer_relation(name) }
 
       if registry.key?(name)
         raise ArgumentError, "#{name.inspect} factory has been already defined"
@@ -139,9 +140,8 @@ module ROM::Factory
 
       builder =
         if parent
-          extend_builder(name, registry[parent], namespace, &block)
+          extend_builder(name, registry[parent], relation_name, namespace, &block)
         else
-          relation_name = opts.fetch(:relation) { infer_relation(name) }
           relation = rom.relations[relation_name]
           DSL.new(name, { relation: relation,
                           factories: self,
@@ -220,11 +220,12 @@ module ROM::Factory
     end
 
     # @api private
-    def extend_builder(name, parent, ns, &block)
+    def extend_builder(name, parent, relation_name, ns, &block)
       namespace = parent.options[:struct_namespace]
       namespace = builder_sturct_namespace(ns) if ns
+      relation = rom.relations.fetch(relation_name) { parent.relation }
       DSL.new(name, { attributes: parent.attributes,
-                      relation: parent.relation,
+                      relation: relation,
                       factories: self,
                       struct_namespace: namespace }, &block).call
     end

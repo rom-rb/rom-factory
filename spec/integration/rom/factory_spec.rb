@@ -437,7 +437,7 @@ RSpec.describe ROM::Factory do
       end
     end
 
-    context 'without struct_namespace option' do
+    context 'with struct_namespace option' do
       before do
         module Test
           module Entities
@@ -446,7 +446,7 @@ RSpec.describe ROM::Factory do
           end
 
           module AnotherEntities
-            class John < ROM::Struct
+            class Admin < ROM::Struct
             end
           end
         end
@@ -461,6 +461,10 @@ RSpec.describe ROM::Factory do
           f.email 'jane@doe.org'
         end
 
+        factories.define({admin: :jane}, struct_namespace: Test::AnotherEntities) do |f|
+          f.type 'Admin'
+        end
+
         factories.define({ john: :jane }, struct_namespace: Test::AnotherEntities) do |f|
           f.first_name 'John'
           f.email 'john@doe.org'
@@ -470,11 +474,17 @@ RSpec.describe ROM::Factory do
       context 'using in-memory structs' do
         let(:jane) { factories.structs[:jane] }
         let(:john) { factories.structs[:john] }
+        let(:admin) { factories.structs[:admin] }
 
         it 'sets up a new builder based on another with correct struct_namespace' do
           expect(jane.first_name).to eql('Jane')
           expect(jane.email).to eql('jane@doe.org')
           expect(jane).to be_kind_of(Test::Entities::User)
+
+          expect(jane.first_name).to eql('Jane')
+          expect(jane.email).to eql('jane@doe.org')
+          expect(admin.type).to eql('Admin')
+          expect(admin).to be_kind_of(Test::AnotherEntities::Admin)
 
           expect(john.first_name).to eql('John')
           expect(john.last_name).to eql('Doe')
@@ -486,11 +496,17 @@ RSpec.describe ROM::Factory do
       context 'using persistable structs' do
         let(:jane) { factories[:jane] }
         let(:john) { factories[:john] }
+        let(:admin) { factories[:admin] }
 
         it 'sets up a new builder based on another with correct struct_namespace' do
           expect(jane.first_name).to eql('Jane')
           expect(jane.email).to eql('jane@doe.org')
           expect(jane).to be_kind_of(Test::Entities::User)
+
+          expect(jane.first_name).to eql('Jane')
+          expect(jane.email).to eql('jane@doe.org')
+          expect(admin.type).to eql('Admin')
+          expect(admin).to be_kind_of(Test::AnotherEntities::Admin)
 
           expect(john.first_name).to eql('John')
           expect(john.last_name).to eql('Doe')

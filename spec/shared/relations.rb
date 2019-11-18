@@ -12,6 +12,7 @@ RSpec.shared_context 'relations' do
       column :created_at, Time, null: false
       column :updated_at, Time, null: false
       column :age, Integer
+      column :type, String
     end
 
     conn.create_table(:tasks) do
@@ -30,6 +31,16 @@ RSpec.shared_context 'relations' do
 
     conf.relation(:users) do
       schema(infer: true) do
+        associations do
+          has_many :tasks
+        end
+      end
+    end
+
+    conf.relation(:admins) do
+      dataset { where(type: "Admin") }
+
+      schema(:users, as: :admins, infer: true) do
         associations do
           has_many :tasks
         end

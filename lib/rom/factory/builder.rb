@@ -46,8 +46,7 @@ module ROM::Factory
     # @api private
     def struct_namespace(namespace)
       if options[:struct_namespace][:overridable]
-        with(struct_namespace: options[:struct_namespace].merge(namespace: namespace),
-             relation: relation.struct_namespace(namespace))
+        with(struct_namespace: options[:struct_namespace].merge(namespace: namespace))
       else
         self
       end
