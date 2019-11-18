@@ -26,6 +26,10 @@ module ROM::Factory
     #   @return [ROM::Relation]
     option :relation, reader: false
 
+    # @!attribute [r] struct_namespace
+    #   @return [Module] Custom struct namespace
+    option :struct_namespace, reader: false
+
     # @api private
     def tuple(*traits, **attrs)
       tuple_evaluator.defaults(traits, attrs)
@@ -41,17 +45,27 @@ module ROM::Factory
 
     # @api private
     def struct_namespace(namespace)
-      with(relation: relation.struct_namespace(namespace))
+      if options[:struct_namespace][:overridable]
+        with(struct_namespace: options[:struct_namespace].merge(namespace: namespace),
+             relation: relation.struct_namespace(namespace))
+      else
+        self
+      end
     end
 
     # @api private
-    def persistable(struct_namespace = ROM::Struct)
-      Persistable.new(self, relation.struct_namespace(struct_namespace))
+    def persistable
+      Persistable.new(self, relation)
     end
 
     # @api private
     def tuple_evaluator
-      @__tuple_evaluator__ ||= TupleEvaluator.new(attributes, options[:relation], traits)
+      @__tuple_evaluator__ ||= TupleEvaluator.new(attributes, tuple_evaluator_relation, traits)
+    end
+
+    # @api private
+    def tuple_evaluator_relation
+      options[:relation].struct_namespace(options[:struct_namespace][:namespace])
     end
 
     # @api private
