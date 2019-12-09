@@ -27,14 +27,15 @@ module ROM
     class DSL < BasicObject
       define_method(:rand, ::Kernel.instance_method(:rand))
 
-      attr_reader :_name, :_relation, :_attributes, :_factories, :_valid_names
+      attr_reader :_name, :_relation, :_attributes, :_factories, :_struct_namespace, :_valid_names
       attr_reader :_traits
 
       # @api private
-      def initialize(name, attributes: AttributeRegistry.new, relation:, factories:)
+      def initialize(name, attributes: AttributeRegistry.new, relation:, factories:, struct_namespace:)
         @_name = name
         @_relation = relation
         @_factories = factories
+        @_struct_namespace = struct_namespace
         @_attributes = attributes.dup
         @_traits = {}
         @_valid_names = _relation.schema.attributes.map(&:name)
@@ -43,7 +44,7 @@ module ROM
 
       # @api private
       def call
-        ::ROM::Factory::Builder.new(_attributes, _traits, relation: _relation)
+        ::ROM::Factory::Builder.new(_attributes, _traits, relation: _relation, struct_namespace: _struct_namespace)
       end
 
       # Delegate to a builder and persist a struct
@@ -110,6 +111,7 @@ module ROM
           ),
           relation: _relation,
           factories: _factories,
+          struct_namespace: _struct_namespace,
           &block
         )._attributes
       end

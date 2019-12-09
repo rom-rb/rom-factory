@@ -131,6 +131,8 @@ module ROM::Factory
     # @api public
     def define(spec, **opts, &block)
       name, parent = spec.is_a?(Hash) ? spec.flatten(1) : spec
+      namespace = opts[:struct_namespace]
+      relation_name = opts.fetch(:relation) { infer_relation(name) }
 
       if registry.key?(name)
         raise ArgumentError, "#{name.inspect} factory has been already defined"
@@ -138,11 +140,12 @@ module ROM::Factory
 
       builder =
         if parent
-          extend_builder(name, registry[parent], &block)
+          extend_builder(name, registry[parent], relation_name, namespace, &block)
         else
-          relation_name = opts.fetch(:relation) { infer_relation(name) }
           relation = rom.relations[relation_name]
-          DSL.new(name, relation: relation.struct_namespace(struct_namespace), factories: self, &block).call
+          DSL.new(name, { relation: relation,
+                          factories: self,
+                          struct_namespace: builder_sturct_namespace(namespace) }, &block).call
         end
 
       registry[name] = builder
@@ -163,7 +166,7 @@ module ROM::Factory
     #
     # @api public
     def [](name, *traits, **attrs)
-      registry[name].persistable(struct_namespace).create(*traits, attrs)
+      registry[name].struct_namespace(struct_namespace).persistable.create(*traits, attrs)
     end
 
     # Return in-memory struct builder
@@ -197,6 +200,11 @@ module ROM::Factory
     end
 
     # @api private
+    def builder_sturct_namespace(ns)
+      ns ? { namespace: ns, overridable: false } : { namespace: struct_namespace, overridable: true }
+    end
+
+    # @api private
     def for_relation(relation)
       registry[infer_factory_name(relation.name.to_sym)]
     end
@@ -212,8 +220,14 @@ module ROM::Factory
     end
 
     # @api private
-    def extend_builder(name, parent, &block)
-      DSL.new(name, attributes: parent.attributes, relation: parent.relation, factories: self, &block).call
+    def extend_builder(name, parent, relation_name, ns, &block)
+      namespace = parent.options[:struct_namespace]
+      namespace = builder_sturct_namespace(ns) if ns
+      relation = rom.relations.fetch(relation_name) { parent.relation }
+      DSL.new(name, { attributes: parent.attributes,
+                      relation: relation,
+                      factories: self,
+                      struct_namespace: namespace }, &block).call
     end
   end
 end
