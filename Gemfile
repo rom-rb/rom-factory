@@ -19,11 +19,7 @@ group :test do
   gem 'simplecov'
 
   gem 'pg', '~> 0.21', platforms: [:mri, :truffleruby]
-  gem 'mysql2', platforms: [:mri, :truffleruby]
   gem 'jdbc-postgres', platforms: :jruby
-  gem 'jdbc-mysql', platforms: :jruby
-  gem 'sqlite3', '~> 1.3', platforms: [:mri, :truffleruby]
-  gem 'jdbc-sqlite3', platforms: :jruby
 end
 
 group :tools do
