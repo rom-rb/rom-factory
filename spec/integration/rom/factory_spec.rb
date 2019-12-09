@@ -599,6 +599,32 @@ RSpec.describe ROM::Factory do
     end
   end
 
+  context 'with a custom output schema' do
+    it "doesn't assume primary_key exists" do
+      factories.define(:key_values) do |f|
+        f.key 'a_key'
+        f.value 'a_value'
+      end
+
+      result = factories[:key_values]
+
+      expect(result.key).to eql('a_key')
+      expect(result.value).to eql('a_value')
+    end
+
+    it "doesn't assume primary_key exists for a struct" do
+      factories.define(:key_values) do |f|
+        f.key 'a_key'
+        f.value 'a_value'
+      end
+
+      result = factories.structs[:key_values]
+
+      expect(result.key).to eql('a_key')
+      expect(result.value).to eql('a_value')
+    end
+  end
+
   context 'using builders within callable blocks' do
     it 'exposes create method in callable attribute blocks' do
       factories.define(:user) do |f|

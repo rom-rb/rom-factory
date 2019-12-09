@@ -136,11 +136,15 @@ module ROM
 
       # @api private
       def struct_attrs
-        relation.schema.
+        struct_attrs = relation.schema.
           reject(&:primary_key?).
-          map { |attr| [attr.name, nil] }.
-          to_h.
-          merge(primary_key => next_id)
+          map { |attr| [attr.name, nil] }.to_h
+
+        if primary_key
+          struct_attrs.merge(primary_key => next_id)
+        else
+          struct_attrs
+        end
       end
 
       # @api private
