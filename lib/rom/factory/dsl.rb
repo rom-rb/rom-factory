@@ -126,11 +126,16 @@ module ROM
       #
       # @param [Symbol] name The name of the configured association
       # @param [Hash] options Additional options
-      # @option options [Integer] count Number of objects to generate (has-many only)
+      # @option options [Integer] count Number of objects to generate
       #
       # @api public
       def association(name, *traits, **options)
         assoc = _relation.associations[name]
+
+        if assoc.is_a?(::ROM::SQL::Associations::OneToOne) && options.fetch(:count, 1) > 1
+          ::Kernel.raise ::ArgumentError, 'count cannot be greater than 1 on a OneToOne'
+        end
+
         builder = -> { _factories.for_relation(assoc.target) }
 
         _attributes << attributes::Association.new(assoc, builder, *traits, **options)

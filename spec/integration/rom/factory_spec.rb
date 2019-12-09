@@ -186,6 +186,50 @@ RSpec.describe ROM::Factory do
           expect(basic_user.basic_account).to respond_to(:id)
         end
       end
+
+      context 'when the count is specified as 0' do
+        before do
+          conn.drop_table?(:basic_accounts)
+          conn.drop_table?(:basic_users)
+
+          factories.define(:basic_user) do |f|
+            f.association(:basic_account, count: 0)
+          end
+
+          factories.define(:basic_account) do |f|
+            f.association(:basic_user)
+          end
+        end
+
+        it 'does not create the related record' do
+          user = factories[:basic_user]
+
+          expect(user.basic_account).to be_nil
+        end
+
+        it 'does not build the related record' do
+          user = factories.structs[:basic_user]
+
+          expect(user.basic_account).to be_nil
+        end
+      end
+
+      context 'when the count is greater than 0' do
+        before do
+          conn.drop_table?(:basic_accounts)
+          conn.drop_table?(:basic_users)
+        end
+
+        it 'raises an ArgumentError' do
+          defining_with_count_greater_than_zero = proc do
+            factories.define(:basic_user) do |f|
+              f.association(:basic_account, count: 2)
+            end
+          end
+
+          expect(&defining_with_count_greater_than_zero).to raise_error(ArgumentError)
+        end
+      end
     end
   end
 
@@ -694,6 +738,32 @@ RSpec.describe ROM::Factory do
       expect(result.custom_id).not_to be(nil)
       expect(result.custom_id).not_to be_a(Integer)
       expect(result.custom_id).to be_a(String)
+    end
+  end
+
+  context 'with a custom output schema' do
+    it "doesn't assume primary_key exists" do
+      factories.define(:key_values) do |f|
+        f.key 'a_key'
+        f.value 'a_value'
+      end
+
+      result = factories[:key_values]
+
+      expect(result.key).to eql('a_key')
+      expect(result.value).to eql('a_value')
+    end
+
+    it "doesn't assume primary_key exists for a struct" do
+      factories.define(:key_values) do |f|
+        f.key 'a_key'
+        f.value 'a_value'
+      end
+
+      result = factories.structs[:key_values]
+
+      expect(result.key).to eql('a_key')
+      expect(result.value).to eql('a_value')
     end
   end
 

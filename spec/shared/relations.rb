@@ -21,6 +21,11 @@ RSpec.shared_context 'relations' do
       column :title, String, null: false
     end
 
+    conn.create_table(:key_values) do
+      column :key, String
+      column :value, String
+    end
+
     conf.relation(:tasks) do
       schema(infer: true) do
         associations do
@@ -46,10 +51,21 @@ RSpec.shared_context 'relations' do
         end
       end
     end
+
+    conf.relation(:key_values) do
+      option :output_schema, default: -> do
+        ROM::Types::Hash.schema(
+          schema.map { |attr| [attr.key, attr.to_read_type] }.to_h
+        ).with_key_transform(&:to_sym)
+      end
+
+      schema(infer: true) {}
+    end
   end
 
   after do
     conn.drop_table(:tasks)
     conn.drop_table(:users)
+    conn.drop_table(:key_values)
   end
 end
