@@ -99,6 +99,9 @@ module ROM::Factory
       class OneToOne < OneToMany
         # @api private
         def call(attrs = EMPTY_HASH, parent, opts)
+          # do not associate if count is 0
+          return { name => nil } if count.zero?
+
           return if attrs.key?(name)
 
           association_hash = assoc.associate(attrs, parent)
@@ -113,6 +116,11 @@ module ROM::Factory
                    end
 
           { name => struct }
+        end
+
+        # @api private
+        def count
+          options.fetch(:count, 1)
         end
       end
     end
