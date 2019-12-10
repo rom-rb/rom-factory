@@ -1,3 +1,5 @@
+# this file is managed by rom-rb/devtools project
+
 version: "2"
 
 prepare:
@@ -9,10 +11,6 @@ exclude_patterns:
   - "benchmarks/"
   - "examples/"
   - "spec/"
-  - "*/spec/"
-  - "*/examples/"
-  - "*/benchmarks/"
-  - "!*.rb"
 
 plugins:
   rubocop:
