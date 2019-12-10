@@ -1,15 +1,10 @@
 # frozen_string_literal: true
 
-if RUBY_ENGINE == 'ruby' && ENV['COVERAGE'] == 'true'
-  require 'yaml'
-  rubies = YAML.safe_load(File.read(File.join(__dir__, '..', '.travis.yml')))['rvm']
-  latest_mri = rubies.select { |v| v =~ /\A\d+\.\d+.\d+\z/ }.max
+if ENV['COVERAGE'] == 'true'
+  require 'simplecov'
 
-  if RUBY_VERSION == latest_mri
-    require 'simplecov'
-    SimpleCov.start do
-      add_filter '/spec/'
-    end
+  SimpleCov.start do
+    add_filter '/spec/'
   end
 end
 
@@ -39,16 +34,6 @@ DB_URI = ENV.fetch('DATABASE_URL') do
   else
     'postgres://localhost/rom_factory'
   end
-end
-
-def local_database_url?
-  ['localhost', '0.0.0.0', '127.0.0.1'].any? { |host| DB_URI.include?(host) }
-end
-
-unless local_database_url?
-  warn "DATABASE_URL (#{DB_URI}) is not a local database, aborting " \
-       "to ensure we don't destroy production data."
-  abort
 end
 
 warning_api_available = RUBY_VERSION >= '2.4.0'
