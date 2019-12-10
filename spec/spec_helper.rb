@@ -41,16 +41,6 @@ DB_URI = ENV.fetch('DATABASE_URL') do
   end
 end
 
-def local_database_url?
-  ['localhost', '0.0.0.0', '127.0.0.1'].any? { |host| DB_URI.include?(host) }
-end
-
-unless local_database_url?
-  warn "DATABASE_URL (#{DB_URI}) is not a local database, aborting " \
-       "to ensure we don't destroy production data."
-  abort
-end
-
 warning_api_available = RUBY_VERSION >= '2.4.0'
 
 module SileneceWarnings
