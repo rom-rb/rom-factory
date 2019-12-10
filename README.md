@@ -6,7 +6,7 @@
 # rom-factory
 
 [![Gem Version](https://badge.fury.io/rb/rom-factory.svg)][gem]
-[![CI Status](https://github.com/rom-rb/rom-factor/workflows/ci/badge.svg)][actions]
+[![CI Status](https://github.com/rom-rb/rom-factory/workflows/ci/badge.svg)][actions]
 [![Code Climate](https://codeclimate.com/github/rom-rb/rom-factory/badges/gpa.svg)][codeclimate]
 [![Test Coverage](https://codeclimate.com/github/rom-rb/rom-factory/badges/coverage.svg)][codeclimate]
 [![Inline docs](http://inch-ci.org/github/rom-rb/rom-factory.svg?branch=master)][inchpages]
