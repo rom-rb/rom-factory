@@ -20,8 +20,8 @@ jobs:
 
           rsync -av tmp/devtools/shared/ .
 
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "rom-bot@rom-rb.org"
+          git config --local user.name "rom-bot"
           git add -A
           git commit -m "[devtools] config sync" || echo "nothing changed"
       - name: Push changes
