@@ -1,3 +1,23 @@
+## 0.10.0 2019-12-11
+
+
+### Added
+
+* `struct_namespace` option is supported by factory builders (@graceful-potato)
+
+  ``` ruby
+  factories.define(:user, struct_namespace: MyApp::Entities) do |f|
+    # ...
+  end
+  ```
+
+### Fixed
+
+* Support building structs when child assoc does not define parent (@psparrow) 
+* Fixed `TupleEvaluator#struct_attrs` for non-standard output schema (@AMHOL)
+
+[Compare v0.9.1...v0.10.0](https://github.com/rom-rb/rom-factory/compare/v0.9.1...v0.10.0)
+
 ## 0.9.1 2019-10-23 
 
 ### Fixed
