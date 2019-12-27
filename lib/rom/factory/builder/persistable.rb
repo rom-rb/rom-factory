@@ -21,7 +21,9 @@ module ROM
         end
 
         # @api private
-        def create(*traits, **attrs)
+        def create(*args)
+          traits, attrs = builder.extract_tuple(args)
+
           tuple = tuple(*traits, attrs)
           validate_keys(traits, attrs)
           persisted = persist(tuple)

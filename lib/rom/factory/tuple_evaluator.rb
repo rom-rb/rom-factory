@@ -36,7 +36,8 @@ module ROM
       end
 
       # @api private
-      def struct(*traits, attrs)
+      def struct(*args)
+        traits, attrs = extract_tuple(args)
         merged_attrs = struct_attrs.merge(defaults(traits, attrs, persist: false))
         is_callable = proc { |_name, value| value.respond_to?(:call) }
 
@@ -91,6 +92,17 @@ module ROM
         relation.primary_key
       end
 
+      # @api private
+      def extract_tuple(args)
+        if args.size > 0 && args.last.is_a?(::Hash)
+          *traits, attrs = args
+
+          [traits, attrs]
+        else
+          [args, EMPTY_HASH]
+        end
+      end
+
       private
 
       # @api private
@@ -125,10 +137,10 @@ module ROM
         attributes.associations.each_with_object({}) do |assoc, h|
           if assoc.dependency?(relation)
             h[assoc.name] = ->(parent, call_opts) do
-              assoc.call(parent, opts.merge(call_opts))
+              assoc.call(parent, **opts, **call_opts)
             end
           else
-            result = assoc.(attrs, opts)
+            result = assoc.(attrs, **opts)
             h.update(result) if result
           end
         end

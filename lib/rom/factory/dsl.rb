@@ -9,16 +9,18 @@ require 'rom/factory/attributes'
 
 module ROM
   module Factory
-    # @api private
-    def self.fake(type, *args)
-      api = Faker.const_get(Dry::Core::Inflector.classify(type.to_s))
-      meth, *rest = args
+    class << self
+      # @api private
+      def fake(type, *args)
+        api = ::Faker.const_get(::Dry::Core::Inflector.classify(type.to_s))
 
-      if meth.is_a?(Symbol)
-        api.public_send(meth, *rest)
-      else
-        api.public_send(type, *args)
+        if args[0].is_a?(Symbol)
+          api.public_send(*args)
+        else
+          api.public_send(type, *args)
+        end
       end
+      ruby2_keywords(:fake) if respond_to?(:ruby2_keywords, true)
     end
 
     # Factory builder DSL

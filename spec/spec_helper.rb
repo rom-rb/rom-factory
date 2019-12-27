@@ -11,6 +11,12 @@ end
 require 'pathname'
 SPEC_ROOT = root = Pathname(__FILE__).dirname
 
+require 'warning'
+Warning.ignore(/__FILE__|__LINE__/)
+Warning.ignore(/faker/)
+Warning.ignore(/i18n/)
+Warning.process { |w| raise RuntimeError, w } unless ENV['NO_WARNING']
+
 begin
   require 'pry-byebug'
 rescue LoadError
@@ -49,9 +55,10 @@ module SileneceWarnings
 end
 
 module Helpers
-  def attribute(type, name, *args)
-    ROM::Factory::Attributes.const_get(type).new(name, *args)
+  def attribute(type, *args)
+    ROM::Factory::Attributes.const_get(type).new(*args)
   end
+  ruby2_keywords(:attribute) if respond_to?(:ruby2_keywords, true)
 
   def value(name, *args)
     attribute(:Value, name, *args)

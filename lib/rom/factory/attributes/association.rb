@@ -4,8 +4,11 @@ module ROM::Factory
   module Attributes
     # @api private
     module Association
-      def self.new(assoc, builder, *traits, **options)
-        const_get(assoc.definition.type).new(assoc, builder, *traits, **options)
+      class << self
+        def new(assoc, builder, *args)
+          const_get(assoc.definition.type).new(assoc, builder, *args)
+        end
+        ruby2_keywords(:new) if respond_to?(:ruby2_keywords, true)
       end
 
       # @api private
@@ -44,11 +47,11 @@ module ROM::Factory
       # @api private
       class ManyToOne < Core
         # @api private
-        def call(attrs, opts)
+        def call(attrs, persist: true)
           if attrs.key?(name) && !attrs[foreign_key]
             assoc.associate(attrs, attrs[name])
           elsif !attrs[foreign_key]
-            struct = if opts.fetch(:persist, true)
+            struct = if persist
                        builder.persistable.create(*traits)
                      else
                        builder.struct(*traits)
@@ -98,7 +101,7 @@ module ROM::Factory
       # @api private
       class OneToOne < OneToMany
         # @api private
-        def call(attrs = EMPTY_HASH, parent, opts)
+        def call(attrs = EMPTY_HASH, parent, persist: true)
           # do not associate if count is 0
           return { name => nil } if count.zero?
 
@@ -106,7 +109,7 @@ module ROM::Factory
 
           association_hash = assoc.associate(attrs, parent)
 
-          struct = if opts.fetch(:persist, true)
+          struct = if persist
                      builder.persistable.create(*traits, association_hash)
                    else
                      belongs_to_name = Dry::Core::Inflector.singularize(assoc.source_alias)

@@ -129,7 +129,7 @@ module ROM::Factory
     # @return [ROM::Factory::Builder]
     #
     # @api public
-    def define(spec, **opts, &block)
+    def define(spec, opts = EMPTY_HASH, &block)
       name, parent = spec.is_a?(Hash) ? spec.flatten(1) : spec
       namespace = opts[:struct_namespace]
       relation_name = opts.fetch(:relation) { infer_relation(name) }
@@ -143,9 +143,13 @@ module ROM::Factory
           extend_builder(name, registry[parent], relation_name, namespace, &block)
         else
           relation = rom.relations[relation_name]
-          DSL.new(name, { relation: relation,
-                          factories: self,
-                          struct_namespace: builder_sturct_namespace(namespace) }, &block).call
+          DSL.new(
+            name,
+            relation: relation,
+            factories: self,
+            struct_namespace: builder_sturct_namespace(namespace),
+            &block
+          ).call
         end
 
       registry[name] = builder
@@ -165,8 +169,8 @@ module ROM::Factory
     # @return [ROM::Struct]
     #
     # @api public
-    def [](name, *traits, **attrs)
-      registry[name].struct_namespace(struct_namespace).persistable.create(*traits, attrs)
+    def [](name, *args)
+      registry[name].struct_namespace(struct_namespace).persistable.create(*args)
     end
 
     # Return in-memory struct builder
@@ -224,10 +228,14 @@ module ROM::Factory
       namespace = parent.options[:struct_namespace]
       namespace = builder_sturct_namespace(ns) if ns
       relation = rom.relations.fetch(relation_name) { parent.relation }
-      DSL.new(name, { attributes: parent.attributes,
-                      relation: relation,
-                      factories: self,
-                      struct_namespace: namespace }, &block).call
+      DSL.new(
+        name,
+        attributes: parent.attributes,
+        relation: relation,
+        factories: self,
+        struct_namespace: namespace,
+        &block
+      ).call
     end
   end
 end

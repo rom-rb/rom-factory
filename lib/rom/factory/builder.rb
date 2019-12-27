@@ -31,15 +31,18 @@ module ROM::Factory
     option :struct_namespace, reader: false
 
     # @api private
-    def tuple(*traits, **attrs)
+    def tuple(*args)
+      traits, attrs = extract_tuple(args)
+
       tuple_evaluator.defaults(traits, attrs)
     end
 
     # @api private
-    def struct(*traits, **attrs)
+    def struct(*args)
+      traits, attrs = extract_tuple(args)
       validate_keys(traits, attrs, allow_associations: true)
 
-      tuple_evaluator.struct(*traits, attrs)
+      tuple_evaluator.struct(*args)
     end
     alias_method :create, :struct
 
@@ -70,6 +73,11 @@ module ROM::Factory
     # @api private
     def relation
       tuple_evaluator.relation
+    end
+
+    # @api private
+    def extract_tuple(args)
+      tuple_evaluator.extract_tuple(args)
     end
 
     # @api private
