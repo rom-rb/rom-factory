@@ -15,6 +15,7 @@ require 'warning'
 Warning.ignore(/__FILE__|__LINE__/)
 Warning.ignore(/faker/)
 Warning.ignore(/i18n/)
+Warning.ignore(/rspec-mocks/)
 Warning.process { |w| raise RuntimeError, w } unless ENV['NO_WARNING']
 
 begin
