@@ -23,7 +23,7 @@ jobs:
           POSTGRES_PASSWORD: ""
           POSTGRES_DB: rom_factory
         ports:
-        - 5432:5432
+          - 5432:5432
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     strategy:
@@ -86,17 +86,17 @@ jobs:
           POSTGRES_PASSWORD: ""
           POSTGRES_DB: rom_factory
         ports:
-        - 5432:5432
+          - 5432:5432
         # needed because the postgres container does not provide a healthcheck
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     strategy:
       fail-fast: false
       matrix:
-        image: ["jruby:9.2.9", "ruby:rc"]
+        image: ["jruby:9.2.9", "ruby:2.7"]
         include:
           - image: "jruby:9.2.9"
             database_url: "jdbc:postgresql://db/rom_factory"
-          - image: "ruby:rc"
+          - image: "ruby:2.7"
             database_url: "postgres://db/rom_factory"
     container:
       image: ${{matrix.image}}
