@@ -94,7 +94,7 @@ module ROM
 
       # @api private
       def extract_tuple(args)
-        if args.size > 0 && args.last.is_a?(::Hash)
+        if !args.empty? && args.last.is_a?(::Hash)
           *traits, attrs = args
 
           [traits, attrs]
