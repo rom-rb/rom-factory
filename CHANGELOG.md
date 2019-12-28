@@ -1,5 +1,12 @@
-## 0.10.0 2019-12-11
+## 0.10.1 unreleased
 
+### Fixed
+
+- Keyword warnings reported by Ruby 2.7 (@flash-gordon)
+
+[Compare v0.10.0...master](https://github.com/rom-rb/rom-factory/compare/v0.10.0...master)
+
+## 0.10.0 2019-12-11
 
 ### Added
 
@@ -13,12 +20,12 @@
 
 ### Fixed
 
-* Support building structs when child assoc does not define parent (@psparrow) 
+* Support building structs when child assoc does not define parent (@psparrow)
 * Fixed `TupleEvaluator#struct_attrs` for non-standard output schema (@AMHOL)
 
 [Compare v0.9.1...v0.10.0](https://github.com/rom-rb/rom-factory/compare/v0.9.1...v0.10.0)
 
-## 0.9.1 2019-10-23 
+## 0.9.1 2019-10-23
 
 ### Fixed
 
