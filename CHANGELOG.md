@@ -1,10 +1,14 @@
-## 0.10.1 unreleased
+## 0.10.1 2019-12-28
+
+### Added
+
+- Support for faker 2 (@ianks)
 
 ### Fixed
 
 - Keyword warnings reported by Ruby 2.7 (@flash-gordon)
 
-[Compare v0.10.0...master](https://github.com/rom-rb/rom-factory/compare/v0.10.0...master)
+[Compare v0.10.0...v0.10.1](https://github.com/rom-rb/rom-factory/compare/v0.10.0...v0.10.1)
 
 ## 0.10.0 2019-12-11
 
