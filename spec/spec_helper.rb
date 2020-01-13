@@ -5,13 +5,6 @@ require_relative 'support/coverage'
 require 'pathname'
 SPEC_ROOT = root = Pathname(__FILE__).dirname
 
-require 'warning'
-Warning.ignore(/__FILE__|__LINE__/)
-Warning.ignore(/faker/)
-Warning.ignore(/i18n/)
-Warning.ignore(/rspec-mocks/)
-Warning.process { |w| raise RuntimeError, w } unless ENV['NO_WARNING']
-
 begin
   require 'pry-byebug'
 rescue LoadError
