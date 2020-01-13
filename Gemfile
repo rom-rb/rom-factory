@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 
 gemspec
 
-git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
+eval_gemfile 'Gemfile.devtools'
 
 gem 'rake', '~> 12.0'
 gem 'rspec', '~> 3.0'
@@ -16,14 +16,11 @@ end
 group :test do
   gem 'rom-sql', github: 'rom-rb/rom-sql', branch: 'master'
   gem 'inflecto'
-  gem 'pry-byebug', platforms: :mri
+  gem 'pry-byebug', platforms: :ruby
   gem 'pry', platforms: :jruby
-  gem 'codeclimate-test-reporter'
-  gem 'simplecov'
 
-  gem 'pg', '~> 0.21', platforms: [:mri, :truffleruby]
+  gem 'pg', '~> 0.21', platforms: :ruby
   gem 'jdbc-postgres', platforms: :jruby
-  gem 'warning'
 end
 
 group :tools do
