@@ -39,6 +39,7 @@ jobs:
           - faker-2
         include:
           - ruby: 2.6
+            faker: faker-2
             coverage: "true"
           - ruby: jruby
             database_url: jdbc:postgresql://localhost/rom_factory
