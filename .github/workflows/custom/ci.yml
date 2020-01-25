@@ -29,3 +29,4 @@ jobs:
             database_url: jdbc:postgresql://localhost/rom_factory
     env:
       FAKER: ${{matrix.faker}}
+      APT_DEPS: "libpq-dev libmysqlclient-dev libsqlite3-dev"
