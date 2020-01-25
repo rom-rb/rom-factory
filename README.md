@@ -14,7 +14,7 @@
 
 ## Links
 
-* [User documentation](http://rom-rb.org/gems/rom-factory)
+* [User documentation](http://rom-rb.org/learn/rom-factory)
 * [API documentation](http://rubydoc.info/gems/rom-factory)
 
 ## Supported Ruby versions
