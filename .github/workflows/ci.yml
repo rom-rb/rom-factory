@@ -48,8 +48,11 @@ jobs:
       CODACY_RUN_LOCAL: true
       CODACY_PROJECT_TOKEN: "${{secrets.CODACY_PROJECT_TOKEN}}"
       FAKER: "${{matrix.faker}}"
+      APT_DEPS: libpq-dev libmysqlclient-dev libsqlite3-dev
     steps:
     - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: "[ -e $APT_DEPS ] || sudo apt-get install -y --no-install-recommends $APT_DEPS\n"
     - name: Set up Ruby
       uses: eregon/use-ruby-action@master
       with:
