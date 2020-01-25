@@ -1,6 +1,6 @@
 # this file is managed by rom-rb/devtools project
 
-name: docsite
+name: Update docs on rom-rb.org
 
 on:
   push:
@@ -27,14 +27,10 @@ jobs:
           ruby-version: "2.6.x"
       - name: Set up git user
         run: |
-          git config --local user.email "rom-bot@rom-rb.org"
-          git config --local user.name "rom-bot"
+          git config --local user.email "dry-bot@rom-rb.org"
+          git config --local user.name "dry-bot"
       - name: Install dependencies
-        run: |
-          gem install bundler
-          bundle install --jobs 4 --retry 3 --without benchmarks sql
-      - name: Symlink ossy
-        run: ln -sf "$(bundle show ossy)/bin/ossy" bin/ossy
+        run: gem install ossy --no-document
       - name: Update release branches
         run: |
           branches=`git log --format=%B -n 1 $GITHUB_SHA | grep "docsite:release-" || echo "nothing"`
@@ -53,7 +49,7 @@ jobs:
               git cherry-pick $GITHUB_SHA -m 1
             done
 
-            git push --all "https://rom-bot:${{secrets.GH_PAT}}@github.com/$GITHUB_REPOSITORY.git"
+            git push --all "https://dry-bot:${{secrets.GH_PAT}}@github.com/$GITHUB_REPOSITORY.git"
 
             git checkout master
           else
@@ -61,6 +57,6 @@ jobs:
           fi
       - name: Trigger rom-rb.org deploy
         env:
-          GITHUB_LOGIN: rom-bot
+          GITHUB_LOGIN: dry-bot
           GITHUB_TOKEN: ${{secrets.GH_PAT}}
-        run: bundle exec bin/ossy github workflow rom-rb/rom-rb.org ci
+        run: ossy github workflow rom-rb/rom-rb.org ci

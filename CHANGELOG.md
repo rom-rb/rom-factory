@@ -115,7 +115,6 @@
 
 improves internals.
 
-
 ### Added
 
 - Support for defining multiple factories via `MyFactory = ROM::Factory.configure { |c| ... }` (solnic)
