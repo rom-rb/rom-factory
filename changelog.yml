@@ -1,0 +1,72 @@
+---
+- version: 0.10.1
+  date: '2019-12-28'
+  added:
+  - 'Support for faker 2 (@ianks)'
+  fixed:
+  - Keyword warnings reported by Ruby 2.7 (@flash-gordon)
+- version: 0.10.0
+  date: '2019-12-11'
+  added:
+  - |-
+    `struct_namespace` option is supported by factory builders (@graceful-potato)
+
+      ``` ruby
+      factories.define(:user, struct_namespace: MyApp::Entities) do |f|
+        # ...
+      end
+      ```
+  fixed:
+  - Support building structs when child assoc does not define parent (@psparrow)
+  - 'Fixed `TupleEvaluator#struct_attrs` for non-standard output schema (@AMHOL)'
+- version: 0.9.1
+  date: '2019-10-23'
+  fixed:
+  - Attributes of a struct are no longer accidentally passed to their associations (@psparrow)
+- version: 0.9.0
+  date: '2019-08-12'
+  added:
+  - 'When attributes hash includes unknown attributes, a `ROM::Factory::UnknownAttributeError` will be raised (@rawburt)'
+- version: 0.8.0
+  date: '2019-04-24'
+  fixed:
+  - 'Loaded association structs are no longer rejected by output schemas (issue #34) (flash-gordon + solnic)'
+- version: 0.7.0
+  date: '2018-11-17'
+  added:
+  - Support for traits (v-kolesnikov)
+  - Support building structs with associations (@ianks)
+  fixed:
+  - Overwritten attributes with dependencies (JanaVPetrova)
+- version: 0.6.0
+  date: '2018-01-31'
+  added:
+  - Support for factories with custom struct namespaces (solnic)
+  changed:
+  - 'Accessing a factory which is not defined will result in `FactoryNotDefinedError` exception (GustavoCaso + solnic)'
+  fixed:
+  - 'Using dependent attributes with sequences works correctly, ie `f.sequence(:login) { |i, name| "name-#{i}"}` (solnic)'
+- version: 0.5.0
+  date: '2017-10-24'
+  added:
+  - Updated to rom 4.0 (solnic)
+  - 'Support for `has_many` and `has_one` associations (solnic)'
+  - Support for attributes depending on values from other attributes (solnic)
+  - 'Support for `rand` inside the generator block (flash-gordon)'
+  changed:
+  - 'Depends on `rom-core` now (solnic)'
+- version: 0.4.0
+  date: '2017-03-03'
+  summary: improves internals.
+  added:
+  - 'Support for defining multiple factories via `MyFactory = ROM::Factory.configure { |c| ... }` (solnic)'
+  - 'Support for builder inheritence via `define(admin: :user) { |f| ... }` (solnic)'
+  - 'Support for generating in-memory structs via `MyFactory.structs[:user]` that are not persisted (solnic)'
+  - 'Support for `belongs_to` associations via `f.association(:user)` (solnic)'
+  - 'New DSL for defining builders `MyFactory.define(:user) { |f| ... }` which infers default relation name (solnic)'
+  - 'New factory method `MyFactory#[]` ie `MyFactory[:user, name: "Jane"]` (solnic)'
+  - 'New `fake` helper which uses faker gem under the hood ie `f.email { fake(:internet, :email) }` (solnic)'
+  changed:
+  - "`Rom::Factory::Config.configure` was replaced with `ROM::Factory.configure` (solnic)"
+  - Global factory config and builders are gone (solnic)
+  - Structs are now based on dry-struct (solnic)
