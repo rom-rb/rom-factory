@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     if: (github.event_name == 'repository_dispatch' && github.event.action == 'sync_configs') || github.event_name != 'repository_dispatch'
     env:
-      GITHUB_LOGIN: dry-bot
+      GITHUB_LOGIN: rom-bot
       GITHUB_TOKEN: ${{ secrets.GH_PAT }}
     steps:
       - name: Checkout ${{github.repository}}
@@ -25,8 +25,8 @@ jobs:
           path: tmp/devtools
       - name: Setup git user
         run: |
-          git config --local user.email "dry-bot@rom-rb.org"
-          git config --local user.name "dry-bot"
+          git config --local user.email "rom-bot@rom-rb.org"
+          git config --local user.name "rom-bot"
       - name: Set up Ruby
         uses: eregon/use-ruby-action@master
         with:
@@ -50,4 +50,4 @@ jobs:
       - name: Push changes
         run: |
           git pull --rebase origin master
-          git push https://dry-bot:${{secrets.GH_PAT}}@github.com/${{github.repository}}.git HEAD:master
+          git push https://rom-bot:${{secrets.GH_PAT}}@github.com/${{github.repository}}.git HEAD:master

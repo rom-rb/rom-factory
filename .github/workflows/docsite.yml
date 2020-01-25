@@ -27,8 +27,8 @@ jobs:
           ruby-version: "2.6.x"
       - name: Set up git user
         run: |
-          git config --local user.email "dry-bot@rom-rb.org"
-          git config --local user.name "dry-bot"
+          git config --local user.email "rom-bot@rom-rb.org"
+          git config --local user.name "rom-bot"
       - name: Install dependencies
         run: gem install ossy --no-document
       - name: Update release branches
@@ -49,7 +49,7 @@ jobs:
               git cherry-pick $GITHUB_SHA -m 1
             done
 
-            git push --all "https://dry-bot:${{secrets.GH_PAT}}@github.com/$GITHUB_REPOSITORY.git"
+            git push --all "https://rom-bot:${{secrets.GH_PAT}}@github.com/$GITHUB_REPOSITORY.git"
 
             git checkout master
           else
@@ -57,6 +57,6 @@ jobs:
           fi
       - name: Trigger rom-rb.org deploy
         env:
-          GITHUB_LOGIN: dry-bot
+          GITHUB_LOGIN: rom-bot
           GITHUB_TOKEN: ${{secrets.GH_PAT}}
         run: ossy github workflow rom-rb/rom-rb.org ci
