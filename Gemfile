@@ -18,8 +18,8 @@ end
 group :test do
   gem 'rom-sql', github: 'rom-rb/rom-sql', branch: 'master'
   gem 'inflecto'
-  gem 'pry-byebug', platforms: :ruby
-  gem 'pry', platforms: :jruby
+  gem 'pry-byebug', '~> 3.8', platforms: :ruby
+  gem 'pry', '~> 0.12.0', '<= 0.13'
 
   gem 'pg', '~> 0.21', platforms: :ruby
   gem 'jdbc-postgres', platforms: :jruby
