@@ -28,14 +28,10 @@ jobs:
         - '2.5'
         - '2.4'
         - jruby
-        - 2.7
-        - 2.6
-        - 2.5
-        - 2.4
         include:
         - ruby: '2.6'
           coverage: 'true'
-        - ruby: 2.6
+        - ruby: '2.6'
           faker: faker-2
           coverage: 'true'
         - ruby: jruby
