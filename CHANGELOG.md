@@ -1,3 +1,13 @@
+## 0.10.2 2020-04-05
+
+
+### Fixed
+
+- Fix more keyword warnings (@flash-gordon)
+
+
+[Compare v0.10.1...v0.10.2](https://github.com/rom-rb/rom-factory/compare/v0.10.1...v0.10.2)
+
 ## 0.10.1 2019-12-28
 
 
