@@ -68,4 +68,5 @@ RSpec.configure do |config|
   config.warnings = warning_api_available
   config.include(Helpers)
   config.before { ROM::Factory::Sequences.instance.reset }
+  config.filter_run_when_matching :focus
 end

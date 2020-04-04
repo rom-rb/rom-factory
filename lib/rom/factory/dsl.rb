@@ -104,6 +104,7 @@ module ROM
       def fake(*args)
         ::ROM::Factory.fake(*args)
       end
+      ruby2_keywords(:fake) if respond_to?(:ruby2_keywords, true)
 
       def trait(name, parents = [], &block)
         _traits[name] = DSL.new(

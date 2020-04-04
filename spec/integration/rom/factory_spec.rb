@@ -1168,4 +1168,18 @@ RSpec.describe ROM::Factory do
       expect(task.user.first_name).to eql('Janis')
     end
   end
+
+  unless ENV['FAKER'].eql?('faker-1')
+    describe 'fake options' do
+      specify do
+        factories.define(:user) do |f|
+          f.first_name 'Jane'
+          f.age { fake(:number, :within, range: 0..150) }
+        end
+
+        user = factories.structs[:user]
+        expect(user.age).to be_between(0, 150)
+      end
+    end
+  end
 end
