@@ -78,6 +78,7 @@ end
 #### Associations
 
 * belongs_to
+
 ```ruby
 Factory.define(:group) do |f|
   f.name 'Admins'
@@ -90,6 +91,7 @@ end
 ```
 
 * has_many
+
 ```ruby
 Factory.define(:group) do |f|
   f.name 'Admins'
