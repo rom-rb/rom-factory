@@ -40,10 +40,8 @@ jobs:
         - faker-1
         - faker-2
     env:
-      CLASSPATH: ''
       COVERAGE: "${{matrix.coverage}}"
-      CODACY_RUN_LOCAL: true
-      CODACY_PROJECT_TOKEN: "${{secrets.CODACY_PROJECT_TOKEN}}"
+      COVERAGE_TOKEN: "${{secrets.CODACY_PROJECT_TOKEN}}"
       FAKER: "${{matrix.faker}}"
       APT_DEPS: libpq-dev libmysqlclient-dev libsqlite3-dev
     steps:
@@ -62,6 +60,12 @@ jobs:
       run: bundle install --jobs 4 --retry 3
     - name: Run all tests
       run: bundle exec rake
+    - name: Run codacy-coverage-reporter
+      uses: codacy/codacy-coverage-reporter-action@master
+      if: env.COVERAGE == 'true' && env.COVERAGE_TOKEN != ''
+      with:
+        project-token: "${{secrets.CODACY_PROJECT_TOKEN}}"
+        coverage-reports: coverage/coverage.xml
     services:
       db:
         image: postgres:10.8
