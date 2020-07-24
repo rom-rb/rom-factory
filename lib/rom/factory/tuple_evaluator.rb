@@ -32,7 +32,8 @@ module ROM
 
       # @api private
       def defaults(traits, attrs, opts = EMPTY_HASH)
-        evaluate(traits, attrs, opts).merge(attrs)
+        mergeable_attrs = select_mergeable_attrs(traits, attrs)
+        evaluate(traits, attrs, opts).merge(mergeable_attrs)
       end
 
       # @api private
@@ -162,6 +163,13 @@ module ROM
       # @api private
       def next_id
         sequence.()
+      end
+
+      def select_mergeable_attrs(traits, attrs)
+        unmergeable = assocs(traits).select { |assoc| assoc.through? }.map do |a|
+          Dry::Core::Inflector.singularize(a.assoc.target.name.to_sym).to_sym
+        end
+        attrs.dup.delete_if { |key, val| unmergeable.include?(key) }
       end
     end
   end

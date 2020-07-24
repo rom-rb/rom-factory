@@ -4,7 +4,7 @@ RSpec.shared_context 'relations' do
   include_context 'database'
 
   before do
-    conn.create_table(:users) do
+    conn.create_table?(:users) do
       primary_key :id
       column :last_name, String, null: false
       column :first_name, String, null: false
@@ -15,13 +15,24 @@ RSpec.shared_context 'relations' do
       column :type, String
     end
 
-    conn.create_table(:tasks) do
+    conn.create_table?(:tasks) do
       primary_key :id
       foreign_key :user_id, :users
       column :title, String, null: false
     end
 
-    conn.create_table(:key_values) do
+    conn.create_table?(:addresses) do
+      primary_key :id
+      column :full_address, String, null: false
+    end
+
+    conn.create_table?(:user_addresses) do
+      primary_key :id
+      foreign_key :user_id, :users, on_delete: :cascade
+      foreign_key :address_id, :addresses, on_delete: :cascade
+    end
+
+    conn.create_table?(:key_values) do
       column :key, String
       column :value, String
     end
@@ -38,6 +49,26 @@ RSpec.shared_context 'relations' do
       schema(infer: true) do
         associations do
           has_many :tasks
+          has_one :user_addresses
+          has_one :address, through: :user_addresses
+        end
+      end
+    end
+
+    conf.relation(:addresses) do
+      schema(infer: true) do
+        associations do
+          has_one :user_addresses
+          has_one :user, through: :user_addresses
+        end
+      end
+    end
+
+    conf.relation(:user_addresses) do
+      schema(infer: true) do
+        associations do
+          belongs_to :user
+          belongs_to :address
         end
       end
     end
@@ -64,6 +95,8 @@ RSpec.shared_context 'relations' do
   end
 
   after do
+    conn.drop_table(:user_addresses)
+    conn.drop_table(:addresses)
     conn.drop_table(:tasks)
     conn.drop_table(:users)
     conn.drop_table(:key_values)
