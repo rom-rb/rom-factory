@@ -100,6 +100,57 @@ RSpec.describe ROM::Factory do
       end
     end
 
+    context 'one-to-one-through' do
+      before do
+        factories.define(:user) do |f|
+          f.first_name 'Janis'
+          f.last_name 'Miezitis'
+          f.email 'janjiss@gmail.com'
+          f.timestamps
+
+          f.association :address
+        end
+
+        factories.define(:address) do |f|
+          f.full_address '123 Elm St.'
+        end
+      end
+
+      context 'when persisting' do
+        it 'creates the correct records when the is no pre-existing entity' do
+          user = factories[:user]
+
+          expect(user.address).to have_attributes(full_address: '123 Elm St.')
+        end
+
+        it 'creates the join table record when there is a pre-existing entity' do
+          address = factories[:address]
+          user = factories[:user, address: address]
+
+          expect(user.address).to have_attributes(full_address: '123 Elm St.')
+        end
+      end
+
+      context 'when building a struct' do
+        it 'persists the relation properly with pre-existing assoc record' do
+          skip 'TODO: This does not work, cannot figure out why'
+
+          address = factories.structs[:address]
+          user = factories.structs[:user, address: address]
+
+          expect(user.address).to have_attributes(full_address: '123 Elm St.')
+        end
+
+        it 'persists the relation properly without pre-existing assoc record' do
+          skip 'TODO: This does not work, cannot figure out why'
+
+          user = factories.structs[:user]
+
+          expect(user.address).to have_attributes(full_address: '123 Elm St.')
+        end
+      end
+    end
+
     context 'one-to-one' do
       let(:rom) do
         ROM.container(:sql, conn) do |conf|
