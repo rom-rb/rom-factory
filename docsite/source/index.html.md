@@ -145,7 +145,7 @@ end
 
 ```ruby
 # Create in-memory object
-Factory.structs(:user)
+Factory.structs[:user]
 
 # Persist struct in database
 Factory[:user]
