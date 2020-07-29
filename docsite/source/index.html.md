@@ -145,7 +145,10 @@ end
 
 ```ruby
 # Create in-memory object
-Factory.structs(:user)
+Factory.structs[:user]
+
+# Override attributes in the in-memory object
+Factory.structs[:user, id: 1]
 
 # Persist struct in database
 Factory[:user]
