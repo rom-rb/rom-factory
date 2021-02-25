@@ -141,6 +141,20 @@ Factory.define(:user) do |f|
 end
 ```
 
+#### Dependent attributes
+
+Attributes can be based on the values of other attributes:
+
+```ruby
+Factory.define(:user) do |f|
+  f.full_name { fake(:name) }
+  # Dependent attributes are inferred from the block parameter names:
+  f.login { |full_name| full_name.downcase.gsub(/\s+/, '_') }
+  # Works with sequences too:
+  f.sequence(:email) { |n, login| "#{login}-#{n}@example.com" }
+end
+```
+
 ### Build and persist objects
 
 ```ruby
