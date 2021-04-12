@@ -8,7 +8,6 @@ eval_gemfile 'Gemfile.devtools'
 
 gem 'faker', "~> #{ENV['FAKER'].eql?('faker-1') ? '1.7' : '2.8'}"
 
-gem 'rake', '~> 12.0'
 gem 'rspec', '~> 3.0'
 
 gem 'rom', github: 'rom-rb/rom', branch: 'master' do
