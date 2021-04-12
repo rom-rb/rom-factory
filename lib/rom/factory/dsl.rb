@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'faker'
+require 'dry/core/cache'
 require 'dry/core/inflector'
 
 require 'rom/factory/builder'
@@ -9,10 +10,14 @@ require 'rom/factory/attributes'
 
 module ROM
   module Factory
+    extend ::Dry::Core::Cache
+
     class << self
       # @api private
       def fake(type, *args)
-        api = ::Faker.const_get(::Dry::Core::Inflector.classify(type.to_s))
+        api = fetch_or_store(:faker, type) do
+          ::Faker.const_get(::Dry::Core::Inflector.classify(type.to_s))
+        end
 
         if args[0].is_a?(Symbol)
           api.public_send(*args)
