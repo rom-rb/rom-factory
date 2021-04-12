@@ -13,10 +13,11 @@ jobs:
     strategy:
       matrix:
         faker:
-          - faker-1
           - faker-2
         include:
-          - ruby: "2.6"
+          - ruby: "2.7"
+            faker: faker-1
+          - ruby: "3.0"
             faker: faker-2
             coverage: "true"
           - ruby: jruby
