@@ -1,4 +1,4 @@
-name: "RuboCop"
+name: "Action Hero / RuboCop"
 on:
   push:
   pull_request:
