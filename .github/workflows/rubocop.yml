@@ -11,6 +11,6 @@ jobs:
       uses: actions/checkout@v2
     - name: Get git diff
       uses: technote-space/get-diff-action@v4
-    - name: Run
+    - name: Run against changed files
       if: env.GIT_DIFF
       uses: action-hero/actions/rubocop@main
