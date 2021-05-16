@@ -1,0 +1,4 @@
+sources:
+  - repo: action-hero/rubocop
+    sync:
+      - ".github/workflows/*.yml"
