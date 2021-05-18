@@ -2,3 +2,8 @@ sources:
   - repo: action-hero/rubocop
     sync:
       - ".github/workflows/*.yml"
+  - repo: rom-rb/devtools
+    sync:
+      - "templates/LICENSE.erb:LICENSE"
+      - "templates/README.md.erb:README.md"
+ 
