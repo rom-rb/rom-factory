@@ -4,6 +4,6 @@ sources:
       - ".github/workflows/*.yml"
   - repo: rom-rb/devtools
     sync:
-      - "templates/LICENSE.erb:LICENSE"
-      - "templates/README.md.erb:README.md"
- 
+      - "shared/*:${{file}}"
+      - "shared/spec/support/*:spec/support/${{name}}.${{ext}}"
+      - "templates/*.erb:${{name}}"
