@@ -2,8 +2,8 @@ sources:
   - repo: action-hero/rubocop
     sync:
       - ".github/workflows/*.yml"
-  - repo: rom-rb/devtools
+  - repo: rom-rb/template-gem
     sync:
-      - "shared/*:${{file}}"
-      - "shared/spec/support/*:spec/support/${{name}}.${{ext}}"
-      - "templates/*.erb:${{name}}"
+      - "*"
+      - ".github/*"
+      - "spec/*"
