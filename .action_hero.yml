@@ -1,9 +1,10 @@
 sources:
-  - repo: action-hero/rubocop
-    sync:
-      - ".github/workflows/*.yml"
   - repo: rom-rb/template-gem
     sync:
       - "*"
       - ".github/*"
       - "spec/*"
+  - repo: action-hero/workflows
+    sync:
+      - ".github/workflows/*.yml"
+      
