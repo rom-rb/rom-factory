@@ -2,7 +2,7 @@ sources:
   - repo: rom-rb/template-gem
     sync:
       - "*"
-      - ".github/*"
+      - ".github/workflows/*.yml"
       - "spec/*"
   - repo: action-hero/workflows
     sync:
