@@ -1,5 +1,4 @@
 # This file is synced from rom-rb/template-gem repo
-
 name: ci
 
 on:
@@ -26,13 +25,17 @@ jobs:
       fail-fast: false
       matrix:
         ruby:
-        
+        - "3.0"
+        - "2.7"
+        - "2.6"
+        - "2.5"
+        - "jruby"
         include:
           - ruby: "3.0"
             coverage: "true"
     env:
-      COVERAGE: $
-      COVERAGE_TOKEN: $
+      COVERAGE: ${{matrix.coverage}}
+      COVERAGE_TOKEN: ${{secrets.CODACY_PROJECT_TOKEN}}
     steps:
       - name: Checkout
         uses: actions/checkout@v1
@@ -41,7 +44,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: $
+          ruby-version: ${{matrix.ruby}}
       - name: Install latest bundler
         run: |
           gem install bundler --no-document
@@ -54,7 +57,7 @@ jobs:
         uses: codacy/codacy-coverage-reporter-action@master
         if: env.COVERAGE == 'true' && env.COVERAGE_TOKEN != ''
         with:
-          project-token: $
+          project-token: ${{secrets.CODACY_PROJECT_TOKEN}}
           coverage-reports: coverage/coverage.xml
   release:
     runs-on: ubuntu-latest
@@ -62,7 +65,7 @@ jobs:
     needs: tests
     env:
       GITHUB_LOGIN: rom-bot
-      GITHUB_TOKEN: $
+      GITHUB_TOKEN: ${{secrets.GH_PAT}}
     steps:
       - uses: actions/checkout@v1
       - name: Install package dependencies
@@ -76,4 +79,4 @@ jobs:
       - name: Trigger release workflow
         run: |
           tag=$(echo $GITHUB_REF | cut -d / -f 3)
-          ossy gh w rom-rb/devtools release --payload "{\"tag\":\"$tag\",\"sha\":\"$\",\"tag_creator\":\"$GITHUB_ACTOR\",\"repo\":\"$GITHUB_REPOSITORY\",\"repo_name\":\"$\"}"
+          ossy gh w rom-rb/devtools release --payload "{\"tag\":\"$tag\",\"sha\":\"${{github.sha}}\",\"tag_creator\":\"$GITHUB_ACTOR\",\"repo\":\"$GITHUB_REPOSITORY\",\"repo_name\":\"${{github.event.repository.name}}\"}"
