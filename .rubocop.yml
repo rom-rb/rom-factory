@@ -1,4 +1,4 @@
-# This is a config synced from dry-rb/template-gem repo
+# This is a config synced from rom-rb/template-gem repo
 
 AllCops:
   TargetRubyVersion: 2.7
