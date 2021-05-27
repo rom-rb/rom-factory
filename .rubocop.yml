@@ -1,4 +1,4 @@
-# this file is managed by rom-rb/devtools project
+# This is a config synced from dry-rb/template-gem repo
 
 AllCops:
   TargetRubyVersion: 2.7
@@ -34,6 +34,10 @@ Layout/LineLength:
 
 Lint/BooleanSymbol:
   Enabled: false
+
+Lint/ConstantDefinitionInBlock:
+  Exclude:
+    - "spec/**/*_spec.rb"
 
 Lint/RaiseException:
   Enabled: false
