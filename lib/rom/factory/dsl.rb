@@ -16,7 +16,7 @@ module ROM
       # @api private
       def fake(type, *args)
         api = fetch_or_store(:faker, type) do
-          ::Faker.const_get(::Dry::Core::Inflector.classify(type.to_s))
+          ::Faker.const_get(::Dry::Core::Inflector.camelize(type.to_s))
         end
 
         if args[0].is_a?(Symbol)
