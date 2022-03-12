@@ -730,6 +730,7 @@ RSpec.describe ROM::Factory do
       factories.define(:user) do |f|
         f.first_name { fake(:name) }
         f.last_name { fake(:name, :last_name) }
+        f.alias { fake(:greek_philosophers, :name) }
         f.email { fake(:internet, :email) }
         f.timestamps
       end
@@ -739,6 +740,7 @@ RSpec.describe ROM::Factory do
       expect(user.id).to_not be(nil)
       expect(user.first_name).to_not be(nil)
       expect(user.last_name).to_not be(nil)
+      expect(user.alias).to_not be(nil)
       expect(user.email).to_not be(nil)
       expect(user.created_at).to_not be(nil)
       expect(user.created_at).to_not be(nil)
