@@ -743,13 +743,13 @@ RSpec.describe ROM::Factory do
 
   context "custom non integer sequence primary_key" do
     let(:rom) do
-      ROM.container(:sql, conn) do |conf|
-        conf.default.create_table(:custom_primary_keys) do
+      ROM.setup(:sql, conn) do |setup, config|
+        setup.default.create_table(:custom_primary_keys) do
           column :custom_id, String
           column :name, String
         end
 
-        conf.relation(:custom_primary_keys) do
+        setup.relation(:custom_primary_keys) do
           schema(infer: true) do
             attribute :custom_id, ROM::SQL::Types::String.meta(primary_key: true)
           end

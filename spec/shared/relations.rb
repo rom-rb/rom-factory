@@ -74,10 +74,10 @@ RSpec.shared_context "relations" do
       end
     end
 
-    conf.relation(:admins) do
+    conf.relation(:admins, dataset: :users) do
       dataset { where(type: "Admin") }
 
-      schema(:users, as: :admins, infer: true)
+      schema(:users, infer: true)
 
       associations do
         has_many :tasks
