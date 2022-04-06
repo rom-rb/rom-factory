@@ -12,7 +12,7 @@ RSpec.shared_context "database" do
   end
 
   let(:conn) do
-    rom.gateways[:default].connection
+    conf.registry.gateways[:default].connection
   end
 
   let(:relations) do
