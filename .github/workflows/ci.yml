@@ -27,11 +27,10 @@ jobs:
         - '3.1'
         - '3.0'
         - '2.7'
-        - jruby
         include:
         - ruby: '3.1'
           coverage: 'true'
-          faker: faker-2
+          faker: faker-1
         faker:
         - faker-2
     env:
