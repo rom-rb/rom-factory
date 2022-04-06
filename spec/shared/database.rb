@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-require "rom-core"
+require "rom/setup"
 
 RSpec.shared_context "database" do
   let(:conf) do
-    ROM::Configuration.new(:sql, DB_URI)
+    ROM::Setup.new(:sql, DB_URI)
   end
 
   let(:rom) do
-    ROM.container(conf)
+    ROM.setup(conf)
   end
 
   let(:conn) do
-    conf.gateways[:default].connection
+    rom.gateways[:default].connection
   end
 
   let(:relations) do
