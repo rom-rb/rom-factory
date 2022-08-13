@@ -14,18 +14,19 @@ module ROM
 
     class << self
       # @api private
-      def fake(type, *args)
-        api = fetch_or_store(:faker, type) do
-          ::Faker.const_get(::Dry::Core::Inflector.camelize(type))
+      def fake(*args, **options)
+        api = fetch_or_store(:faker, *args) do
+          *ns, method_name = args
+
+          const = ns.reduce(::Faker) do |obj, name|
+            obj.const_get(::Dry::Core::Inflector.camelize(name))
+          end
+
+          const.method(method_name)
         end
 
-        if args[0].is_a?(Symbol)
-          api.public_send(*args)
-        else
-          api.public_send(type, *args)
-        end
+        api.(**options)
       end
-      ruby2_keywords(:fake) if respond_to?(:ruby2_keywords, true)
     end
 
     # Factory builder DSL
@@ -88,28 +89,36 @@ module ROM
       #
       #   @param [Symbol] type The value type to generate
       #
-      # @overload fake(api, type)
+      # @overload fake(genre, type)
       #   @example
       #     f.email { fake(:internet, :email) }
       #
-      #   @param [Symbol] api The faker API identifier ie. :internet, :product etc.
+      #   @param [Symbol] genre The faker API identifier ie. :internet, :product etc.
       #   @param [Symbol] type The value type to generate
       #
-      # @overload fake(api, type, *args)
+      # @overload fake(genre, type, **options)
       #   @example
-      #     f.email { fake(:number, :between, 10, 100) }
+      #     f.email { fake(:number, :between, from: 10, to: 100) }
       #
-      #   @param [Symbol] api The faker API identifier ie. :internet, :product etc.
+      #   @param [Symbol] genre The faker API identifier ie. :internet, :product etc.
       #   @param [Symbol] type The value type to generate
-      #   @param [Array] args Additional arguments
+      #   @param [Hash] options Additional arguments
       #
-      # @see https://github.com/stympy/faker/tree/master/doc
+      # @overload fake(genre, subgenre, type, **options)
+      #   @example
+      #     f.quote { fake(:books, :dune, :quote, character: 'stilgar') }
+      #
+      #   @param [Symbol] genre The Faker genre of API i.e. :books, :creature, :games etc
+      #   @param [Symbol] subgenre The subgenre of API i.e. :dune, :bird, :myst etc
+      #   @param [Symbol] type the value type to generate
+      #   @param [Hash] options Additional arguments
+      #
+      # @see https://github.com/faker-ruby/faker/tree/master/doc
       #
       # @api public
-      def fake(*args)
-        ::ROM::Factory.fake(*args)
+      def fake(type, *args, **options)
+        ::ROM::Factory.fake(type, *args, **options)
       end
-      ruby2_keywords(:fake) if respond_to?(:ruby2_keywords, true)
 
       def trait(name, parents = [], &block)
         _traits[name] = DSL.new(

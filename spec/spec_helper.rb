@@ -43,10 +43,9 @@ module SileneceWarnings
 end
 
 module Helpers
-  def attribute(type, *args)
-    ROM::Factory::Attributes.const_get(type).new(*args)
+  def attribute(type, *args, **kwargs)
+    ROM::Factory::Attributes.const_get(type).new(*args, **kwargs)
   end
-  ruby2_keywords(:attribute) if respond_to?(:ruby2_keywords, true)
 
   def value(name, *args)
     attribute(:Value, name, *args)

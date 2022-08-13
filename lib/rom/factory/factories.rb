@@ -42,7 +42,7 @@ module ROM::Factory
     #
     # @api public
     def [](name, *traits, **attrs)
-      registry[name].struct_namespace(struct_namespace).create(*traits, attrs)
+      registry[name].struct_namespace(struct_namespace).create(*traits, **attrs)
     end
   end
 
@@ -164,13 +164,14 @@ module ROM::Factory
     #   MyFactory[:user, name: "Jane"]
     #
     # @param [Symbol] name The name of the registered factory
-    # @param [Hash] attrs An optional hash with attributes
+    # @param [Array<Symbol>] traits List of traits to apply
+    # @param [Hash] attrs optional attributes to override the defaults
     #
     # @return [ROM::Struct]
     #
     # @api public
-    def [](name, *args)
-      registry[name].struct_namespace(struct_namespace).persistable.create(*args)
+    def [](name, *traits, **attrs)
+      registry[name].struct_namespace(struct_namespace).persistable.create(*traits, **attrs)
     end
 
     # Return in-memory struct builder
