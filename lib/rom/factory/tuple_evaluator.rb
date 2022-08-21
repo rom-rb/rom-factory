@@ -96,13 +96,13 @@ module ROM
 
       # @api private
       def evaluate(traits, attrs, opts)
-        evaluate_values(attrs, opts)
+        evaluate_values(attrs)
           .merge(evaluate_associations(attrs, opts))
           .merge(evaluate_traits(traits, attrs, opts))
       end
 
       # @api private
-      def evaluate_values(attrs, opts)
+      def evaluate_values(attrs)
         attributes.values.tsort.each_with_object({}) do |attr, h|
           deps = attr.dependency_names.map { |k| h[k] }.compact
           result = attr.(attrs, *deps)
@@ -157,7 +157,7 @@ module ROM
         unmergeable = assocs(traits).select { |assoc| assoc.through? }.map do |a|
           Dry::Core::Inflector.singularize(a.assoc.target.name.to_sym).to_sym
         end
-        attrs.dup.delete_if { |key, val| unmergeable.include?(key) }
+        attrs.dup.delete_if { |key, _| unmergeable.include?(key) }
       end
     end
   end

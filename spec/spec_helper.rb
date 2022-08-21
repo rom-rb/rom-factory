@@ -14,11 +14,11 @@ end
 require 'rom-factory'
 require 'rspec'
 
-Dir[root.join('support/*.rb').to_s].each do |f|
+Dir[root.join('support/*.rb').to_s].sort.each do |f|
   require f
 end
 
-Dir[root.join('shared/*.rb').to_s].each do |f|
+Dir[root.join('shared/*.rb').to_s].sort.each do |f|
   require f
 end
 

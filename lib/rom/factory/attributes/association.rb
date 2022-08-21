@@ -60,7 +60,7 @@ module ROM::Factory
                      else
                        builder.struct(*traits)
                      end
-            tuple = { name => struct }
+            tuple = {name => struct}
             assoc.associate(tuple, struct)
           end
         end
@@ -88,7 +88,7 @@ module ROM::Factory
             end
           end
 
-          { name => structs }
+          {name => structs}
         end
 
         # @api private
@@ -107,7 +107,7 @@ module ROM::Factory
         # @api private
         def call(attrs = EMPTY_HASH, parent, persist: true)
           # do not associate if count is 0
-          return { name => nil } if count.zero?
+          return {name => nil} if count.zero?
 
           return if attrs.key?(name)
 
@@ -117,12 +117,12 @@ module ROM::Factory
                      builder.persistable.create(*traits, **association_hash)
                    else
                      belongs_to_name = Dry::Core::Inflector.singularize(assoc.source_alias)
-                     belongs_to_associations = { belongs_to_name.to_sym => parent }
+                     belongs_to_associations = {belongs_to_name.to_sym => parent}
                      final_attrs = attrs.merge(association_hash).merge(belongs_to_associations)
                      builder.struct(*traits, **final_attrs)
                    end
 
-          { name => struct }
+          {name => struct}
         end
 
         # @api private
@@ -146,7 +146,7 @@ module ROM::Factory
 
           assoc.persist([parent], struct) if persist
 
-          { name => struct }
+          {name => struct}
         end
 
         def dependency?(rel)
