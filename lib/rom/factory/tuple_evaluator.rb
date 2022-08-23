@@ -154,7 +154,7 @@ module ROM
       end
 
       def select_mergeable_attrs(traits, attrs)
-        unmergeable = assocs(traits).select { |assoc| assoc.through? }.map do |a|
+        unmergeable = assocs(traits).select(&:through?).map do |a|
           Dry::Core::Inflector.singularize(a.assoc.target.name.to_sym).to_sym
         end
         attrs.dup.delete_if { |key, _| unmergeable.include?(key) }

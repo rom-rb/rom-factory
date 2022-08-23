@@ -90,9 +90,7 @@ RSpec.describe ROM::Factory do
           f.association(:user)
         end
 
-        factories.define(:user) do |f|
-          f.timestamps
-        end
+        factories.define(:user, &:timestamps)
       end
 
       it "does not pass provided attributes into associations" do
@@ -488,9 +486,7 @@ RSpec.describe ROM::Factory do
   context "inheritance" do
     context "without struct_namespace option" do
       before do
-        factories.define(:user) do |f|
-          f.timestamps
-        end
+        factories.define(:user, &:timestamps)
 
         factories.define(jane: :user) do |f|
           f.first_name "Jane"
@@ -546,9 +542,7 @@ RSpec.describe ROM::Factory do
           end
         end
 
-        factories.define(:user, struct_namespace: Test::Entities) do |f|
-          f.timestamps
-        end
+        factories.define(:user, struct_namespace: Test::Entities, &:timestamps)
 
         factories.define(jane: :user) do |f|
           f.first_name "Jane"

@@ -23,8 +23,8 @@ module ROM
     #
     # @api public
     def self.configure(name = DEFAULT_NAME, &block)
-      klass = Dry::Core::ClassBuilder.new(name: name, parent: Factories).call do |klass|
-        klass.configure(&block)
+      klass = Dry::Core::ClassBuilder.new(name: name, parent: Factories).call do |c|
+        c.configure(&block)
       end
 
       klass.new(klass.config.rom)
