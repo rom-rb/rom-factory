@@ -31,14 +31,13 @@ module ROM
       end
 
       # @api private
-      def defaults(traits, attrs, opts = EMPTY_HASH)
+      def defaults(traits, attrs, **opts)
         mergeable_attrs = select_mergeable_attrs(traits, attrs)
         evaluate(traits, attrs, opts).merge(mergeable_attrs)
       end
 
       # @api private
-      def struct(*args)
-        traits, attrs = extract_tuple(args)
+      def struct(*traits, **attrs)
         merged_attrs = struct_attrs.merge(defaults(traits, attrs, persist: false))
         is_callable = proc { |_name, value| value.respond_to?(:call) }
 
@@ -93,28 +92,17 @@ module ROM
         relation.primary_key
       end
 
-      # @api private
-      def extract_tuple(args)
-        if !args.empty? && args.last.is_a?(::Hash)
-          *traits, attrs = args
-
-          [traits, attrs]
-        else
-          [args, EMPTY_HASH]
-        end
-      end
-
       private
 
       # @api private
       def evaluate(traits, attrs, opts)
-        evaluate_values(attrs, opts)
+        evaluate_values(attrs)
           .merge(evaluate_associations(attrs, opts))
           .merge(evaluate_traits(traits, attrs, opts))
       end
 
       # @api private
-      def evaluate_values(attrs, opts)
+      def evaluate_values(attrs)
         attributes.values.tsort.each_with_object({}) do |attr, h|
           deps = attr.dependency_names.map { |k| h[k] }.compact
           result = attr.(attrs, *deps)
@@ -130,7 +118,7 @@ module ROM
 
         traits_attrs = self.traits.values_at(*traits).flat_map(&:elements)
         registry = AttributeRegistry.new(traits_attrs)
-        self.class.new(registry, relation).defaults([], attrs, opts)
+        self.class.new(registry, relation).defaults([], attrs, **opts)
       end
 
       # @api private
@@ -169,7 +157,7 @@ module ROM
         unmergeable = assocs(traits).select { |assoc| assoc.through? }.map do |a|
           Dry::Core::Inflector.singularize(a.assoc.target.name.to_sym).to_sym
         end
-        attrs.dup.delete_if { |key, val| unmergeable.include?(key) }
+        attrs.dup.delete_if { |key, _| unmergeable.include?(key) }
       end
     end
   end

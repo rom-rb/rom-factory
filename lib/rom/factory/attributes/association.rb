@@ -5,10 +5,9 @@ module ROM::Factory
     # @api private
     module Association
       class << self
-        def new(assoc, builder, *args)
-          const_get(assoc.definition.type).new(assoc, builder, *args)
+        def new(assoc, builder, *traits, **options)
+          const_get(assoc.definition.type).new(assoc, builder, *traits, **options)
         end
-        ruby2_keywords(:new) if respond_to?(:ruby2_keywords, true)
       end
 
       # @api private
@@ -61,7 +60,7 @@ module ROM::Factory
                      else
                        builder.struct(*traits)
                      end
-            tuple = { name => struct }
+            tuple = {name => struct}
             assoc.associate(tuple, struct)
           end
         end
@@ -83,13 +82,13 @@ module ROM::Factory
             association_hash = assoc.associate(attrs, parent)
 
             if persist
-              builder.persistable.create(*traits, association_hash)
+              builder.persistable.create(*traits, **association_hash)
             else
-              builder.struct(*traits, attrs.merge(association_hash))
+              builder.struct(*traits, **attrs, **association_hash)
             end
           end
 
-          { name => structs }
+          {name => structs}
         end
 
         # @api private
@@ -108,22 +107,22 @@ module ROM::Factory
         # @api private
         def call(attrs = EMPTY_HASH, parent, persist: true)
           # do not associate if count is 0
-          return { name => nil } if count.zero?
+          return {name => nil} if count.zero?
 
           return if attrs.key?(name)
 
           association_hash = assoc.associate(attrs, parent)
 
           struct = if persist
-                     builder.persistable.create(*traits, association_hash)
+                     builder.persistable.create(*traits, **association_hash)
                    else
                      belongs_to_name = Dry::Core::Inflector.singularize(assoc.source_alias)
-                     belongs_to_associations = { belongs_to_name.to_sym => parent }
+                     belongs_to_associations = {belongs_to_name.to_sym => parent}
                      final_attrs = attrs.merge(association_hash).merge(belongs_to_associations)
-                     builder.struct(*traits, final_attrs)
+                     builder.struct(*traits, **final_attrs)
                    end
 
-          { name => struct }
+          {name => struct}
         end
 
         # @api private
@@ -139,15 +138,15 @@ module ROM::Factory
           struct = if persist && attrs[tpk]
                      attrs
                    elsif persist
-                     builder.persistable.create(*traits, attrs)
+                     builder.persistable.create(*traits, **attrs)
                    else
-                     builder.struct(*traits, attrs)
+                     builder.struct(*traits, **attrs)
                    end
 
 
-          res = assoc.persist([parent], struct) if persist
+          assoc.persist([parent], struct) if persist
 
-          { name => struct }
+          {name => struct}
         end
 
         def dependency?(rel)

@@ -6,7 +6,7 @@ gemspec
 
 eval_gemfile 'Gemfile.devtools'
 
-gem 'faker', "~> #{ENV['FAKER'].eql?('faker-1') ? '1.7' : '2.8'}"
+gem 'faker', "~> 2.8"
 
 gem 'rspec', '~> 3.0'
 
