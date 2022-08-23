@@ -16,7 +16,7 @@ module ROM::Factory
       # @api private
       def call(attrs, *args)
         result = attrs[name] || dsl.instance_exec(*args, &block)
-        { name => result }
+        {name => result}
       end
 
       # @api private

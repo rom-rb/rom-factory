@@ -16,7 +16,7 @@ module ROM::Factory
       def call(attrs = EMPTY_HASH)
         return if attrs.key?(name)
 
-        { name => value }
+        {name => value}
       end
 
       # @api private

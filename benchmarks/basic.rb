@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'rom-factory'
-require 'rom-core'
-require 'active_record'
-require 'factory_bot'
-require 'fabrication'
-require 'benchmark/ips'
+require "rom-factory"
+require "rom-core"
+require "active_record"
+require "factory_bot"
+require "fabrication"
+require "benchmark/ips"
 
-DATABASE_URL = 'postgres://localhost/rom_factory_bench'.freeze
+DATABASE_URL = "postgres://localhost/rom_factory_bench"
 
 rom = ROM.container(:sql, DATABASE_URL) do |conf|
   conf.default.connection.create_table?(:users) do
@@ -50,15 +50,15 @@ Fabricator(:user) do
 end
 
 Benchmark.ips do |x|
-  x.report('rom-factory persisted struct') do
+  x.report("rom-factory persisted struct") do
     factory[:user]
   end
 
-  x.report('factory_bot') do
+  x.report("factory_bot") do
     FactoryBot.create(:user)
   end
 
-  x.report('fabrication') do
+  x.report("fabrication") do
     Fabricate(:user)
   end
 

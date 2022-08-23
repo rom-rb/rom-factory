@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.describe ROM::Factory do
-  include_context 'relations'
+  include_context "relations"
 
   subject(:factories) do
     ROM::Factory.configure do |config|
@@ -9,24 +9,24 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  describe 'factory is not defined' do
-    it 'raises error for persistable' do
+  describe "factory is not defined" do
+    it "raises error for persistable" do
       expect { factories[:not_defined] }
         .to raise_error(ROM::Factory::FactoryNotDefinedError)
     end
 
-    it 'raises error for structs' do
+    it "raises error for structs" do
       expect { factories.structs[:not_defined] }
         .to raise_error(ROM::Factory::FactoryNotDefinedError)
     end
   end
 
-  describe '.structs' do
-    it 'returns a plain struct builder' do
+  describe ".structs" do
+    it "returns a plain struct builder" do
       factories.define(:user) do |f|
-        f.first_name 'Jane'
-        f.last_name 'Doe'
-        f.email 'jane@doe.org'
+        f.first_name "Jane"
+        f.last_name "Doe"
+        f.email "jane@doe.org"
         f.timestamps
       end
 
@@ -34,7 +34,7 @@ RSpec.describe ROM::Factory do
       user2 = factories.structs[:user]
 
       expect(user1.id).to_not be(nil)
-      expect(user1.first_name).to eql('Jane')
+      expect(user1.first_name).to eql("Jane")
       expect(user1.last_name).to_not be(nil)
       expect(user1.email).to_not be(nil)
       expect(user1.created_at).to_not be(nil)
@@ -47,7 +47,7 @@ RSpec.describe ROM::Factory do
       expect(user1.class).to be(user2.class)
     end
 
-    context 'one-to-many' do
+    context "one-to-many" do
       before do
         factories.define(:task) do |f|
           f.sequence(:title) { |n| "Task #{n}" }
@@ -59,7 +59,7 @@ RSpec.describe ROM::Factory do
         end
       end
 
-      it 'works when building parent' do
+      it "works when building parent" do
         user_with_tasks = factories.structs[:user]
 
         expect(user_with_tasks.tasks.length).to eql(2)
@@ -69,24 +69,24 @@ RSpec.describe ROM::Factory do
         expect(user_with_tasks.tasks).to all(have_attributes(user_id: user_with_tasks.id))
       end
 
-      it 'does not create records when building child' do
+      it "does not create records when building child" do
         factories.structs[:task]
 
         expect(relations[:tasks].count).to be_zero
         expect(relations[:users].count).to be_zero
       end
 
-      it 'does not pass provided attributes into associations' do
+      it "does not pass provided attributes into associations" do
         expect {
-          factories.structs[:user, email: 'jane@doe.com']
+          factories.structs[:user, email: "jane@doe.com"]
         }.not_to raise_error
       end
     end
 
-    context 'many-to-one' do
+    context "many-to-one" do
       before do
         factories.define(:task) do |f|
-          f.title { 'Foo' }
+          f.title { "Foo" }
           f.association(:user)
         end
 
@@ -95,63 +95,63 @@ RSpec.describe ROM::Factory do
         end
       end
 
-      it 'does not pass provided attributes into associations' do
-        expect { factories.structs[:task, title: 'Bar'] }.not_to raise_error
+      it "does not pass provided attributes into associations" do
+        expect { factories.structs[:task, title: "Bar"] }.not_to raise_error
       end
     end
 
-    context 'one-to-one-through' do
+    context "one-to-one-through" do
       before do
         factories.define(:user) do |f|
-          f.first_name 'Janis'
-          f.last_name 'Miezitis'
-          f.email 'janjiss@gmail.com'
+          f.first_name "Janis"
+          f.last_name "Miezitis"
+          f.email "janjiss@gmail.com"
           f.timestamps
 
           f.association :address
         end
 
         factories.define(:address) do |f|
-          f.full_address '123 Elm St.'
+          f.full_address "123 Elm St."
         end
       end
 
-      context 'when persisting' do
-        it 'creates the correct records when the is no pre-existing entity' do
+      context "when persisting" do
+        it "creates the correct records when the is no pre-existing entity" do
           user = factories[:user]
 
-          expect(user.address).to have_attributes(full_address: '123 Elm St.')
+          expect(user.address).to have_attributes(full_address: "123 Elm St.")
         end
 
-        it 'creates the join table record when there is a pre-existing entity' do
+        it "creates the join table record when there is a pre-existing entity" do
           address = factories[:address]
           user = factories[:user, address: address]
 
-          expect(user.address).to have_attributes(full_address: '123 Elm St.')
+          expect(user.address).to have_attributes(full_address: "123 Elm St.")
         end
       end
 
-      context 'when building a struct' do
-        it 'persists the relation properly with pre-existing assoc record' do
-          skip 'TODO: This does not work, cannot figure out why'
+      context "when building a struct" do
+        it "persists the relation properly with pre-existing assoc record" do
+          skip "TODO: This does not work, cannot figure out why"
 
           address = factories.structs[:address]
           user = factories.structs[:user, address: address]
 
-          expect(user.address).to have_attributes(full_address: '123 Elm St.')
+          expect(user.address).to have_attributes(full_address: "123 Elm St.")
         end
 
-        it 'persists the relation properly without pre-existing assoc record' do
-          skip 'TODO: This does not work, cannot figure out why'
+        it "persists the relation properly without pre-existing assoc record" do
+          skip "TODO: This does not work, cannot figure out why"
 
           user = factories.structs[:user]
 
-          expect(user.address).to have_attributes(full_address: '123 Elm St.')
+          expect(user.address).to have_attributes(full_address: "123 Elm St.")
         end
       end
     end
 
-    context 'one-to-one' do
+    context "one-to-one" do
       let(:rom) do
         ROM.container(:sql, conn) do |conf|
           conf.default.create_table(:basic_users) do
@@ -182,7 +182,7 @@ RSpec.describe ROM::Factory do
         end
       end
 
-      context 'when both factories define the associations' do
+      context "when both factories define the associations" do
         before do
           conn.drop_table?(:basic_accounts)
           conn.drop_table?(:basic_users)
@@ -196,7 +196,7 @@ RSpec.describe ROM::Factory do
           end
         end
 
-        it 'works with one to one relationships with parent' do
+        it "works with one to one relationships with parent" do
           user = factories.structs[:basic_user]
 
           expect(relations[:basic_accounts].count).to be_zero
@@ -204,21 +204,21 @@ RSpec.describe ROM::Factory do
           expect(user.basic_account).to have_attributes(basic_user_id: user.id)
         end
 
-        it 'does not persist when building a child struct' do
+        it "does not persist when building a child struct" do
           factories.structs[:basic_account]
 
           expect(relations[:basic_accounts].count).to be_zero
           expect(relations[:basic_users].count).to be_zero
         end
 
-        it 'does not pass provided attributes into associations' do
+        it "does not pass provided attributes into associations" do
           expect {
             factories.structs[:basic_account, created_at: Time.now]
           }.not_to raise_error
         end
       end
 
-      context 'when the child factory does not define the parent association' do
+      context "when the child factory does not define the parent association" do
         before do
           conn.drop_table?(:basic_accounts)
           conn.drop_table?(:basic_users)
@@ -231,14 +231,14 @@ RSpec.describe ROM::Factory do
           end
         end
 
-        it 'still allows building the parent struct' do
+        it "still allows building the parent struct" do
           basic_user = factories.structs[:basic_user]
 
           expect(basic_user.basic_account).to respond_to(:id)
         end
       end
 
-      context 'when the count is specified as 0' do
+      context "when the count is specified as 0" do
         before do
           conn.drop_table?(:basic_accounts)
           conn.drop_table?(:basic_users)
@@ -252,26 +252,26 @@ RSpec.describe ROM::Factory do
           end
         end
 
-        it 'does not create the related record' do
+        it "does not create the related record" do
           user = factories[:basic_user]
 
           expect(user.basic_account).to be_nil
         end
 
-        it 'does not build the related record' do
+        it "does not build the related record" do
           user = factories.structs[:basic_user]
 
           expect(user.basic_account).to be_nil
         end
       end
 
-      context 'when the count is greater than 0' do
+      context "when the count is greater than 0" do
         before do
           conn.drop_table?(:basic_accounts)
           conn.drop_table?(:basic_users)
         end
 
-        it 'raises an ArgumentError' do
+        it "raises an ArgumentError" do
           defining_with_count_greater_than_zero = proc do
             factories.define(:basic_user) do |f|
               f.association(:basic_account, count: 2)
@@ -284,36 +284,36 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  describe 'factories builder DSL' do
-    it 'infers relation from the name' do
+  describe "factories builder DSL" do
+    it "infers relation from the name" do
       factories.define(:user) do |f|
-        f.first_name 'Janis'
-        f.last_name 'Miezitis'
-        f.email 'janjiss@gmail.com'
+        f.first_name "Janis"
+        f.last_name "Miezitis"
+        f.email "janjiss@gmail.com"
         f.timestamps
       end
 
       user = factories[:user]
 
       expect(user.id).to_not be(nil)
-      expect(user.first_name).to eql('Janis')
+      expect(user.first_name).to eql("Janis")
     end
 
-    it 'raises an error if arguments are not part of schema' do
+    it "raises an error if arguments are not part of schema" do
       expect {
         factories.define(:user, relation: :users) do |f|
-          f.boobly 'Janis'
+          f.boobly "Janis"
         end
       }.to raise_error(NoMethodError)
     end
   end
 
-  context 'creation of records' do
-    it 'creates a record based on defined factories' do
+  context "creation of records" do
+    it "creates a record based on defined factories" do
       factories.define(:user, relation: :users) do |f|
-        f.first_name 'Janis'
-        f.last_name 'Miezitis'
-        f.email 'janjiss@gmail.com'
+        f.first_name "Janis"
+        f.last_name "Miezitis"
+        f.email "janjiss@gmail.com"
         f.created_at Time.now
         f.updated_at Time.now
       end
@@ -325,13 +325,13 @@ RSpec.describe ROM::Factory do
       expect(user.last_name).not_to be_empty
     end
 
-    it 'supports callable values' do
+    it "supports callable values" do
       factories.define(:user, relation: :users) do |f|
-        f.first_name 'Janis'
-        f.last_name 'Miezitis'
-        f.email 'janjiss@gmail.com'
-        f.created_at {Time.now}
-        f.updated_at {Time.now}
+        f.first_name "Janis"
+        f.last_name "Miezitis"
+        f.email "janjiss@gmail.com"
+        f.created_at { Time.now }
+        f.updated_at { Time.now }
       end
 
       user = factories[:user]
@@ -343,13 +343,13 @@ RSpec.describe ROM::Factory do
       expect(user.updated_at).not_to be_nil
     end
 
-    it 'supports rand inside the DSL' do
+    it "supports rand inside the DSL" do
       factories.define(:user) do |f|
-        f.first_name 'Janis'
-        f.last_name 'Miezitis'
-        f.email { "janjiss+#{ rand(300) }@gmail.com" }
-        f.created_at {Time.now}
-        f.updated_at {Time.now}
+        f.first_name "Janis"
+        f.last_name "Miezitis"
+        f.email { "janjiss+#{rand(300)}@gmail.com" }
+        f.created_at { Time.now }
+        f.updated_at { Time.now }
       end
 
       user = factories[:user]
@@ -357,24 +357,24 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  context 'changing values' do
-    it 'supports overwriting of values' do
+  context "changing values" do
+    it "supports overwriting of values" do
       factories.define(:user, relation: :users) do |f|
-        f.first_name 'Janis'
-        f.last_name 'Miezitis'
-        f.email 'janjiss@gmail.com'
+        f.first_name "Janis"
+        f.last_name "Miezitis"
+        f.email "janjiss@gmail.com"
         f.created_at Time.now
         f.updated_at Time.now
       end
 
-      user = factories[:user, email: 'holla@gmail.com']
+      user = factories[:user, email: "holla@gmail.com"]
 
-      expect(user.email).to eq('holla@gmail.com')
+      expect(user.email).to eq("holla@gmail.com")
     end
   end
 
-  context 'dependant attributes' do
-    it 'passes generated value to the block of another attribute' do
+  context "dependant attributes" do
+    it "passes generated value to the block of another attribute" do
       factories.define(:user, relation: :users) do |f|
         f.first_name { fake(:name) }
         f.last_name { fake(:name) }
@@ -388,8 +388,8 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  context 'changing values of dependant attributes' do
-    it 'sets correct values to attributes with overwritten dependant attributes' do
+  context "changing values of dependant attributes" do
+    it "sets correct values to attributes with overwritten dependant attributes" do
       factories.define(:user) do |f|
         f.first_name { fake(:name) }
         f.last_name { fake(:name) }
@@ -397,20 +397,20 @@ RSpec.describe ROM::Factory do
         f.timestamps
       end
 
-      overwritten_last_name = 'ivanov'
-      user = factories[:user, last_name: overwritten_last_name ]
+      overwritten_last_name = "ivanov"
+      user = factories[:user, last_name: overwritten_last_name]
 
       expect(user.last_name).to eql(overwritten_last_name)
       expect(user.email).to eq("#{overwritten_last_name}@gmail.com")
     end
   end
 
-  context 'incomplete schema' do
-    it 'fills in missing attributes' do
+  context "incomplete schema" do
+    it "fills in missing attributes" do
       factories.define(:user, relation: :users) do |f|
-        f.first_name 'Janis'
-        f.last_name 'Miezitis'
-        f.email 'janjiss@gmail.com'
+        f.first_name "Janis"
+        f.last_name "Miezitis"
+        f.email "janjiss@gmail.com"
         f.timestamps
       end
 
@@ -421,10 +421,10 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  context 'errors' do
-    it 'raises error if factories with the same name is registered' do
+  context "errors" do
+    it "raises error if factories with the same name is registered" do
       define = -> {
-        factories.define(:user, relation: :users) { }
+        factories.define(:user, relation: :users) {}
       }
 
       define.()
@@ -432,11 +432,11 @@ RSpec.describe ROM::Factory do
       expect { define.() }.to raise_error(ArgumentError)
     end
 
-    it 'raises error when trying to set missing attribute' do
+    it "raises error when trying to set missing attribute" do
       factories.define(:user, relation: :users) do |f|
-        f.first_name 'Janis'
-        f.last_name 'Miezitis'
-        f.email 'janjiss@gmail.com'
+        f.first_name "Janis"
+        f.last_name "Miezitis"
+        f.email "janjiss@gmail.com"
         f.timestamps
       end
 
@@ -446,12 +446,12 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  context 'sequence' do
-    it 'supports sequencing of values' do
+  context "sequence" do
+    it "supports sequencing of values" do
       factories.define(:user, relation: :users) do |f|
         f.sequence(:email) { |n| "janjiss#{n}@gmail.com" }
-        f.first_name 'Janis'
-        f.last_name 'Miezitis'
+        f.first_name "Janis"
+        f.last_name "Miezitis"
         f.created_at Time.now
         f.updated_at Time.now
       end
@@ -459,17 +459,17 @@ RSpec.describe ROM::Factory do
       user1 = factories[:user]
       user2 = factories[:user]
 
-      expect(user1.email).to eq('janjiss1@gmail.com')
-      expect(user2.email).to eq('janjiss2@gmail.com')
+      expect(user1.email).to eq("janjiss1@gmail.com")
+      expect(user2.email).to eq("janjiss2@gmail.com")
     end
   end
 
-  context 'timestamps' do
-    it 'creates timestamps, created_at and updated_at, based on callable property' do
+  context "timestamps" do
+    it "creates timestamps, created_at and updated_at, based on callable property" do
       factories.define(:user, relation: :users) do |f|
-        f.first_name 'Janis'
-        f.last_name 'Miezitis'
-        f.email 'janjiss@gmail.com'
+        f.first_name "Janis"
+        f.last_name "Miezitis"
+        f.email "janjiss@gmail.com"
         f.timestamps
       end
 
@@ -485,54 +485,54 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  context 'inheritance' do
-    context 'without struct_namespace option' do
+  context "inheritance" do
+    context "without struct_namespace option" do
       before do
         factories.define(:user) do |f|
           f.timestamps
         end
 
         factories.define(jane: :user) do |f|
-          f.first_name 'Jane'
-          f.last_name 'Doe'
-          f.email 'jane@doe.org'
+          f.first_name "Jane"
+          f.last_name "Doe"
+          f.email "jane@doe.org"
         end
 
         factories.define(john: :jane) do |f|
-          f.first_name 'John'
-          f.email 'john@doe.org'
+          f.first_name "John"
+          f.email "john@doe.org"
         end
       end
-      context 'using in-memory structs' do
+      context "using in-memory structs" do
         let(:jane) { factories.structs[:jane] }
         let(:john) { factories.structs[:john] }
 
-        it 'sets up a new builder based on another' do
-          expect(jane.first_name).to eql('Jane')
-          expect(jane.email).to eql('jane@doe.org')
+        it "sets up a new builder based on another" do
+          expect(jane.first_name).to eql("Jane")
+          expect(jane.email).to eql("jane@doe.org")
 
-          expect(john.first_name).to eql('John')
-          expect(john.last_name).to eql('Doe')
-          expect(john.email).to eql('john@doe.org')
+          expect(john.first_name).to eql("John")
+          expect(john.last_name).to eql("Doe")
+          expect(john.email).to eql("john@doe.org")
         end
       end
 
-      context 'using persistable structs' do
+      context "using persistable structs" do
         let(:jane) { factories[:jane] }
         let(:john) { factories[:john] }
 
-        it 'sets up a new builder based on another' do
-          expect(jane.first_name).to eql('Jane')
-          expect(jane.email).to eql('jane@doe.org')
+        it "sets up a new builder based on another" do
+          expect(jane.first_name).to eql("Jane")
+          expect(jane.email).to eql("jane@doe.org")
 
-          expect(john.first_name).to eql('John')
-          expect(john.last_name).to eql('Doe')
-          expect(john.email).to eql('john@doe.org')
+          expect(john.first_name).to eql("John")
+          expect(john.last_name).to eql("Doe")
+          expect(john.email).to eql("john@doe.org")
         end
       end
     end
 
-    context 'with struct_namespace option' do
+    context "with struct_namespace option" do
       before do
         module Test
           module Entities
@@ -551,138 +551,138 @@ RSpec.describe ROM::Factory do
         end
 
         factories.define(jane: :user) do |f|
-          f.first_name 'Jane'
-          f.last_name 'Doe'
-          f.email 'jane@doe.org'
+          f.first_name "Jane"
+          f.last_name "Doe"
+          f.email "jane@doe.org"
         end
 
         factories.define({admin: :jane}, struct_namespace: Test::AnotherEntities) do |f|
-          f.type 'Admin'
+          f.type "Admin"
         end
 
-        factories.define({ john: :jane }, struct_namespace: Test::AnotherEntities) do |f|
-          f.first_name 'John'
-          f.email 'john@doe.org'
+        factories.define({john: :jane}, struct_namespace: Test::AnotherEntities) do |f|
+          f.first_name "John"
+          f.email "john@doe.org"
         end
       end
 
-      context 'using in-memory structs' do
+      context "using in-memory structs" do
         let(:jane) { factories.structs[:jane] }
         let(:john) { factories.structs[:john] }
         let(:admin) { factories.structs[:admin] }
 
-        it 'sets up a new builder based on another with correct struct_namespace' do
-          expect(jane.first_name).to eql('Jane')
-          expect(jane.email).to eql('jane@doe.org')
+        it "sets up a new builder based on another with correct struct_namespace" do
+          expect(jane.first_name).to eql("Jane")
+          expect(jane.email).to eql("jane@doe.org")
           expect(jane).to be_kind_of(Test::Entities::User)
 
-          expect(jane.first_name).to eql('Jane')
-          expect(jane.email).to eql('jane@doe.org')
-          expect(admin.type).to eql('Admin')
+          expect(jane.first_name).to eql("Jane")
+          expect(jane.email).to eql("jane@doe.org")
+          expect(admin.type).to eql("Admin")
           expect(admin).to be_kind_of(Test::AnotherEntities::Admin)
 
-          expect(john.first_name).to eql('John')
-          expect(john.last_name).to eql('Doe')
-          expect(john.email).to eql('john@doe.org')
+          expect(john.first_name).to eql("John")
+          expect(john.last_name).to eql("Doe")
+          expect(john.email).to eql("john@doe.org")
           expect(john).to be_kind_of(Test::AnotherEntities::User)
         end
       end
 
-      context 'using persistable structs' do
+      context "using persistable structs" do
         let(:jane) { factories[:jane] }
         let(:john) { factories[:john] }
         let(:admin) { factories[:admin] }
 
-        it 'sets up a new builder based on another with correct struct_namespace' do
-          expect(jane.first_name).to eql('Jane')
-          expect(jane.email).to eql('jane@doe.org')
+        it "sets up a new builder based on another with correct struct_namespace" do
+          expect(jane.first_name).to eql("Jane")
+          expect(jane.email).to eql("jane@doe.org")
           expect(jane).to be_kind_of(Test::Entities::User)
 
-          expect(jane.first_name).to eql('Jane')
-          expect(jane.email).to eql('jane@doe.org')
-          expect(admin.type).to eql('Admin')
+          expect(jane.first_name).to eql("Jane")
+          expect(jane.email).to eql("jane@doe.org")
+          expect(admin.type).to eql("Admin")
           expect(admin).to be_kind_of(Test::AnotherEntities::Admin)
 
-          expect(john.first_name).to eql('John')
-          expect(john.last_name).to eql('Doe')
-          expect(john.email).to eql('john@doe.org')
+          expect(john.first_name).to eql("John")
+          expect(john.last_name).to eql("Doe")
+          expect(john.email).to eql("john@doe.org")
           expect(john).to be_kind_of(Test::AnotherEntities::User)
         end
       end
     end
   end
 
-  context 'with traits' do
-    it 'allows to define traits' do
+  context "with traits" do
+    it "allows to define traits" do
       factories.define(:user) do |f|
         f.timestamps
 
         f.trait :jane do |t|
-          t.first_name 'Jane'
-          t.email 'jane@doe.org'
+          t.first_name "Jane"
+          t.email "jane@doe.org"
         end
 
         f.trait :doe do |t|
-          t.last_name 'Doe'
+          t.last_name "Doe"
         end
       end
 
       jane = factories.structs[:user, :jane]
 
-      expect(jane.first_name).to eql('Jane')
+      expect(jane.first_name).to eql("Jane")
       expect(jane.last_name).to eql nil
-      expect(jane.email).to eql('jane@doe.org')
+      expect(jane.email).to eql("jane@doe.org")
 
       jane_doe = factories.structs[:user, :jane, :doe]
 
-      expect(jane_doe.first_name).to eql('Jane')
-      expect(jane_doe.last_name).to eql('Doe')
-      expect(jane_doe.email).to eql('jane@doe.org')
+      expect(jane_doe.first_name).to eql("Jane")
+      expect(jane_doe.last_name).to eql("Doe")
+      expect(jane_doe.email).to eql("jane@doe.org")
     end
 
-    it 'allows to define nested traits' do
+    it "allows to define nested traits" do
       factories.define(:user) do |f|
         f.timestamps
 
         f.trait :jane do |t|
-          t.first_name 'Jane'
-          t.email 'jane@doe.org'
+          t.first_name "Jane"
+          t.email "jane@doe.org"
         end
 
         f.trait :jane_doe, %i[jane] do |t|
-          t.last_name 'Doe'
+          t.last_name "Doe"
         end
       end
 
       jane = factories.structs[:user, :jane_doe]
 
-      expect(jane.first_name).to eql('Jane')
-      expect(jane.last_name).to eql('Doe')
-      expect(jane.email).to eql('jane@doe.org')
+      expect(jane.first_name).to eql("Jane")
+      expect(jane.last_name).to eql("Doe")
+      expect(jane.email).to eql("jane@doe.org")
     end
 
-    it 'allows to define traits for persisted' do
+    it "allows to define traits for persisted" do
       factories.define(:user) do |f|
         f.timestamps
 
         f.trait :jane do |t|
-          t.first_name 'Jane'
-          t.email 'jane@doe.org'
+          t.first_name "Jane"
+          t.email "jane@doe.org"
         end
 
         f.trait :doe do |t|
-          t.last_name 'Doe'
+          t.last_name "Doe"
         end
       end
 
       jane = factories[:user, :jane, :doe]
 
-      expect(jane.first_name).to eql('Jane')
-      expect(jane.last_name).to eql('Doe')
-      expect(jane.email).to eql('jane@doe.org')
+      expect(jane.first_name).to eql("Jane")
+      expect(jane.last_name).to eql("Doe")
+      expect(jane.email).to eql("jane@doe.org")
     end
 
-    it 'allows to define traits with associations' do
+    it "allows to define traits with associations" do
       factories.define(:task) do |f|
         f.sequence(:title) { |n| "Task #{n}" }
       end
@@ -691,12 +691,12 @@ RSpec.describe ROM::Factory do
         f.timestamps
 
         f.trait :jane do |t|
-          t.first_name 'Jane'
-          t.email 'jane@doe.org'
+          t.first_name "Jane"
+          t.email "jane@doe.org"
         end
 
         f.trait :doe do |t|
-          t.last_name 'Doe'
+          t.last_name "Doe"
         end
 
         f.trait :with_tasks do |t|
@@ -709,24 +709,24 @@ RSpec.describe ROM::Factory do
 
       user_with_tasks = factories[:user, :jane, :doe, :with_tasks]
 
-      expect(user_with_tasks.first_name).to eql('Jane')
-      expect(user_with_tasks.last_name).to eql('Doe')
-      expect(user_with_tasks.email).to eql('jane@doe.org')
+      expect(user_with_tasks.first_name).to eql("Jane")
+      expect(user_with_tasks.last_name).to eql("Doe")
+      expect(user_with_tasks.email).to eql("jane@doe.org")
 
       expect(user_with_tasks.tasks.count).to be(2)
 
       t1, t2 = user_with_tasks.tasks
 
       expect(t1.user_id).to be(user_with_tasks.id)
-      expect(t1.title).to eql('Task 1')
+      expect(t1.title).to eql("Task 1")
 
       expect(t2.user_id).to be(user_with_tasks.id)
-      expect(t2.title).to eql('Task 2')
+      expect(t2.title).to eql("Task 2")
     end
   end
 
-  context 'faker' do
-    it 'exposes faker API in the DSL' do
+  context "faker" do
+    it "exposes faker API in the DSL" do
       factories.define(:user) do |f|
         f.first_name { fake(:name) }
         f.last_name { fake(:name, :last_name) }
@@ -747,7 +747,7 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  context 'custom non integer sequence primary_key' do
+  context "custom non integer sequence primary_key" do
     let(:rom) do
       ROM.container(:sql, conn) do |conf|
         conf.default.create_table(:custom_primary_keys) do
@@ -794,60 +794,60 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  context 'with a custom output schema' do
+  context "with a custom output schema" do
     it "doesn't assume primary_key exists" do
       factories.define(:key_values) do |f|
-        f.key 'a_key'
-        f.value 'a_value'
+        f.key "a_key"
+        f.value "a_value"
       end
 
       result = factories[:key_values]
 
-      expect(result.key).to eql('a_key')
-      expect(result.value).to eql('a_value')
+      expect(result.key).to eql("a_key")
+      expect(result.value).to eql("a_value")
     end
 
     it "doesn't assume primary_key exists for a struct" do
       factories.define(:key_values) do |f|
-        f.key 'a_key'
-        f.value 'a_value'
+        f.key "a_key"
+        f.value "a_value"
       end
 
       result = factories.structs[:key_values]
 
-      expect(result.key).to eql('a_key')
-      expect(result.value).to eql('a_value')
+      expect(result.key).to eql("a_key")
+      expect(result.value).to eql("a_value")
     end
   end
 
-  context 'using builders within callable blocks' do
-    it 'exposes create method in callable attribute blocks' do
+  context "using builders within callable blocks" do
+    it "exposes create method in callable attribute blocks" do
       factories.define(:user) do |f|
-        f.first_name 'Jane'
-        f.last_name 'Doe'
-        f.email 'jane@doe.org'
+        f.first_name "Jane"
+        f.last_name "Doe"
+        f.email "jane@doe.org"
         f.timestamps
       end
 
       factories.define(:task) do |f|
-        f.title 'A task'
+        f.title "A task"
         f.user_id { create(:user).id }
       end
 
       task = factories[:task]
 
-      expect(task.title).to eql('A task')
+      expect(task.title).to eql("A task")
       expect(task.user_id).to_not be(nil)
     end
   end
 
-  context 'using associations' do
-    context 'with traits' do
+  context "using associations" do
+    context "with traits" do
       before do
         factories.define(:user) do |f|
-          f.first_name 'Jane'
-          f.last_name 'Doe'
-          f.email 'jane@doe.org'
+          f.first_name "Jane"
+          f.last_name "Doe"
+          f.email "jane@doe.org"
           f.timestamps
           f.association(:tasks, :important, count: 2)
         end
@@ -860,7 +860,7 @@ RSpec.describe ROM::Factory do
         end
       end
 
-      it 'creates associated records with the given trait' do
+      it "creates associated records with the given trait" do
         user = factories[:user]
 
         expect(user.tasks.count).to be(2)
@@ -868,19 +868,19 @@ RSpec.describe ROM::Factory do
         t1, t2 = user.tasks
 
         expect(t1.user_id).to be(user.id)
-        expect(t1.title).to eql('Important Task 1')
+        expect(t1.title).to eql("Important Task 1")
 
         expect(t2.user_id).to be(user.id)
-        expect(t2.title).to eql('Important Task 2')
+        expect(t2.title).to eql("Important Task 2")
       end
     end
 
-    context 'has_many' do
+    context "has_many" do
       before do
         factories.define(:user) do |f|
-          f.first_name 'Jane'
-          f.last_name 'Doe'
-          f.email 'jane@doe.org'
+          f.first_name "Jane"
+          f.last_name "Doe"
+          f.email "jane@doe.org"
           f.timestamps
           f.association(:tasks, count: 2)
         end
@@ -890,7 +890,7 @@ RSpec.describe ROM::Factory do
         end
       end
 
-      it 'creates associated records' do
+      it "creates associated records" do
         user = factories[:user]
 
         expect(user.tasks.count).to be(2)
@@ -898,66 +898,66 @@ RSpec.describe ROM::Factory do
         t1, t2 = user.tasks
 
         expect(t1.user_id).to be(user.id)
-        expect(t1.title).to eql('Task 1')
+        expect(t1.title).to eql("Task 1")
 
         expect(t2.user_id).to be(user.id)
-        expect(t2.title).to eql('Task 2')
+        expect(t2.title).to eql("Task 2")
       end
     end
 
-    context 'belongs_to' do
+    context "belongs_to" do
       before do
         factories.define(:user) do |f|
-          f.first_name 'Jane'
-          f.last_name 'Doe'
-          f.email 'jane@doe.org'
+          f.first_name "Jane"
+          f.last_name "Doe"
+          f.email "jane@doe.org"
           f.timestamps
         end
 
         factories.define(:task) do |f|
-          f.title 'A task'
+          f.title "A task"
           f.association(:user)
         end
       end
 
-      it 'exposes create method in callable attribute blocks' do
+      it "exposes create method in callable attribute blocks" do
         task = factories[:task]
 
-        expect(task.title).to eql('A task')
+        expect(task.title).to eql("A task")
         expect(task.user_id).to_not be(nil)
       end
 
-      it 'allows overrides' do
+      it "allows overrides" do
         user = factories[:user, first_name: "Joe"]
         task = factories[:task, user: user]
 
-        expect(task.title).to eql('A task')
+        expect(task.title).to eql("A task")
         expect(task.user_id).to be(user.id)
 
         expect(rom.relations[:users].count).to be(1)
         expect(rom.relations[:tasks].count).to be(1)
       end
 
-      it 'works with structs' do
-        user = factories.structs[:user, first_name: 'Joe']
+      it "works with structs" do
+        user = factories.structs[:user, first_name: "Joe"]
         task = factories.structs[:task, user: user]
 
-        expect(user.first_name).to eql('Joe')
-        expect(task.title).to eql('A task')
+        expect(user.first_name).to eql("Joe")
+        expect(task.title).to eql("A task")
         expect(task.user_id).to be(user.id)
 
         expect(rom.relations[:users].count).to be(0)
         expect(rom.relations[:tasks].count).to be(0)
       end
 
-      it 'raises UnknownFactoryAttributes when unknown attributes are used' do
-        expect { factories.structs[:user, name: 'Joe'] }
+      it "raises UnknownFactoryAttributes when unknown attributes are used" do
+        expect { factories.structs[:user, name: "Joe"] }
           .to raise_error(ROM::Factory::UnknownFactoryAttributes, /name/)
       end
     end
   end
 
-  context 'without PK' do
+  context "without PK" do
     let(:rom) do
       ROM.container(:sql, conn) do |conf|
         conf.default.create_table(:dummies) do
@@ -977,61 +977,61 @@ RSpec.describe ROM::Factory do
       conn.drop_table?(:dummies)
     end
 
-    it 'works even if the table does not have a PK' do
+    it "works even if the table does not have a PK" do
       factories.define(:dummy) do |f|
-        f.name 'Jane'
+        f.name "Jane"
       end
 
       result = factories[:dummy]
 
       expect(result.id).to be(1)
-      expect(result.name).to eql('Jane')
+      expect(result.name).to eql("Jane")
     end
   end
 
-  context 'facotry without custom struct namespace' do
-    context 'with builder without custom struct namespace' do
+  context "facotry without custom struct namespace" do
+    context "with builder without custom struct namespace" do
       before do
         factories.define(:user) do |f|
-          f.first_name 'Jane'
-          f.last_name 'Doe'
-          f.email 'jane@doe.org'
+          f.first_name "Jane"
+          f.last_name "Doe"
+          f.email "jane@doe.org"
           f.timestamps
         end
       end
 
-      context 'using in-memory structs' do
-        it 'returns an instance of a default struct' do
+      context "using in-memory structs" do
+        it "returns an instance of a default struct" do
           result = factories.structs[:user]
 
           expect(result).to be_kind_of(ROM::Struct::User)
 
           expect(result.id).to be(1)
-          expect(result.first_name).to eql('Jane')
-          expect(result.last_name).to eql('Doe')
-          expect(result.email).to eql('jane@doe.org')
+          expect(result.first_name).to eql("Jane")
+          expect(result.last_name).to eql("Doe")
+          expect(result.email).to eql("jane@doe.org")
           expect(result.created_at).to_not be(nil)
           expect(result.updated_at).to_not be(nil)
         end
       end
 
-      context 'using persistable structs' do
-        it 'returns an instance of a default struct' do
+      context "using persistable structs" do
+        it "returns an instance of a default struct" do
           result = factories[:user]
 
           expect(result).to be_kind_of(ROM::Struct::User)
 
           expect(result.id).to be(1)
-          expect(result.first_name).to eql('Jane')
-          expect(result.last_name).to eql('Doe')
-          expect(result.email).to eql('jane@doe.org')
+          expect(result.first_name).to eql("Jane")
+          expect(result.last_name).to eql("Doe")
+          expect(result.email).to eql("jane@doe.org")
           expect(result.created_at).to_not be(nil)
           expect(result.updated_at).to_not be(nil)
         end
       end
     end
 
-    context 'with builder with custom struct namespace' do
+    context "with builder with custom struct namespace" do
       before do
         module Test
           module Entities
@@ -1041,38 +1041,38 @@ RSpec.describe ROM::Factory do
         end
 
         factories.define(:user, struct_namespace: Test::Entities) do |f|
-          f.first_name 'Jane'
-          f.last_name 'Doe'
-          f.email 'jane@doe.org'
+          f.first_name "Jane"
+          f.last_name "Doe"
+          f.email "jane@doe.org"
           f.timestamps
         end
       end
 
-      context 'using in-memory structs' do
-        it 'returns an instance of a custom struct' do
+      context "using in-memory structs" do
+        it "returns an instance of a custom struct" do
           result = factories.structs[:user]
 
           expect(result).to be_kind_of(Test::Entities::User)
 
           expect(result.id).to be(1)
-          expect(result.first_name).to eql('Jane')
-          expect(result.last_name).to eql('Doe')
-          expect(result.email).to eql('jane@doe.org')
+          expect(result.first_name).to eql("Jane")
+          expect(result.last_name).to eql("Doe")
+          expect(result.email).to eql("jane@doe.org")
           expect(result.created_at).to_not be(nil)
           expect(result.updated_at).to_not be(nil)
         end
       end
 
-      context 'using persistable structs' do
-        it 'returns an instance of a custom struct' do
+      context "using persistable structs" do
+        it "returns an instance of a custom struct" do
           result = factories[:user]
 
           expect(result).to be_kind_of(Test::Entities::User)
 
           expect(result.id).to be(1)
-          expect(result.first_name).to eql('Jane')
-          expect(result.last_name).to eql('Doe')
-          expect(result.email).to eql('jane@doe.org')
+          expect(result.first_name).to eql("Jane")
+          expect(result.last_name).to eql("Doe")
+          expect(result.email).to eql("jane@doe.org")
           expect(result.created_at).to_not be(nil)
           expect(result.updated_at).to_not be(nil)
         end
@@ -1080,8 +1080,8 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  context 'facotry with custom struct namespace' do
-    context 'with builder without custom struct namespace' do
+  context "facotry with custom struct namespace" do
+    context "with builder without custom struct namespace" do
       let(:entities) { factories.struct_namespace(Test::Entities) }
 
       before do
@@ -1093,45 +1093,45 @@ RSpec.describe ROM::Factory do
         end
 
         factories.define(:user) do |f|
-          f.first_name 'Jane'
-          f.last_name 'Doe'
-          f.email 'jane@doe.org'
+          f.first_name "Jane"
+          f.last_name "Doe"
+          f.email "jane@doe.org"
           f.timestamps
         end
       end
 
-      context 'using in-memory structs' do
-        it 'returns an instance of a custom struct' do
+      context "using in-memory structs" do
+        it "returns an instance of a custom struct" do
           result = entities.structs[:user]
 
           expect(result).to be_kind_of(Test::Entities::User)
 
           expect(result.id).to be(1)
-          expect(result.first_name).to eql('Jane')
-          expect(result.last_name).to eql('Doe')
-          expect(result.email).to eql('jane@doe.org')
+          expect(result.first_name).to eql("Jane")
+          expect(result.last_name).to eql("Doe")
+          expect(result.email).to eql("jane@doe.org")
           expect(result.created_at).to_not be(nil)
           expect(result.updated_at).to_not be(nil)
         end
       end
 
-      context 'using persistable structs' do
-        it 'returns an instance of a custom struct' do
+      context "using persistable structs" do
+        it "returns an instance of a custom struct" do
           result = entities[:user]
 
           expect(result).to be_kind_of(Test::Entities::User)
 
           expect(result.id).to be(1)
-          expect(result.first_name).to eql('Jane')
-          expect(result.last_name).to eql('Doe')
-          expect(result.email).to eql('jane@doe.org')
+          expect(result.first_name).to eql("Jane")
+          expect(result.last_name).to eql("Doe")
+          expect(result.email).to eql("jane@doe.org")
           expect(result.created_at).to_not be(nil)
           expect(result.updated_at).to_not be(nil)
         end
       end
     end
 
-    context 'with builder with custom struct namespace' do
+    context "with builder with custom struct namespace" do
       let(:entities) { factories.struct_namespace(Test::Entities) }
 
       before do
@@ -1148,38 +1148,38 @@ RSpec.describe ROM::Factory do
         end
 
         factories.define(:user, struct_namespace: Test::AnotherEntities) do |f|
-          f.first_name 'Jane'
-          f.last_name 'Doe'
-          f.email 'jane@doe.org'
+          f.first_name "Jane"
+          f.last_name "Doe"
+          f.email "jane@doe.org"
           f.timestamps
         end
       end
 
-      context 'using in-memory structs' do
-        it 'returns an instance of a custom struct' do
+      context "using in-memory structs" do
+        it "returns an instance of a custom struct" do
           result = entities.structs[:user]
 
           expect(result).to be_kind_of(Test::AnotherEntities::User)
 
           expect(result.id).to be(1)
-          expect(result.first_name).to eql('Jane')
-          expect(result.last_name).to eql('Doe')
-          expect(result.email).to eql('jane@doe.org')
+          expect(result.first_name).to eql("Jane")
+          expect(result.last_name).to eql("Doe")
+          expect(result.email).to eql("jane@doe.org")
           expect(result.created_at).to_not be(nil)
           expect(result.updated_at).to_not be(nil)
         end
       end
 
-      context 'using persistable structs' do
-        it 'returns an instance of a custom struct' do
+      context "using persistable structs" do
+        it "returns an instance of a custom struct" do
           result = entities[:user]
 
           expect(result).to be_kind_of(Test::AnotherEntities::User)
 
           expect(result.id).to be(1)
-          expect(result.first_name).to eql('Jane')
-          expect(result.last_name).to eql('Doe')
-          expect(result.email).to eql('jane@doe.org')
+          expect(result.first_name).to eql("Jane")
+          expect(result.last_name).to eql("Doe")
+          expect(result.email).to eql("jane@doe.org")
           expect(result.created_at).to_not be(nil)
           expect(result.updated_at).to_not be(nil)
         end
@@ -1187,7 +1187,7 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  describe 'using read types with one-to-many' do
+  describe "using read types with one-to-many" do
     before do
       conf.relation(:capitalized_tasks) do
         schema(:tasks, infer: true) do
@@ -1204,28 +1204,28 @@ RSpec.describe ROM::Factory do
 
     specify do
       factories.define(:capitalized_task) do |f|
-        f.title 'A task'
+        f.title "A task"
         f.association(:user)
       end
 
       factories.define(:user) do |f|
-        f.first_name 'Janis'
-        f.last_name 'Miezitis'
-        f.email 'janjiss@gmail.com'
+        f.first_name "Janis"
+        f.last_name "Miezitis"
+        f.email "janjiss@gmail.com"
         f.timestamps
       end
 
       task = factories.structs[:capitalized_task]
 
-      expect(task.title).to eql('A TASK')
-      expect(task.user.first_name).to eql('Janis')
+      expect(task.title).to eql("A TASK")
+      expect(task.user.first_name).to eql("Janis")
     end
   end
 
-  describe 'fake options' do
+  describe "fake options" do
     specify do
       factories.define(:user) do |f|
-        f.first_name 'Jane'
+        f.first_name "Jane"
         f.age { fake(:number, :within, range: 0..150) }
       end
 

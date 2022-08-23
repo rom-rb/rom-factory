@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rom/factory/constants'
+require "rom/factory/constants"
 
 module ROM
   module Factory
@@ -28,7 +28,7 @@ module ROM
       # @api private
       def [](name)
         elements.fetch(name) do
-          raise FactoryNotDefinedError.new(name)
+          raise FactoryNotDefinedError, name
         end
       end
     end

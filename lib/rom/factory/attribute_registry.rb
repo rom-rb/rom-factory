@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'tsort'
+require "tsort"
 
 module ROM
   module Factory
@@ -47,7 +47,7 @@ module ROM
 
       # @api private
       def associations
-        self.class.new(elements.select { |e| e.kind_of?(Attributes::Association::Core) })
+        self.class.new(elements.select { |e| e.is_a?(Attributes::Association::Core) })
       end
 
       private

@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'dry/core/constants'
+require "dry/core/constants"
 
-require 'rom/struct'
-require 'rom/initializer'
-require 'rom/factory/tuple_evaluator'
-require 'rom/factory/builder/persistable'
+require "rom/struct"
+require "rom/initializer"
+require "rom/factory/tuple_evaluator"
+require "rom/factory/builder/persistable"
 
 module ROM::Factory
   # @api private
@@ -78,7 +78,7 @@ module ROM::Factory
       assoc_keys = tuple_evaluator.assoc_names(traits)
       unknown_keys = tuple.keys - schema_keys - assoc_keys
 
-      unknown_keys = unknown_keys - relation.schema.associations.to_h.keys if allow_associations
+      unknown_keys -= relation.schema.associations.to_h.keys if allow_associations
 
       raise UnknownFactoryAttributes, unknown_keys unless unknown_keys.empty?
     end

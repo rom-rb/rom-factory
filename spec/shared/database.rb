@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require 'rom-core'
+require "rom-core"
 
-RSpec.shared_context 'database' do
+RSpec.shared_context "database" do
   let(:conf) do
     ROM::Configuration.new(:sql, DB_URI)
   end

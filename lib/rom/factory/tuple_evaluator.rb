@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rom/factory/sequences'
+require "rom/factory/sequences"
 
 module ROM
   module Factory
@@ -137,9 +137,9 @@ module ROM
 
       # @api private
       def struct_attrs
-        struct_attrs = relation.schema.
-          reject(&:primary_key?).
-          map { |attr| [attr.name, nil] }.to_h
+        struct_attrs = relation.schema
+          .reject(&:primary_key?)
+          .map { |attr| [attr.name, nil] }.to_h
 
         if primary_key
           struct_attrs.merge(primary_key => next_id)

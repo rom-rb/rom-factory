@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-require 'dry/core/class_builder'
-require 'rom/factory/factories'
+require "dry/core/class_builder"
+require "rom/factory/factories"
 
 module ROM
   # Main ROM::Factory API
   #
   # @api public
   module Factory
-    DEFAULT_NAME = 'Factories'.freeze
+    DEFAULT_NAME = "Factories"
 
     # Configure a new factory
     #

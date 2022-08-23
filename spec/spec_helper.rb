@@ -1,40 +1,40 @@
 # frozen_string_literal: true
 
-require_relative 'support/coverage'
+require_relative "support/coverage"
 
-require 'pathname'
+require "pathname"
 SPEC_ROOT = root = Pathname(__FILE__).dirname
 
 begin
-  require 'pry-byebug'
+  require "pry-byebug"
 rescue LoadError
-  require 'pry'
+  require "pry"
 end
 
-require 'rom-factory'
-require 'rspec'
+require "rom-factory"
+require "rspec"
 
-Dir[root.join('support/*.rb').to_s].sort.each do |f|
+Dir[root.join("support/*.rb").to_s].sort.each do |f|
   require f
 end
 
-Dir[root.join('shared/*.rb').to_s].sort.each do |f|
+Dir[root.join("shared/*.rb").to_s].sort.each do |f|
   require f
 end
 
-DB_URI = ENV.fetch('DATABASE_URL') do
+DB_URI = ENV.fetch("DATABASE_URL") do
   if defined? JRUBY_VERSION
-    'jdbc:postgresql://localhost/rom_factory'
+    "jdbc:postgresql://localhost/rom_factory"
   else
-    'postgres://localhost/rom_factory'
+    "postgres://localhost/rom_factory"
   end
 end
 
-warning_api_available = RUBY_VERSION >= '2.4.0'
+warning_api_available = RUBY_VERSION >= "2.4.0"
 
 module SileneceWarnings
   def warn(str)
-    if str['/sequel/'] || str['/rspec-core']
+    if str["/sequel/"] || str["/rspec-core"]
       nil
     else
       super

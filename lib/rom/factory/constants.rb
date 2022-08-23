@@ -10,7 +10,7 @@ module ROM
 
     class UnknownFactoryAttributes < StandardError
       def initialize(attrs)
-        super("Unknown attributes: #{attrs.join(', ')}")
+        super("Unknown attributes: #{attrs.join(", ")}")
       end
     end
   end

@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require 'faker'
-require 'dry/core/cache'
-require 'dry/core/inflector'
+require "faker"
+require "dry/core/cache"
+require "dry/core/inflector"
 
-require 'rom/factory/builder'
-require 'rom/factory/attribute_registry'
-require 'rom/factory/attributes'
+require "rom/factory/builder"
+require "rom/factory/attribute_registry"
+require "rom/factory/attributes"
 
 module ROM
   module Factory
@@ -39,7 +39,7 @@ module ROM
       attr_reader :_traits
 
       # @api private
-      def initialize(name, attributes: AttributeRegistry.new, relation:, factories:, struct_namespace:)
+      def initialize(name, relation:, factories:, struct_namespace:, attributes: AttributeRegistry.new)
         @_name = name
         @_relation = relation
         @_factories = factories
@@ -150,7 +150,7 @@ module ROM
         assoc = _relation.associations[name]
 
         if assoc.is_a?(::ROM::SQL::Associations::OneToOne) && options.fetch(:count, 1) > 1
-          ::Kernel.raise ::ArgumentError, 'count cannot be greater than 1 on a OneToOne'
+          ::Kernel.raise ::ArgumentError, "count cannot be greater than 1 on a OneToOne"
         end
 
         builder = -> { _factories.for_relation(assoc.target) }

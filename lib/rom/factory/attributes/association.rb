@@ -143,7 +143,6 @@ module ROM::Factory
                      builder.struct(*traits, **attrs)
                    end
 
-
           assoc.persist([parent], struct) if persist
 
           {name => struct}

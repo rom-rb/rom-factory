@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-RSpec.shared_context 'relations' do
-  include_context 'database'
+RSpec.shared_context "relations" do
+  include_context "database"
 
   before do
     conn.create_table?(:users) do

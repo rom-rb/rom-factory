@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require 'dry/configurable'
-require 'dry/core/inflector'
+require "dry/configurable"
+require "dry/core/inflector"
 
-require 'rom/initializer'
-require 'rom/struct'
-require 'rom/factory/dsl'
-require 'rom/factory/registry'
+require "rom/initializer"
+require "rom/struct"
+require "rom/factory/dsl"
+require "rom/factory/registry"
 
 module ROM::Factory
   # In-memory builder API
@@ -206,7 +206,7 @@ module ROM::Factory
 
     # @api private
     def builder_sturct_namespace(ns)
-      ns ? { namespace: ns, overridable: false } : { namespace: struct_namespace, overridable: true }
+      ns ? {namespace: ns, overridable: false} : {namespace: struct_namespace, overridable: true}
     end
 
     # @api private
