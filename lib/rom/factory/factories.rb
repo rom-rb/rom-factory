@@ -147,7 +147,7 @@ module ROM::Factory
             name,
             relation: relation,
             factories: self,
-            struct_namespace: builder_sturct_namespace(namespace),
+            struct_namespace: builder_struct_namespace(namespace),
             &block
           ).call
         end
@@ -205,7 +205,7 @@ module ROM::Factory
     end
 
     # @api private
-    def builder_sturct_namespace(ns)
+    def builder_struct_namespace(ns)
       ns ? {namespace: ns, overridable: false} : {namespace: struct_namespace, overridable: true}
     end
 
@@ -227,7 +227,7 @@ module ROM::Factory
     # @api private
     def extend_builder(name, parent, relation_name, ns, &block)
       namespace = parent.options[:struct_namespace]
-      namespace = builder_sturct_namespace(ns) if ns
+      namespace = builder_struct_namespace(ns) if ns
       relation = rom.relations.fetch(relation_name) { parent.relation }
       DSL.new(
         name,
