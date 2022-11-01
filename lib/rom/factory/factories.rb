@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require "dry/configurable"
-require "dry/core/inflector"
-
 require "rom/initializer"
 require "rom/struct"
 require "rom/factory/dsl"

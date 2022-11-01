@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require "faker"
-require "dry/core/cache"
-require "dry/core/inflector"
 
 require "rom/factory/builder"
 require "rom/factory/attribute_registry"

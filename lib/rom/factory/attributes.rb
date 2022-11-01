@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "dry/core/constants"
-
 module ROM
   module Factory
     include Dry::Core::Constants

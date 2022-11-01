@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "dry/core/constants"
-
 require "rom/struct"
 require "rom/initializer"
 require "rom/factory/tuple_evaluator"

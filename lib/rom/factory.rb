@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
-require "dry/core/class_builder"
+require "dry/core"
+require "dry/configurable"
+require "dry/struct"
+
 require "rom/factory/factories"
 
 module ROM
