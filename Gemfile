@@ -8,6 +8,9 @@ eval_gemfile "Gemfile.devtools"
 
 gem "faker", "~> 2.8"
 
+gem "dry-core", github: "dry-rb/dry-core", branch: "main"
+gem "dry-configurable", github: "dry-rb/dry-configurable", branch: "main"
+
 gem "rspec", "~> 3.0"
 
 group :test do
