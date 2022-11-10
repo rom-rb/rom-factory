@@ -8,13 +8,6 @@ eval_gemfile "Gemfile.devtools"
 
 gem "faker", "~> 2.8"
 
-gem "dry-configurable", github: "dry-rb/dry-configurable", branch: "main"
-gem "dry-core", github: "dry-rb/dry-core", branch: "main"
-gem "dry-inflector", github: "dry-rb/dry-inflector", branch: "main"
-gem "dry-logic", github: "dry-rb/dry-logic", branch: "main"
-gem "dry-types", github: "dry-rb/dry-types", branch: "main"
-gem "dry-struct", github: "dry-rb/dry-struct", branch: "main"
-
 gem "rspec", "~> 3.0"
 
 git "https://github.com/rom-rb/rom.git", branch: "release-5.3" do
