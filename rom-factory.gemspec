@@ -27,8 +27,8 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = ">= 2.7.0"
 
-  spec.add_dependency "dry-configurable", ">= 1.0.0.rc1", "< 2"
-  spec.add_dependency "dry-core", ">= 1.0.0.rc1", "< 2"
+  spec.add_dependency "dry-configurable", "~> 1.0"
+  spec.add_dependency "dry-core", "~> 1.0"
   spec.add_dependency "faker", ">= 2.0", "< 3.0"
-  spec.add_dependency "rom-core", "~> 5.0"
+  spec.add_dependency "rom-core", "~> 5.3"
 end
