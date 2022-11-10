@@ -1,8 +1,27 @@
 ---
 - version: 0.11.0
   date:
+  added:
+    - Support for one-to-one associations (@ianks)
+    - "[internal] cache for Faker constants (@flash-gordon)"
   changed:
-  - "Upgraded to the latest versions of dry-rb dependencies, compatible with rom 5.3 (@flash-gordon)"
+    - |
+      [BREAKING] attributes are always passed as keywords (@alassek)
+      This may affect your code in places where attributes are passed as hashes.
+      Places like
+      ```ruby
+      user_attributes = { name: 'Jane' }
+      Factory[:user, user_attributes]
+      ```
+      must be updated to
+      ```ruby
+      user_attributes = { name: 'Jane' }
+      Factory[:user, **user_attributes]
+      ```
+    - "Upgraded to the latest versions of dry-rb dependencies, compatible with rom 5.3 (@flash-gordon)"
+    - Support for Faker 1.x was dropped (@alassek)
+  fixed:
+    - Support for plural Faker generators (@wuarmin)
 - version: 0.10.2
   date: "2020-04-05"
   fixed:
