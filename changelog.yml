@@ -9,11 +9,15 @@
       [BREAKING] attributes are always passed as keywords (@alassek)
       This may affect your code in places where attributes are passed as hashes.
       Places like
+
       ```ruby
       user_attributes = { name: 'Jane' }
       Factory[:user, user_attributes]
+
       ```
+
       must be updated to
+
       ```ruby
       user_attributes = { name: 'Jane' }
       Factory[:user, **user_attributes]
