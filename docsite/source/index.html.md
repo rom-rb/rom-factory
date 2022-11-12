@@ -44,7 +44,7 @@ end
 
 #### Specify namespace for your structs
 
-Struct `User` will be find in MyApp::Entities namespace
+Struct `User` will be found in `MyApp::Entities` namespace
 
 ```ruby
 Factory.define(:user, struct_namespace: MyApp::Entities) do |f|
@@ -86,7 +86,7 @@ end
 
 Factory.define(:user) do |f|
   f.name 'John'
-  f.association(:user)
+  f.association(:group)
 end
 ```
 
@@ -115,7 +115,7 @@ Factory.define(admin: :user) do |f|
   f.admin true
 end
 
-# Factory.structs(:admin)
+# Factory.structs[:admin]
 ```
 
 #### Traits
@@ -130,7 +130,7 @@ Factory.define(:user) do |f|
   end
 end
 
-# Factory.structs(:user, :with_age)
+# Factory.structs[:user, :with_age]
 ```
 
 #### Build-in [Faker](https://github.com/faker-ruby/faker) objects
