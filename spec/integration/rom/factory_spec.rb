@@ -983,7 +983,7 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  context "facotry without custom struct namespace" do
+  context "factory without custom struct namespace" do
     context "with builder without custom struct namespace" do
       before do
         factories.define(:user) do |f|
@@ -1074,7 +1074,7 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  context "facotry with custom struct namespace" do
+  context "factory with custom struct namespace" do
     context "with builder without custom struct namespace" do
       let(:entities) { factories.struct_namespace(Test::Entities) }
 
