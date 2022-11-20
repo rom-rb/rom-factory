@@ -29,7 +29,7 @@ module ROM
 
       # @api private
       def reset
-        @registry = Concurrent::Map.new { |h, k| h[k] = 0 }
+        @registry = Concurrent::Map.new { |h, k| h.compute_if_absent(k) { 0 } }
         self
       end
     end
