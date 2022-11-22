@@ -19,12 +19,15 @@ module ROM
 
       # @api private
       def initialize
+        @mutex = Mutex.new
         reset
       end
 
       # @api private
       def next(key)
-        registry[key] += 1
+        @mutex.synchronize do
+          registry[key] += 1
+        end
       end
 
       # @api private
