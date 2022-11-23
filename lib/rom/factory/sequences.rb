@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "concurrent/map"
+require "concurrent/atomic/atomic_fixnum"
 require "singleton"
 
 module ROM
@@ -19,20 +21,21 @@ module ROM
 
       # @api private
       def initialize
-        @mutex = Mutex.new
         reset
       end
 
       # @api private
       def next(key)
-        @mutex.synchronize do
-          registry[key] += 1
-        end
+        registry[key].increment
       end
 
       # @api private
       def reset
-        @registry = Concurrent::Map.new { |h, k| h.compute_if_absent(k) { 0 } }
+        @registry = Concurrent::Map.new do |h, k|
+          h.compute_if_absent(k) do
+            Concurrent::AtomicFixnum.new(0)
+          end
+        end
         self
       end
     end
