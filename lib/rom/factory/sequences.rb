@@ -19,17 +19,20 @@ module ROM
 
       # @api private
       def initialize
+        @mutex = Mutex.new
         reset
       end
 
       # @api private
       def next(key)
-        registry[key] += 1
+        @mutex.synchronize do
+          registry[key] += 1
+        end
       end
 
       # @api private
       def reset
-        @registry = Concurrent::Map.new { |h, k| h[k] = 0 }
+        @registry = Concurrent::Map.new { |h, k| h.compute_if_absent(k) { 0 } }
         self
       end
     end
