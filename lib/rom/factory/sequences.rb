@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "concurrent/map"
-require "concurrent/atomic/atomic_fixnum"
 require "singleton"
 
 module ROM
@@ -26,16 +25,12 @@ module ROM
 
       # @api private
       def next(key)
-        registry[key].increment
+        registry.compute(key) { |v| (v || 0).succ }
       end
 
       # @api private
       def reset
-        @registry = Concurrent::Map.new do |h, k|
-          h.compute_if_absent(k) do
-            Concurrent::AtomicFixnum.new(0)
-          end
-        end
+        @registry = Concurrent::Map.new
         self
       end
     end
