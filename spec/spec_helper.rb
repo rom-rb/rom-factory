@@ -11,7 +11,9 @@ rescue LoadError
   require "pry"
 end
 
+require "rom/compat"
 require "rom-factory"
+
 require "rspec"
 
 Dir[root.join("support/*.rb").to_s].sort.each do |f|

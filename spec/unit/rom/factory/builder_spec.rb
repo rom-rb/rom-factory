@@ -72,10 +72,10 @@ RSpec.describe ROM::Factory::Builder do
       end
 
       conf.relation(:tasks) do
-        schema(infer: true) do
-          associations do
-            belongs_to :user
-          end
+        schema(infer: true)
+
+        associations do
+          belongs_to :user
         end
       end
 
@@ -155,27 +155,27 @@ RSpec.describe ROM::Factory::Builder do
       end
 
       conf.relation(:users) do
-        schema(infer: true) do
-          associations do
-            has_many :users, through: :users_tasks
-          end
+        schema(infer: true)
+
+        associations do
+          has_many :users, through: :users_tasks
         end
       end
 
       conf.relation(:tasks) do
-        schema(infer: true) do
-          associations do
-            has_many :users, through: :users_tasks
-          end
+        schema(infer: true)
+
+        associations do
+          has_many :users, through: :users_tasks
         end
       end
 
       conf.relation(:users_tasks) do
-        schema(infer: true) do
-          associations do
-            belongs_to :user
-            belongs_to :task
-          end
+        schema(infer: true)
+
+        associations do
+          belongs_to :user
+          belongs_to :task
         end
       end
 
@@ -227,18 +227,18 @@ RSpec.describe ROM::Factory::Builder do
       end
 
       conf.relation(:tasks) do
-        schema(infer: true) do
-          associations do
-            belongs_to :user
-          end
+        schema(infer: true)
+
+        associations do
+          belongs_to :user
         end
       end
 
       conf.relation(:users) do
-        schema(infer: true) do
-          associations do
-            has_many :tasks
-          end
+        schema(infer: true)
+
+        associations do
+          has_many :tasks
         end
       end
 
@@ -293,18 +293,18 @@ RSpec.describe ROM::Factory::Builder do
       end
 
       conf.relation(:tasks) do
-        schema(infer: true) do
-          associations do
-            belongs_to :user
-          end
+        schema(infer: true)
+
+        associations do
+          belongs_to :user
         end
       end
 
       conf.relation(:users) do
-        schema(infer: true) do
-          associations do
-            has_one :task
-          end
+        schema(infer: true)
+
+        associations do
+          has_one :task
         end
       end
 

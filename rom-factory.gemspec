@@ -31,5 +31,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "dry-core", "~> 1.0"
   spec.add_runtime_dependency "dry-struct", "~> 1.6"
   spec.add_runtime_dependency "faker", ">= 2.0", "< 3.0"
-  spec.add_runtime_dependency "rom-core", "~> 5.3"
+  spec.add_runtime_dependency "rom", "~> 6.0.0.alpha"
 end

@@ -39,48 +39,48 @@ RSpec.shared_context "relations" do
     end
 
     conf.relation(:tasks) do
-      schema(infer: true) do
-        associations do
-          belongs_to :user
-        end
+      schema(infer: true)
+
+      associations do
+        belongs_to :user
       end
     end
 
     conf.relation(:users) do
-      schema(infer: true) do
-        associations do
-          has_many :tasks
-          has_one :user_addresses
-          has_one :address, through: :user_addresses
-        end
+      schema(infer: true)
+
+      associations do
+        has_many :tasks
+        has_one :user_addresses
+        has_one :address, through: :user_addresses
       end
     end
 
     conf.relation(:addresses) do
-      schema(infer: true) do
-        associations do
-          has_one :user_addresses
-          has_one :user, through: :user_addresses
-        end
+      schema(infer: true)
+
+      associations do
+        has_one :user_addresses
+        has_one :user, through: :user_addresses
       end
     end
 
     conf.relation(:user_addresses) do
-      schema(infer: true) do
-        associations do
-          belongs_to :user
-          belongs_to :address
-        end
+      schema(infer: true)
+
+      associations do
+        belongs_to :user
+        belongs_to :address
       end
     end
 
-    conf.relation(:admins) do
+    conf.relation(:admins, dataset: :users) do
       dataset { where(type: "Admin") }
 
-      schema(:users, as: :admins, infer: true) do
-        associations do
-          has_many :tasks
-        end
+      schema(:users, infer: true)
+
+      associations do
+        has_many :tasks
       end
     end
 
