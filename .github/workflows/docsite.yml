@@ -22,7 +22,7 @@ jobs:
       - run: |
           git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*
       - name: Set up Ruby
-        uses: actions/setup-ruby@v2
+        uses: ruby/setup-ruby@v2
         with:
           ruby-version: "2.6.x"
       - name: Set up git user
