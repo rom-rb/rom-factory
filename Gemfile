@@ -18,7 +18,7 @@ git "https://github.com/rom-rb/rom.git", branch: "release-5.3" do
 end
 
 group :test do
-  gem "pry", "~> 0.12.0", "<= 0.13"
+  gem "pry"
   gem "pry-byebug", "~> 3.8", platforms: :ruby
   gem "rom-sql", github: "rom-rb/rom-sql", branch: "release-3.6"
 
