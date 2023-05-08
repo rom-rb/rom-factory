@@ -155,7 +155,7 @@ module ROM
           ::Kernel.raise ::ArgumentError, "count cannot be greater than 1 on a OneToOne"
         end
 
-        traits ||= options.fetch(:traits, EMPTY_ARRAY)
+        traits = options.fetch(:traits, EMPTY_ARRAY) if traits.empty?
 
         builder = -> { _factories.for_relation(assoc.target) }
 
