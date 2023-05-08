@@ -23,7 +23,7 @@ group :test do
   gem "rom-sql", github: "rom-rb/rom-sql", branch: "release-3.6"
 
   gem "jdbc-postgres", platforms: :jruby
-  gem "pg", "~> 0.21", platforms: :ruby
+  gem "pg", "~> 1.5", platforms: :ruby
 end
 
 group :tools do
