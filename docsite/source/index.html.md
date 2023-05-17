@@ -86,7 +86,7 @@ end
 
 Factory.define(:user) do |f|
   f.name 'John'
-  f.association(:user)
+  f.association(:group)
 end
 ```
 
