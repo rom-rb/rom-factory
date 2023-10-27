@@ -52,6 +52,7 @@ RSpec.shared_context "relations" do
           has_many :tasks
           has_one :user_addresses
           has_one :address, through: :user_addresses
+          has_many :addresses, through: :user_addresses
         end
       end
     end
@@ -61,6 +62,7 @@ RSpec.shared_context "relations" do
         associations do
           has_one :user_addresses
           has_one :user, through: :user_addresses
+          has_one :users, through: :user_addresses
         end
       end
     end

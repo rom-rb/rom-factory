@@ -899,6 +899,36 @@ RSpec.describe ROM::Factory do
       end
     end
 
+    context "has_many-through" do
+      before do
+        factories.define(:user) do |f|
+          f.first_name "Jane"
+          f.last_name "Doe"
+          f.email "jane@doe.org"
+          f.timestamps
+          f.association(:addresses, count: 2)
+        end
+
+        factories.define(:address) do |f|
+          f.sequence(:full_address) { |n| "Address #{n}" }
+        end
+      end
+
+      it "creates associated records" do
+        user = factories[:user]
+
+        expect(user.addresses.count).to be(2)
+
+        a1, a2 = user.addresses
+
+        expect(a1.user_id).to be(user.id)
+        expect(a1.full_address).to eql("Address 1")
+
+        expect(a2.user_id).to be(user.id)
+        expect(a2.full_address).to eql("Address 2")
+      end
+    end
+
     context "belongs_to" do
       before do
         factories.define(:user) do |f|

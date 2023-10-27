@@ -3,6 +3,7 @@
 module ROM::Factory
   module Attributes
     # @api private
+    # rubocop:disable Style/OptionalArguments
     module Association
       class << self
         def new(assoc, builder, *traits, **options)
@@ -166,6 +167,45 @@ module ROM::Factory
           assoc.target.primary_key
         end
       end
+
+      class ManyToMany < Core
+        def call(attrs = EMPTY_HASH, parent, persist: true)
+          return if attrs.key?(name)
+
+          structs = count.times.map do
+            if persist && attrs[tpk]
+              attrs
+            elsif persist
+              builder.persistable.create(*traits, **attrs)
+            else
+              builder.struct(*traits, **attrs)
+            end
+          end
+
+          assoc.persist([parent], structs) if persist
+
+          {name => structs}
+        end
+
+        def dependency?(rel)
+          assoc.source == rel
+        end
+
+        def through?
+          true
+        end
+
+        private
+
+        def count
+          options.fetch(:count, 1)
+        end
+
+        def tpk
+          assoc.target.primary_key
+        end
+      end
     end
   end
+  # rubocop:enable Style/OptionalArguments
 end
