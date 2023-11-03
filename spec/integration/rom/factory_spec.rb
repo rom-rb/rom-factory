@@ -109,6 +109,12 @@ RSpec.describe ROM::Factory do
           f.association :address
         end
 
+        factories.define(:user_address) do |f|
+          f.association(:user)
+          f.association(:address)
+          f.timestamps
+        end
+
         factories.define(:address) do |f|
           f.full_address "123 Elm St."
         end
@@ -907,6 +913,12 @@ RSpec.describe ROM::Factory do
           f.email "jane@doe.org"
           f.timestamps
           f.association(:addresses, count: 2)
+        end
+
+        factories.define(:user_address) do |f|
+          f.association(:user)
+          f.association(:address)
+          f.timestamps
         end
 
         factories.define(:address) do |f|

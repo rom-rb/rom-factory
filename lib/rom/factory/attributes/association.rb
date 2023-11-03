@@ -47,6 +47,11 @@ module ROM::Factory
         def value?
           false
         end
+
+        # @api private
+        def factories
+          builder.factories
+        end
       end
 
       # @api private
@@ -132,42 +137,6 @@ module ROM::Factory
         end
       end
 
-      class OneToOneThrough < Core
-        def call(attrs = EMPTY_HASH, parent, persist: true)
-          return if attrs.key?(name)
-
-          struct = if persist && attrs[tpk]
-                     attrs
-                   elsif persist
-                     builder.persistable.create(*traits, **attrs)
-                   else
-                     builder.struct(*traits, **attrs)
-                   end
-
-          assoc.persist([parent], struct) if persist
-
-          {name => struct}
-        end
-
-        def dependency?(rel)
-          assoc.source == rel
-        end
-
-        def through?
-          true
-        end
-
-        private
-
-        def count
-          options.fetch(:count, 1)
-        end
-
-        def tpk
-          assoc.target.primary_key
-        end
-      end
-
       class ManyToMany < Core
         def call(attrs = EMPTY_HASH, parent, persist: true)
           return if attrs.key?(name)
@@ -182,7 +151,14 @@ module ROM::Factory
             end
           end
 
-          assoc.persist([parent], structs) if persist
+          # Delegate to through factory if it exists
+          if through_factory? && persist
+            structs.each do |child|
+              factories[through_factory_name, user: parent, address: child]
+            end
+          else
+            assoc.persist([parent], structs) if persist
+          end
 
           {name => structs}
         end
@@ -195,6 +171,14 @@ module ROM::Factory
           true
         end
 
+        def through_factory?
+          factories.registry.key?(through_factory_name)
+        end
+
+        def through_factory_name
+          ROM::Inflector.singularize(assoc.definition.through.source).to_sym
+        end
+
         private
 
         def count
@@ -204,6 +188,9 @@ module ROM::Factory
         def tpk
           assoc.target.primary_key
         end
+      end
+
+      class OneToOneThrough < ManyToMany
       end
     end
   end

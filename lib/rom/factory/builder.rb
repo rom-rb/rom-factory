@@ -28,6 +28,10 @@ module ROM::Factory
     #   @return [Module] Custom struct namespace
     option :struct_namespace, reader: false
 
+    # @!attribute [r] factories
+    #   @return [Module] Factories with other builders
+    option :factories, reader: true, optional: true
+
     # @api private
     def tuple(*traits, **attrs)
       tuple_evaluator.defaults(traits, attrs)

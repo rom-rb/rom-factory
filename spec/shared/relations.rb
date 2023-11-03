@@ -31,6 +31,8 @@ RSpec.shared_context "relations" do
       primary_key :id
       foreign_key :user_id, :users, on_delete: :cascade
       foreign_key :address_id, :addresses, on_delete: :cascade
+      column :created_at, Time, null: false
+      column :updated_at, Time, null: false
     end
 
     conn.create_table?(:key_values) do
