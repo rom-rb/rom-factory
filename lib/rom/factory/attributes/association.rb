@@ -52,6 +52,16 @@ module ROM::Factory
         def factories
           builder.factories
         end
+
+        # @api private
+        def foreign_key
+          assoc.foreign_key
+        end
+
+        # @api private
+        def count
+          options.fetch(:count, 1)
+        end
       end
 
       # @api private
@@ -69,11 +79,6 @@ module ROM::Factory
             tuple = {name => struct}
             assoc.associate(tuple, struct)
           end
-        end
-
-        # @api private
-        def foreign_key
-          assoc.foreign_key
         end
       end
 
@@ -101,11 +106,6 @@ module ROM::Factory
         def dependency?(rel)
           assoc.source == rel
         end
-
-        # @api private
-        def count
-          options.fetch(:count)
-        end
       end
 
       # @api private
@@ -130,11 +130,6 @@ module ROM::Factory
 
           {name => struct}
         end
-
-        # @api private
-        def count
-          options.fetch(:count, 1)
-        end
       end
 
       class ManyToMany < Core
@@ -152,14 +147,27 @@ module ROM::Factory
           end
 
           # Delegate to through factory if it exists
-          if through_factory? && persist
-            structs.each do |child|
-              factories[through_factory_name, user: parent, address: child]
-            end
-          else
-            assoc.persist([parent], structs) if persist
-          end
+          if persist
+            if through_factory?
+              structs.each do |child|
+                through_attrs = {
+                  Dry::Core::Inflector.singularize(assoc.source.name.key).to_sym => parent,
+                  assoc.through.assoc_name => child
+                }
 
+                factories[through_factory_name, **through_attrs]
+              end
+            else
+              assoc.persist([parent], structs)
+            end
+
+            {name => result(structs)}
+          else
+            result(structs)
+          end
+        end
+
+        def result(structs)
           {name => structs}
         end
 
@@ -181,16 +189,15 @@ module ROM::Factory
 
         private
 
-        def count
-          options.fetch(:count, 1)
-        end
-
         def tpk
           assoc.target.primary_key
         end
       end
 
       class OneToOneThrough < ManyToMany
+        def result(structs)
+          {name => structs[0]}
+        end
       end
     end
   end

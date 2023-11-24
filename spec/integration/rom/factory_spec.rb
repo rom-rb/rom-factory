@@ -121,7 +121,7 @@ RSpec.describe ROM::Factory do
       end
 
       context "when persisting" do
-        it "creates the correct records when the is no pre-existing entity" do
+        it "creates the correct records when there's no pre-existing entity" do
           user = factories[:user]
 
           expect(user.address).to have_attributes(full_address: "123 Elm St.")
@@ -137,8 +137,6 @@ RSpec.describe ROM::Factory do
 
       context "when building a struct" do
         it "persists the relation properly with pre-existing assoc record" do
-          skip "TODO: This does not work, cannot figure out why"
-
           address = factories.structs[:address]
           user = factories.structs[:user, address: address]
 
@@ -146,8 +144,6 @@ RSpec.describe ROM::Factory do
         end
 
         it "persists the relation properly without pre-existing assoc record" do
-          skip "TODO: This does not work, cannot figure out why"
-
           user = factories.structs[:user]
 
           expect(user.address).to have_attributes(full_address: "123 Elm St.")

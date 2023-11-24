@@ -22,8 +22,9 @@ module ROM
 
         # @api private
         def create(*traits, **attrs)
-          tuple = tuple(*traits, **attrs)
           validate_keys(traits, attrs)
+
+          tuple = tuple(*traits, **attrs)
           persisted = persist(tuple)
 
           if tuple_evaluator.has_associations?(traits)

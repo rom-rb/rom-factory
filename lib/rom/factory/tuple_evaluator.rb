@@ -52,7 +52,11 @@ module ROM
         attributes.merge!(materialized_callables)
 
         associations = assoc_names
-          .map { |key| [key, attributes[key]] if attributes.key?(key) }
+          .map { |key|
+            if (assoc = @attributes[key]) && assoc.count.positive?
+              [key, build_assoc_attrs(key, attributes[relation.primary_key], attributes[key])]
+            end
+          }
           .compact
           .to_h
 
@@ -60,6 +64,14 @@ module ROM
         attributes.update(associations)
 
         model.new(attributes)
+      end
+
+      def build_assoc_attrs(key, fk, value)
+        if value.is_a?(Array)
+          value.map { |el| build_assoc_attrs(key, fk, el) }
+        else
+          {attributes[key].foreign_key => fk}.merge(value.to_h)
+        end
       end
 
       # @api private
