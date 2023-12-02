@@ -107,6 +107,12 @@ RSpec.describe ROM::Factory do
 
         expect(task.user).to be_nil
       end
+
+      it "creates the associated record with provided attributes" do
+        task = factories[:task, user: {first_name: "Jane"}]
+
+        expect(task.user.first_name).to eql("Jane")
+      end
     end
 
     context "one-to-one-through" do

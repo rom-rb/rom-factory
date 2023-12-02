@@ -68,15 +68,17 @@ module ROM::Factory
       class ManyToOne < Core
         # @api private
         def call(attrs, persist: true)
-          assoc_data = attrs[name]
+          assoc_data = attrs.fetch(name, EMPTY_HASH)
 
-          if assoc_data && !attrs[foreign_key]
+          if assoc_data && assoc_data[assoc.source.primary_key] && !attrs[foreign_key]
             assoc.associate(attrs, attrs[name])
+          elsif assoc_data.is_a?(ROM::Struct)
+            assoc.associate(attrs, assoc_data)
           elsif !(attrs.key?(name) && attrs[name].nil?) && !attrs[foreign_key]
             struct = if persist
-                       builder.persistable.create(*traits)
+                       builder.persistable.create(*traits, **assoc_data)
                      else
-                       builder.struct(*traits)
+                       builder.struct(*traits, **assoc_data)
                      end
             tuple = {name => struct}
             assoc.associate(tuple, struct)
