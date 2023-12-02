@@ -68,9 +68,11 @@ module ROM::Factory
       class ManyToOne < Core
         # @api private
         def call(attrs, persist: true)
-          if attrs.key?(name) && !attrs[foreign_key]
+          assoc_data = attrs[name]
+
+          if assoc_data && !attrs[foreign_key]
             assoc.associate(attrs, attrs[name])
-          elsif !attrs[foreign_key]
+          elsif !(attrs.key?(name) && attrs[name].nil?) && !attrs[foreign_key]
             struct = if persist
                        builder.persistable.create(*traits)
                      else
