@@ -75,14 +75,27 @@ module ROM::Factory
           elsif assoc_data.is_a?(ROM::Struct)
             assoc.associate(attrs, assoc_data)
           elsif !(attrs.key?(name) && attrs[name].nil?) && !attrs[foreign_key]
-            struct = if persist
-                       builder.persistable.create(*traits, **assoc_data)
+            parent = if persist
+                       builder.persistable.create(*parent_traits, **assoc_data)
                      else
-                       builder.struct(*traits, **assoc_data)
+                       builder.struct(*parent_traits, **assoc_data)
                      end
-            tuple = {name => struct}
-            assoc.associate(tuple, struct)
+
+            tuple = {name => parent}
+
+            assoc.associate(tuple, parent)
           end
+        end
+
+        private
+
+        def parent_traits
+          @parent_traits ||=
+            if assoc.target.associations.key?(assoc.source.name)
+              traits + [assoc.target.associations[assoc.source.name].name => false]
+            else
+              traits
+            end
         end
       end
 

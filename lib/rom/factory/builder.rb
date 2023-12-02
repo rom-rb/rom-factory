@@ -61,7 +61,11 @@ module ROM::Factory
 
     # @api private
     def tuple_evaluator
-      @__tuple_evaluator__ ||= TupleEvaluator.new(attributes, tuple_evaluator_relation, traits)
+      @__tuple_evaluator__ ||= TupleEvaluator.new(
+        attributes,
+        tuple_evaluator_relation,
+        traits
+      )
     end
 
     # @api private

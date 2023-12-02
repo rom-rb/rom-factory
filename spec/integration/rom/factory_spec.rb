@@ -95,11 +95,16 @@ RSpec.describe ROM::Factory do
           f.last_name "Doe"
           f.email "janjiss@gmail.com"
           f.timestamps
+
+          f.association(:tasks)
         end
       end
 
-      it "does not pass provided attributes into associations" do
-        expect { factories.structs[:task, title: "Bar"] }.not_to raise_error
+      it "creates a struct with associated parent" do
+        task = factories.structs[:task, title: "Bar"]
+
+        expect(task.title).to eql("Bar")
+        expect(task.user.first_name).to eql("Jane")
       end
 
       it "does not build associated struct if it's set to nil explicitly" do
@@ -109,9 +114,9 @@ RSpec.describe ROM::Factory do
       end
 
       it "creates the associated record with provided attributes" do
-        task = factories[:task, user: {first_name: "Jane"}]
+        task = factories[:task, user: {first_name: "John"}]
 
-        expect(task.user.first_name).to eql("Jane")
+        expect(task.user.first_name).to eql("John")
       end
     end
 

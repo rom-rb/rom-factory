@@ -88,10 +88,15 @@ module ROM
       end
 
       def assocs(traits_names = [])
-        traits
+        found_assocs = traits
           .values_at(*traits_names)
+          .compact
           .map(&:associations).flat_map(&:elements)
           .inject(AttributeRegistry.new(attributes.associations.elements), :<<)
+
+        exclude = traits_names.select { |t| t.is_a?(Hash) }.reduce(:merge) || EMPTY_HASH
+
+        found_assocs.reject { |a| exclude[a.name] == false }
       end
 
       # @api private
@@ -109,7 +114,7 @@ module ROM
       # @api private
       def evaluate(traits, attrs, opts)
         evaluate_values(attrs)
-          .merge(evaluate_associations(attrs, opts))
+          .merge(evaluate_associations(traits, attrs, opts))
           .merge(evaluate_traits(traits, attrs, opts))
       end
 
@@ -125,17 +130,19 @@ module ROM
         end
       end
 
-      def evaluate_traits(traits, attrs, opts)
-        return {} if traits.empty?
+      def evaluate_traits(trait_list, attrs, opts)
+        return {} if trait_list.empty?
 
-        traits_attrs = self.traits.values_at(*traits).flat_map(&:elements)
+        traits = trait_list.map { |v| v.is_a?(Hash) ? v : {v => true} }.reduce(:merge)
+
+        traits_attrs = self.traits.select { |key, value| traits[key] }.values.flat_map(&:elements)
         registry = AttributeRegistry.new(traits_attrs)
         self.class.new(registry, relation).defaults([], attrs, **opts)
       end
 
       # @api private
-      def evaluate_associations(attrs, opts)
-        attributes.associations.each_with_object({}) do |assoc, h|
+      def evaluate_associations(traits, attrs, opts)
+        assocs(traits).associations.each_with_object({}) do |assoc, h|
           if assoc.dependency?(relation)
             h[assoc.name] = ->(parent, call_opts) do
               assoc.call(parent, **opts, **call_opts)
