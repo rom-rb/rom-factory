@@ -84,39 +84,90 @@ RSpec.describe ROM::Factory do
     end
 
     context "many-to-one" do
-      before do
-        factories.define(:task) do |f|
-          f.title { "Foo" }
-          f.association(:user)
+      context "with an association that is not aliased" do
+        before do
+          factories.define(:task) do |f|
+            f.title { "Foo" }
+            f.association(:user)
+          end
+
+          factories.define(:user) do |f|
+            f.first_name "Jane"
+            f.last_name "Doe"
+            f.email "janjiss@gmail.com"
+            f.timestamps
+
+            f.association(:tasks)
+          end
         end
 
-        factories.define(:user) do |f|
-          f.first_name "Jane"
-          f.last_name "Doe"
-          f.email "janjiss@gmail.com"
-          f.timestamps
+        it "creates a struct with associated parent" do
+          task = factories.structs[:task, title: "Bar"]
 
-          f.association(:tasks)
+          expect(task.title).to eql("Bar")
+          expect(task.user.first_name).to eql("Jane")
+        end
+
+        it "does not build associated struct if it's set to nil explicitly" do
+          task = factories.structs[:task, user: nil]
+
+          expect(task.user).to be_nil
+        end
+
+        it "does not persist associated struct if it's set to nil explicitly" do
+          task = factories[:task, user: nil]
+
+          expect(task.user).to be_nil
+        end
+
+        it "creates the associated record with provided attributes" do
+          task = factories[:task, user: {first_name: "John"}]
+
+          expect(task.user.first_name).to eql("John")
         end
       end
 
-      it "creates a struct with associated parent" do
-        task = factories.structs[:task, title: "Bar"]
+      context "with an aliased association" do
+        before do
+          factories.define(:task) do |f|
+            f.title { "Foo" }
+            f.association(:author)
+          end
 
-        expect(task.title).to eql("Bar")
-        expect(task.user.first_name).to eql("Jane")
-      end
+          factories.define(:user) do |f|
+            f.first_name "Jane"
+            f.last_name "Doe"
+            f.email "janjiss@gmail.com"
+            f.timestamps
 
-      it "does not build associated struct if it's set to nil explicitly" do
-        task = factories[:task, user: nil]
+            f.association(:tasks)
+          end
+        end
 
-        expect(task.user).to be_nil
-      end
+        it "creates a struct with associated parent" do
+          task = factories.structs[:task, title: "Bar"]
 
-      it "creates the associated record with provided attributes" do
-        task = factories[:task, user: {first_name: "John"}]
+          expect(task.title).to eql("Bar")
+          expect(task.author.first_name).to eql("Jane")
+        end
 
-        expect(task.user.first_name).to eql("John")
+        it "does not build associated struct if it's set to nil explicitly" do
+          task = factories.structs[:task, author: nil]
+
+          expect(task.author).to be_nil
+        end
+
+        it "does not persist associated struct if it's set to nil explicitly" do
+          task = factories[:task, author: nil]
+
+          expect(task.author).to be_nil
+        end
+
+        it "creates the associated record with provided attributes" do
+          task = factories[:task, author: {first_name: "John"}]
+
+          expect(task.author.first_name).to eql("John")
+        end
       end
     end
 

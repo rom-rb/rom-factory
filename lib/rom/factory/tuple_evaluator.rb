@@ -16,9 +16,6 @@ module ROM
       attr_reader :traits
 
       # @api private
-      attr_reader :model
-
-      # @api private
       attr_reader :sequence
 
       # @api private
@@ -26,8 +23,11 @@ module ROM
         @attributes = attributes
         @relation = relation.with(auto_struct: true)
         @traits = traits
-        @model = @relation.combine(*assoc_names).mapper.model
         @sequence = Sequences[relation]
+      end
+
+      def model(traits)
+        @relation.combine(*assoc_names(traits)).mapper.model
       end
 
       # @api private
@@ -51,7 +51,8 @@ module ROM
 
         attributes.merge!(materialized_callables)
 
-        associations = assoc_names
+        associations = assoc_names(traits)
+          .reject { |name| attrs.key?(name) && attrs[name].nil? }
           .map { |key|
             if (assoc = @attributes[key]) && assoc.count.positive?
               [key, build_assoc_attrs(key, attributes[relation.primary_key], attributes[key])]
@@ -63,7 +64,7 @@ module ROM
         attributes = relation.output_schema[attributes]
         attributes.update(associations)
 
-        model.new(attributes)
+        model(traits).new(attributes)
       end
 
       def build_assoc_attrs(key, fk, value)
@@ -137,19 +138,22 @@ module ROM
 
         traits_attrs = self.traits.select { |key, _value| traits[key] }.values.flat_map(&:elements)
         registry = AttributeRegistry.new(traits_attrs)
+
         self.class.new(registry, relation).defaults([], attrs, **opts)
       end
 
       # @api private
       def evaluate_associations(traits, attrs, opts)
-        assocs(traits).associations.each_with_object({}) do |assoc, h|
-          if assoc.dependency?(relation)
-            h[assoc.name] = ->(parent, call_opts) do
+        assocs(traits).associations.each_with_object({}) do |assoc, memo|
+          if attrs.key?(assoc.name) && attrs[assoc.name].nil?
+            memo
+          elsif assoc.dependency?(relation)
+            memo[assoc.name] = ->(parent, call_opts) do
               assoc.call(parent, **opts, **call_opts)
             end
           else
             result = assoc.(attrs, **opts)
-            h.update(result) if result
+            memo.update(result) if result
           end
         end
       end

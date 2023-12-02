@@ -69,13 +69,15 @@ module ROM::Factory
         # @api private
         # rubocop:disable Metrics/AbcSize
         def call(attrs, persist: true)
+          return if attrs.key?(name) && attrs[name].nil?
+
           assoc_data = attrs.fetch(name, EMPTY_HASH)
 
-          if assoc_data && assoc_data[assoc.source.primary_key] && !attrs[foreign_key]
+          if assoc_data.is_a?(Hash) && assoc_data[assoc.target.primary_key] && !attrs[foreign_key]
             assoc.associate(attrs, attrs[name])
           elsif assoc_data.is_a?(ROM::Struct)
             assoc.associate(attrs, assoc_data)
-          elsif !(attrs.key?(name) && attrs[name].nil?) && !attrs[foreign_key]
+          elsif !attrs[foreign_key]
             parent = if persist
                        builder.persistable.create(*parent_traits, **assoc_data)
                      else
