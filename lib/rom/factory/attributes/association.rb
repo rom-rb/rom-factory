@@ -67,6 +67,7 @@ module ROM::Factory
       # @api private
       class ManyToOne < Core
         # @api private
+        # rubocop:disable Metrics/AbcSize
         def call(attrs, persist: true)
           assoc_data = attrs.fetch(name, EMPTY_HASH)
 
@@ -86,6 +87,7 @@ module ROM::Factory
             assoc.associate(tuple, parent)
           end
         end
+        # rubocop:enable Metrics/AbcSize
 
         private
 

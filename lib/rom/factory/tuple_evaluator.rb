@@ -135,7 +135,7 @@ module ROM
 
         traits = trait_list.map { |v| v.is_a?(Hash) ? v : {v => true} }.reduce(:merge)
 
-        traits_attrs = self.traits.select { |key, value| traits[key] }.values.flat_map(&:elements)
+        traits_attrs = self.traits.select { |key, _value| traits[key] }.values.flat_map(&:elements)
         registry = AttributeRegistry.new(traits_attrs)
         self.class.new(registry, relation).defaults([], attrs, **opts)
       end
