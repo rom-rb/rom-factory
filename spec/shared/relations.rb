@@ -19,6 +19,7 @@ RSpec.shared_context "relations" do
     conn.create_table?(:tasks) do
       primary_key :id
       foreign_key :user_id, :users
+      foreign_key :task_id, :tasks, null: true
       column :title, String, null: false
     end
 
@@ -45,6 +46,7 @@ RSpec.shared_context "relations" do
         associations do
           belongs_to :user
           belongs_to :user, as: :author
+          belongs_to :task, as: :parent
         end
       end
     end

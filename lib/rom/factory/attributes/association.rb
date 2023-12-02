@@ -96,7 +96,7 @@ module ROM::Factory
         def parent_traits
           @parent_traits ||=
             if assoc.target.associations.key?(assoc.source.name)
-              traits + [assoc.target.associations[assoc.source.name].name => false]
+              traits + [assoc.target.associations[assoc.source.name].key => false]
             else
               traits
             end

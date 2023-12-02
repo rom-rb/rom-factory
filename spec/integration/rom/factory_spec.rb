@@ -184,6 +184,22 @@ RSpec.describe ROM::Factory do
           expect(task.author.first_name).to eql("John")
         end
       end
+
+      context "with a self-ref association" do
+        before do
+          factories.define(:task) do |f|
+            f.title { "A Task" }
+            f.association(:parent)
+          end
+        end
+
+        it "creates the associated record with provided attributes" do
+          task = factories[:task, title: "Foo", parent: {title: "Bar"}]
+
+          expect(task.title).to eql("Foo")
+          expect(task.parent.title).to eql("Bar")
+        end
+      end
     end
 
     context "one-to-one-through" do
