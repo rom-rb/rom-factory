@@ -26,8 +26,8 @@ module ROM
         @sequence = Sequences[relation]
       end
 
-      def model(traits)
-        @relation.combine(*assoc_names(traits)).mapper.model
+      def model(traits, combine: assoc_names(traits))
+        @relation.combine(*combine).mapper.model
       end
 
       # @api private
@@ -51,20 +51,23 @@ module ROM
 
         attributes.merge!(materialized_callables)
 
-        associations = assoc_names(traits)
-          .reject { |name| attrs.key?(name) && attrs[name].nil? }
-          .map { |key|
-            if (assoc = @attributes[key]) && assoc.count.positive?
-              [key, build_assoc_attrs(key, attributes[relation.primary_key], attributes[key])]
-            end
+        associations = attrs.slice(*assoc_names(traits)).merge(assoc_names(traits)
+          .select { |key|
+            build_assoc?(key, attributes)
           }
-          .compact
-          .to_h
+          .map { |key|
+            [key, build_assoc_attrs(key, attributes[relation.primary_key], attributes[key])]
+          }
+          .to_h)
 
         attributes = relation.output_schema[attributes]
         attributes.update(associations)
 
         model(traits).new(attributes)
+      end
+
+      def build_assoc?(key, attributes)
+        attributes.key?(key) && attributes[key] != [] && !attributes[key].nil?
       end
 
       def build_assoc_attrs(key, fk, value)

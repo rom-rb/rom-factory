@@ -54,6 +54,9 @@ RSpec.describe ROM::Factory do
         end
 
         factories.define(:user) do |f|
+          f.first_name "Jane"
+          f.last_name "Doe"
+          f.email "jane@doe.org"
           f.timestamps
           f.association(:tasks, count: 2)
         end
@@ -67,6 +70,18 @@ RSpec.describe ROM::Factory do
         expect(relations[:users].count).to be_zero
         expect(user_with_tasks.tasks).to all(respond_to(:title, :user_id))
         expect(user_with_tasks.tasks).to all(have_attributes(user_id: user_with_tasks.id))
+      end
+
+      it "sets a value explicitly" do
+        user = factories.structs[:user, tasks: []]
+
+        expect(user.tasks).to be_empty
+      end
+
+      it "sets a value explicitly when persisting" do
+        user = factories[:user, tasks: []]
+
+        expect(user.tasks).to be_empty
       end
 
       it "does not create records when building child" do
@@ -111,13 +126,13 @@ RSpec.describe ROM::Factory do
         it "does not build associated struct if it's set to nil explicitly" do
           task = factories.structs[:task, user: nil]
 
-          expect(task.user).to be_nil
+          expect(task.user).to be(nil)
         end
 
         it "does not persist associated struct if it's set to nil explicitly" do
           task = factories[:task, user: nil]
 
-          expect(task.user).to be_nil
+          expect(task.user).to be(nil)
         end
 
         it "creates the associated record with provided attributes" do
