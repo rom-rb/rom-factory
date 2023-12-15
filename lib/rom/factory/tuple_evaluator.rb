@@ -6,6 +6,29 @@ module ROM
   module Factory
     # @api private
     class TupleEvaluator
+      class TupleEvaluatorError < StandardError
+        attr_reader :original_exception
+
+        def initialize(relation, original_exception, attrs, traits, assoc_attrs)
+          super(<<~STR)
+            Failed to build attributes for #{relation.name}
+
+            Attributes:
+              #{attrs.inspect}
+
+            Associations:
+              #{assoc_attrs}
+
+            Traits:
+              #{traits.inspect}
+
+            Original exception: #{original_exception.message}
+          STR
+
+          set_backtrace(original_exception.backtrace)
+        end
+      end
+
       # @api private
       attr_reader :attributes
 
@@ -37,7 +60,7 @@ module ROM
       end
 
       # @api private
-      def struct(*traits, **attrs)
+      def struct(*traits, **attrs) # rubocop:disable Metrics/AbcSize
         merged_attrs = struct_attrs.merge(defaults(traits, attrs, persist: false))
         is_callable = proc { |_name, value| value.respond_to?(:call) }
 
@@ -64,6 +87,8 @@ module ROM
         attributes.update(associations)
 
         model(traits).new(attributes)
+      rescue StandardError => e
+        raise TupleEvaluatorError.new(relation, e, attrs, traits, assoc_attrs)
       end
 
       def build_assoc?(key, attributes)
