@@ -68,20 +68,22 @@ module ROM
         attributes = merged_attrs.reject(&is_callable)
 
         materialized_callables = {}
-        callables.each do |_name, callable|
+        callables.each_value do |callable|
           materialized_callables.merge!(callable.call(attributes, persist: false))
         end
 
         attributes.merge!(materialized_callables)
 
-        assoc_attrs = attributes.slice(*assoc_names(traits)).merge(assoc_names(traits)
-          .select { |key|
-            build_assoc?(key, attributes)
-          }
-          .map { |key|
-            [key, build_assoc_attrs(key, attributes[relation.primary_key], attributes[key])]
-          }
-          .to_h)
+        assoc_attrs = attributes.slice(*assoc_names(traits)).merge(
+          assoc_names(traits)
+            .select { |key|
+              build_assoc?(key, attributes)
+            }
+            .map { |key|
+              [key, build_assoc_attrs(key, attributes[relation.primary_key], attributes[key])]
+            }
+          .to_h
+        )
 
         model_attrs = relation.output_schema[attributes]
         model_attrs.update(assoc_attrs)
@@ -91,8 +93,8 @@ module ROM
         raise TupleEvaluatorError.new(relation, e, attrs, traits, assoc_attrs)
       end
 
-      def build_assoc?(key, attributes)
-        attributes.key?(key) && attributes[key] != [] && !attributes[key].nil?
+      def build_assoc?(name, attributes)
+        attributes.key?(name) && attributes[name] != [] && !attributes[name].nil?
       end
 
       def build_assoc_attrs(key, fk, value)

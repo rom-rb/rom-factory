@@ -77,11 +77,14 @@ module ROM::Factory
             assoc.associate(attrs, attrs[name])
           elsif assoc_data.is_a?(ROM::Struct)
             assoc.associate(attrs, assoc_data)
-          elsif !attrs[foreign_key]
-            parent = if persist
+          else
+            parent = if persist && !attrs[foreign_key]
                        builder.persistable.create(*parent_traits, **assoc_data)
                      else
-                       builder.struct(*parent_traits, **assoc_data)
+                       builder.struct(
+                         *parent_traits,
+                         **assoc_data.merge(assoc.target.primary_key => attrs[foreign_key])
+                       )
                      end
 
             tuple = {name => parent}

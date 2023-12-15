@@ -1146,6 +1146,13 @@ RSpec.describe ROM::Factory do
         expect(rom.relations[:tasks].count).to be(0)
       end
 
+      it "respects FK" do
+        task = factories.structs[:task, user_id: 312]
+
+        expect(task.user_id).to be(312)
+        expect(task.user.id).to be(312)
+      end
+
       it "raises UnknownFactoryAttributes when unknown attributes are used" do
         expect { factories.structs[:user, name: "Joe"] }
           .to raise_error(ROM::Factory::UnknownFactoryAttributes, /name/)
