@@ -60,7 +60,7 @@ module ROM
       end
 
       # @api private
-      def struct(*traits, **attrs) # rubocop:disable Metrics/AbcSize
+      def struct(*traits, **attrs)
         merged_attrs = struct_attrs.merge(defaults(traits, attrs, persist: false))
         is_callable = proc { |_name, value| value.respond_to?(:call) }
 
@@ -74,7 +74,7 @@ module ROM
 
         attributes.merge!(materialized_callables)
 
-        associations = attrs.slice(*assoc_names(traits)).merge(assoc_names(traits)
+        assoc_attrs = attributes.slice(*assoc_names(traits)).merge(assoc_names(traits)
           .select { |key|
             build_assoc?(key, attributes)
           }
@@ -83,10 +83,10 @@ module ROM
           }
           .to_h)
 
-        attributes = relation.output_schema[attributes]
-        attributes.update(associations)
+        model_attrs = relation.output_schema[attributes]
+        model_attrs.update(assoc_attrs)
 
-        model(traits).new(attributes)
+        model(traits).new(**model_attrs)
       rescue StandardError => e
         raise TupleEvaluatorError.new(relation, e, attrs, traits, assoc_attrs)
       end
