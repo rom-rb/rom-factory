@@ -1436,4 +1436,78 @@ RSpec.describe ROM::Factory do
       expect(user.age).to be_between(0, 150)
     end
   end
+
+  describe "using UUID as PKs" do
+    context "many-to-one" do
+      let(:rom) do
+        %i[jobs workers].each { |table| conn.drop_table?(table) }
+
+        ROM.container(:sql, conn) do |conf|
+          conf.default.create_table(:workers) do
+            column :id, :uuid, primary_key: true
+            column :name, String
+          end
+
+          conf.default.create_table(:jobs) do
+            column :id, :uuid, primary_key: true
+            foreign_key :worker_id, :workers, type: :uuid
+            column :name, String
+          end
+
+          conf.relation(:workers) do
+            schema(infer: true) do
+              associations do
+                has_many :jobs
+              end
+            end
+          end
+
+          conf.relation(:jobs) do
+            schema(infer: true) do
+              attribute :worker_id, ROM::SQL::Types.ForeignKey(:workers, ROM::SQL::Types::String)
+
+              associations do
+                belongs_to :worker
+              end
+            end
+          end
+        end
+      end
+
+      before do
+        factories.define(:worker) do |f|
+          f.id { fake(:internet, :uuid) }
+          f.name "Test Worker"
+
+          f.association(:jobs, count: 0)
+
+          f.trait(:with_jobs) do |t|
+            t.association(:jobs, count: 2)
+          end
+        end
+
+        factories.define(:job) do |f|
+          f.id { fake(:internet, :uuid) }
+          f.name "Test Job"
+
+          f.association :worker
+        end
+      end
+
+      it "persists a parent struct" do
+        worker = factories[:worker]
+
+        expect(worker.id).to_not be(nil)
+        expect(worker.name).to eql("Test Worker")
+      end
+
+      it "persists a parent struct with its children" do
+        worker = factories[:worker, :with_jobs]
+
+        expect(worker.id).to_not be(nil)
+        expect(worker.name).to eql("Test Worker")
+        expect(worker.jobs.size).to be(2)
+      end
+    end
+  end
 end
