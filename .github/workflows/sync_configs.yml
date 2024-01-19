@@ -1,31 +1,25 @@
 # This file is synced from rom-rb/template-gem repo
 
-name: Changelog
+name: sync
 
 on:
+  repository_dispatch:
   push:
-    paths:
-      - "changelog.yml"
     branches:
       - "main"
-  pull_request:
-    branches:
-      - "main"
-    types: [closed]
 
 jobs:
-  sync:
+  main:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true
-    name: Update
+    if: (github.event_name == 'repository_dispatch' && github.event.action == 'sync_configs') || github.event_name != 'repository_dispatch'
     env:
       GITHUB_LOGIN: rom-bot
       GITHUB_TOKEN: ${{ secrets.GH_PAT }}
     steps:
       - name: Checkout ${{github.repository}}
-        uses: actions/checkout@v1
+        uses: actions/checkout@v3
       - name: Checkout devtools
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: rom-rb/devtools
           path: tmp/devtools
@@ -46,7 +40,7 @@ jobs:
       - name: Commit
         run: |
           git add -A
-          git commit -m "Update CHANGELOG.md" || echo "nothing to commit"
+          git commit -m "[devtools] sync" || echo "nothing to commit"
       - name: Push changes
         run: |
           git pull --rebase origin main
