@@ -50,7 +50,13 @@ module ROM
 
       # @api private
       def call
-        ::ROM::Factory::Builder.new(_attributes, _traits, relation: _relation, struct_namespace: _struct_namespace)
+        ::ROM::Factory::Builder.new(
+          _attributes,
+          _traits,
+          relation: _relation,
+          struct_namespace: _struct_namespace,
+          factories: _factories
+        )
       end
 
       # Delegate to a builder and persist a struct

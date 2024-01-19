@@ -50,6 +50,10 @@ module ROM
         self.class.new(elements.select { |e| e.is_a?(Attributes::Association::Core) })
       end
 
+      def reject(&block)
+        self.class.new(elements.reject(&block))
+      end
+
       private
 
       # @api private

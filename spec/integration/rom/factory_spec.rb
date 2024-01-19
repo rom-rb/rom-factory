@@ -54,6 +54,9 @@ RSpec.describe ROM::Factory do
         end
 
         factories.define(:user) do |f|
+          f.first_name "Jane"
+          f.last_name "Doe"
+          f.email "jane@doe.org"
           f.timestamps
           f.association(:tasks, count: 2)
         end
@@ -67,6 +70,18 @@ RSpec.describe ROM::Factory do
         expect(relations[:users].count).to be_zero
         expect(user_with_tasks.tasks).to all(respond_to(:title, :user_id))
         expect(user_with_tasks.tasks).to all(have_attributes(user_id: user_with_tasks.id))
+      end
+
+      it "sets a value explicitly" do
+        user = factories.structs[:user, tasks: []]
+
+        expect(user.tasks).to be_empty
+      end
+
+      it "sets a value explicitly when persisting" do
+        user = factories[:user, tasks: []]
+
+        expect(user.tasks).to be_empty
       end
 
       it "does not create records when building child" do
@@ -84,17 +99,106 @@ RSpec.describe ROM::Factory do
     end
 
     context "many-to-one" do
-      before do
-        factories.define(:task) do |f|
-          f.title { "Foo" }
-          f.association(:user)
+      context "with an association that is not aliased" do
+        before do
+          factories.define(:task) do |f|
+            f.title { "Foo" }
+            f.association(:user)
+          end
+
+          factories.define(:user) do |f|
+            f.first_name "Jane"
+            f.last_name "Doe"
+            f.email "janjiss@gmail.com"
+            f.timestamps
+
+            f.association(:tasks)
+          end
         end
 
-        factories.define(:user, &:timestamps)
+        it "creates a struct with associated parent" do
+          task = factories.structs[:task, title: "Bar"]
+
+          expect(task.title).to eql("Bar")
+          expect(task.user.first_name).to eql("Jane")
+        end
+
+        it "does not build associated struct if it's set to nil explicitly" do
+          task = factories.structs[:task, user: nil]
+
+          expect(task.user).to be(nil)
+        end
+
+        it "does not persist associated struct if it's set to nil explicitly" do
+          task = factories[:task, user: nil]
+
+          expect(task.user).to be(nil)
+        end
+
+        it "creates the associated record with provided attributes" do
+          task = factories[:task, user: {first_name: "John"}]
+
+          expect(task.user.first_name).to eql("John")
+        end
       end
 
-      it "does not pass provided attributes into associations" do
-        expect { factories.structs[:task, title: "Bar"] }.not_to raise_error
+      context "with an aliased association" do
+        before do
+          factories.define(:task) do |f|
+            f.title { "Foo" }
+            f.association(:author)
+          end
+
+          factories.define(:user) do |f|
+            f.first_name "Jane"
+            f.last_name "Doe"
+            f.email "janjiss@gmail.com"
+            f.timestamps
+
+            f.association(:tasks)
+          end
+        end
+
+        it "creates a struct with associated parent" do
+          task = factories.structs[:task, title: "Bar"]
+
+          expect(task.title).to eql("Bar")
+          expect(task.author.first_name).to eql("Jane")
+        end
+
+        it "does not build associated struct if it's set to nil explicitly" do
+          task = factories.structs[:task, author: nil]
+
+          expect(task.author).to be_nil
+        end
+
+        it "does not persist associated struct if it's set to nil explicitly" do
+          task = factories[:task, author: nil]
+
+          expect(task.author).to be_nil
+        end
+
+        it "creates the associated record with provided attributes" do
+          task = factories[:task, author: {first_name: "John"}]
+
+          expect(task.author.first_name).to eql("John")
+        end
+      end
+
+      context "with a self-ref association" do
+        before do
+          factories.define(:task) do |f|
+            f.title { "A Task" }
+            f.association(:parent)
+          end
+        end
+
+        it "creates the associated record with provided attributes" do
+          task = factories[:task, title: "Foo", parent: {title: "Bar"}]
+
+          expect(task.title).to eql("Foo")
+          expect(task.parent.title).to eql("Bar")
+        end
       end
     end
 
@@ -109,13 +213,19 @@ RSpec.describe ROM::Factory do
           f.association :address
         end
 
+        factories.define(:user_address) do |f|
+          f.association(:user)
+          f.association(:address)
+          f.timestamps
+        end
+
         factories.define(:address) do |f|
           f.full_address "123 Elm St."
         end
       end
 
       context "when persisting" do
-        it "creates the correct records when the is no pre-existing entity" do
+        it "creates the correct records when there's no pre-existing entity" do
           user = factories[:user]
 
           expect(user.address).to have_attributes(full_address: "123 Elm St.")
@@ -131,8 +241,6 @@ RSpec.describe ROM::Factory do
 
       context "when building a struct" do
         it "persists the relation properly with pre-existing assoc record" do
-          skip "TODO: This does not work, cannot figure out why"
-
           address = factories.structs[:address]
           user = factories.structs[:user, address: address]
 
@@ -140,8 +248,6 @@ RSpec.describe ROM::Factory do
         end
 
         it "persists the relation properly without pre-existing assoc record" do
-          skip "TODO: This does not work, cannot figure out why"
-
           user = factories.structs[:user]
 
           expect(user.address).to have_attributes(full_address: "123 Elm St.")
@@ -870,32 +976,128 @@ RSpec.describe ROM::Factory do
     end
 
     context "has_many" do
-      before do
-        factories.define(:user) do |f|
-          f.first_name "Jane"
-          f.last_name "Doe"
-          f.email "jane@doe.org"
-          f.timestamps
-          f.association(:tasks, count: 2)
+      context "when count is > 0" do
+        before do
+          factories.define(:user) do |f|
+            f.first_name "Jane"
+            f.last_name "Doe"
+            f.email "jane@doe.org"
+            f.timestamps
+            f.association(:tasks, count: 2)
+          end
+
+          factories.define(:task) do |f|
+            f.sequence(:title) { |n| "Task #{n}" }
+          end
         end
 
-        factories.define(:task) do |f|
-          f.sequence(:title) { |n| "Task #{n}" }
+        it "creates associated records" do
+          user = factories[:user]
+
+          expect(user.tasks.count).to be(2)
+
+          t1, t2 = user.tasks
+
+          expect(t1.user_id).to be(user.id)
+          expect(t1.title).to eql("Task 1")
+
+          expect(t2.user_id).to be(user.id)
+          expect(t2.title).to eql("Task 2")
         end
       end
 
-      it "creates associated records" do
-        user = factories[:user]
+      context "when count is 0" do
+        before do
+          factories.define(:user) do |f|
+            f.first_name "Jane"
+            f.last_name "Doe"
+            f.email "jane@doe.org"
+            f.timestamps
+            f.association(:tasks, count: 0)
+          end
 
-        expect(user.tasks.count).to be(2)
+          factories.define(:task) do |f|
+            f.sequence(:title) { |n| "Task #{n}" }
+          end
+        end
 
-        t1, t2 = user.tasks
+        it "doesn't build associated records" do
+          user = factories.structs[:user]
 
-        expect(t1.user_id).to be(user.id)
-        expect(t1.title).to eql("Task 1")
+          expect(user.tasks).to be_empty
+        end
 
-        expect(t2.user_id).to be(user.id)
-        expect(t2.title).to eql("Task 2")
+        it "doesn't create associated records" do
+          user = factories[:user]
+
+          expect(user.tasks).to be_empty
+        end
+      end
+    end
+
+    context "has_many-through" do
+      context "when count is > 0" do
+        before do
+          factories.define(:user) do |f|
+            f.first_name "Jane"
+            f.last_name "Doe"
+            f.email "jane@doe.org"
+            f.timestamps
+            f.association(:addresses, count: 2)
+          end
+
+          factories.define(:user_address) do |f|
+            f.association(:user)
+            f.association(:address)
+            f.timestamps
+          end
+
+          factories.define(:address) do |f|
+            f.sequence(:full_address) { |n| "Address #{n}" }
+          end
+        end
+
+        it "creates associated records" do
+          user = factories[:user]
+
+          expect(user.addresses.count).to be(2)
+
+          a1, a2 = user.addresses
+
+          expect(a1.user_id).to be(user.id)
+          expect(a1.full_address).to eql("Address 1")
+
+          expect(a2.user_id).to be(user.id)
+          expect(a2.full_address).to eql("Address 2")
+        end
+      end
+
+      context "when count is 0" do
+        before do
+          factories.define(:user) do |f|
+            f.first_name "Jane"
+            f.last_name "Doe"
+            f.email "jane@doe.org"
+            f.timestamps
+            f.association(:addresses, count: 0)
+          end
+
+          factories.define(:address) do |f|
+            f.sequence(:full_address) { |n| "Address #{n}" }
+          end
+        end
+
+        it "doesn't build associated records" do
+          user = factories.structs[:user]
+
+          expect(user.addresses).to be_empty
+        end
+
+        it "doesn't create associated records" do
+          user = factories[:user]
+
+          expect(user.addresses).to be_empty
+        end
       end
     end
 
@@ -942,6 +1144,13 @@ RSpec.describe ROM::Factory do
 
         expect(rom.relations[:users].count).to be(0)
         expect(rom.relations[:tasks].count).to be(0)
+      end
+
+      it "respects FK" do
+        task = factories.structs[:task, user_id: 312]
+
+        expect(task.user_id).to be(312)
+        expect(task.user.id).to be(312)
       end
 
       it "raises UnknownFactoryAttributes when unknown attributes are used" do

@@ -19,6 +19,7 @@ RSpec.shared_context "relations" do
     conn.create_table?(:tasks) do
       primary_key :id
       foreign_key :user_id, :users
+      foreign_key :task_id, :tasks, null: true
       column :title, String, null: false
     end
 
@@ -31,6 +32,8 @@ RSpec.shared_context "relations" do
       primary_key :id
       foreign_key :user_id, :users, on_delete: :cascade
       foreign_key :address_id, :addresses, on_delete: :cascade
+      column :created_at, Time, null: false
+      column :updated_at, Time, null: false
     end
 
     conn.create_table?(:key_values) do
@@ -42,6 +45,8 @@ RSpec.shared_context "relations" do
       schema(infer: true) do
         associations do
           belongs_to :user
+          belongs_to :user, as: :author
+          belongs_to :task, as: :parent
         end
       end
     end
@@ -52,6 +57,7 @@ RSpec.shared_context "relations" do
           has_many :tasks
           has_one :user_addresses
           has_one :address, through: :user_addresses
+          has_many :addresses, through: :user_addresses
         end
       end
     end
@@ -61,6 +67,7 @@ RSpec.shared_context "relations" do
         associations do
           has_one :user_addresses
           has_one :user, through: :user_addresses
+          has_one :users, through: :user_addresses
         end
       end
     end

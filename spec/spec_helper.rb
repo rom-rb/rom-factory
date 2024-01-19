@@ -5,13 +5,8 @@ require_relative "support/coverage"
 require "pathname"
 SPEC_ROOT = root = Pathname(__FILE__).dirname
 
-begin
-  require "pry-byebug"
-rescue LoadError
-  require "pry"
-end
-
 require "rom-factory"
+require "byebug"
 require "rspec"
 
 Dir[root.join("support/*.rb").to_s].sort.each do |f|

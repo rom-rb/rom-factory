@@ -3,6 +3,7 @@
 module ROM::Factory
   module Attributes
     # @api private
+    # rubocop:disable Style/OptionalArguments
     module Association
       class << self
         def new(assoc, builder, *traits, **options)
@@ -46,28 +47,62 @@ module ROM::Factory
         def value?
           false
         end
-      end
 
-      # @api private
-      class ManyToOne < Core
         # @api private
-        def call(attrs, persist: true)
-          if attrs.key?(name) && !attrs[foreign_key]
-            assoc.associate(attrs, attrs[name])
-          elsif !attrs[foreign_key]
-            struct = if persist
-                       builder.persistable.create(*traits)
-                     else
-                       builder.struct(*traits)
-                     end
-            tuple = {name => struct}
-            assoc.associate(tuple, struct)
-          end
+        def factories
+          builder.factories
         end
 
         # @api private
         def foreign_key
           assoc.foreign_key
+        end
+
+        # @api private
+        def count
+          options.fetch(:count, 1)
+        end
+      end
+
+      # @api private
+      class ManyToOne < Core
+        # @api private
+        # rubocop:disable Metrics/AbcSize
+        def call(attrs, persist: true)
+          return if attrs.key?(name) && attrs[name].nil?
+
+          assoc_data = attrs.fetch(name, EMPTY_HASH)
+
+          if assoc_data.is_a?(Hash) && assoc_data[assoc.target.primary_key] && !attrs[foreign_key]
+            assoc.associate(attrs, attrs[name])
+          elsif assoc_data.is_a?(ROM::Struct)
+            assoc.associate(attrs, assoc_data)
+          else
+            parent = if persist && !attrs[foreign_key]
+                       builder.persistable.create(*parent_traits, **assoc_data)
+                     else
+                       builder.struct(
+                         *parent_traits,
+                         **assoc_data.merge(assoc.target.primary_key => attrs[foreign_key])
+                       )
+                     end
+
+            tuple = {name => parent}
+
+            assoc.associate(tuple, parent)
+          end
+        end
+        # rubocop:enable Metrics/AbcSize
+
+        private
+
+        def parent_traits
+          @parent_traits ||=
+            if assoc.target.associations.key?(assoc.source.name)
+              traits + [assoc.target.associations[assoc.source.name].key => false]
+            else
+              traits
+            end
         end
       end
 
@@ -95,11 +130,6 @@ module ROM::Factory
         def dependency?(rel)
           assoc.source == rel
         end
-
-        # @api private
-        def count
-          options.fetch(:count)
-        end
       end
 
       # @api private
@@ -124,28 +154,45 @@ module ROM::Factory
 
           {name => struct}
         end
-
-        # @api private
-        def count
-          options.fetch(:count, 1)
-        end
       end
 
-      class OneToOneThrough < Core
+      class ManyToMany < Core
         def call(attrs = EMPTY_HASH, parent, persist: true)
           return if attrs.key?(name)
 
-          struct = if persist && attrs[tpk]
-                     attrs
-                   elsif persist
-                     builder.persistable.create(*traits, **attrs)
-                   else
-                     builder.struct(*traits, **attrs)
-                   end
+          structs = count.times.map do
+            if persist && attrs[tpk]
+              attrs
+            elsif persist
+              builder.persistable.create(*traits, **attrs)
+            else
+              builder.struct(*traits, **attrs)
+            end
+          end
 
-          assoc.persist([parent], struct) if persist
+          # Delegate to through factory if it exists
+          if persist
+            if through_factory?
+              structs.each do |child|
+                through_attrs = {
+                  Dry::Core::Inflector.singularize(assoc.source.name.key).to_sym => parent,
+                  assoc.through.assoc_name => child
+                }
 
-          {name => struct}
+                factories[through_factory_name, **through_attrs]
+              end
+            else
+              assoc.persist([parent], structs)
+            end
+
+            {name => result(structs)}
+          else
+            result(structs)
+          end
+        end
+
+        def result(structs)
+          {name => structs}
         end
 
         def dependency?(rel)
@@ -156,16 +203,27 @@ module ROM::Factory
           true
         end
 
-        private
-
-        def count
-          options.fetch(:count, 1)
+        def through_factory?
+          factories.registry.key?(through_factory_name)
         end
+
+        def through_factory_name
+          ROM::Inflector.singularize(assoc.definition.through.source).to_sym
+        end
+
+        private
 
         def tpk
           assoc.target.primary_key
         end
       end
+
+      class OneToOneThrough < ManyToMany
+        def result(structs)
+          {name => structs[0]}
+        end
+      end
     end
   end
+  # rubocop:enable Style/OptionalArguments
 end

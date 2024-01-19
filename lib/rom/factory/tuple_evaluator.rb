@@ -6,6 +6,29 @@ module ROM
   module Factory
     # @api private
     class TupleEvaluator
+      class TupleEvaluatorError < StandardError
+        attr_reader :original_exception
+
+        def initialize(relation, original_exception, attrs, traits, assoc_attrs)
+          super(<<~STR)
+            Failed to build attributes for #{relation.name}
+
+            Attributes:
+              #{attrs.inspect}
+
+            Associations:
+              #{assoc_attrs}
+
+            Traits:
+              #{traits.inspect}
+
+            Original exception: #{original_exception.message}
+          STR
+
+          set_backtrace(original_exception.backtrace)
+        end
+      end
+
       # @api private
       attr_reader :attributes
 
@@ -16,9 +39,6 @@ module ROM
       attr_reader :traits
 
       # @api private
-      attr_reader :model
-
-      # @api private
       attr_reader :sequence
 
       # @api private
@@ -26,8 +46,11 @@ module ROM
         @attributes = attributes
         @relation = relation.with(auto_struct: true)
         @traits = traits
-        @model = @relation.combine(*assoc_names).mapper.model
         @sequence = Sequences[relation]
+      end
+
+      def model(traits, combine: assoc_names(traits))
+        @relation.combine(*combine).mapper.model
       end
 
       # @api private
@@ -45,21 +68,41 @@ module ROM
         attributes = merged_attrs.reject(&is_callable)
 
         materialized_callables = {}
-        callables.each do |_name, callable|
+        callables.each_value do |callable|
           materialized_callables.merge!(callable.call(attributes, persist: false))
         end
 
         attributes.merge!(materialized_callables)
 
-        associations = assoc_names
-          .map { |key| [key, attributes[key]] if attributes.key?(key) }
-          .compact
+        assoc_attrs = attributes.slice(*assoc_names(traits)).merge(
+          assoc_names(traits)
+            .select { |key|
+              build_assoc?(key, attributes)
+            }
+            .map { |key|
+              [key, build_assoc_attrs(key, attributes[relation.primary_key], attributes[key])]
+            }
           .to_h
+        )
 
-        attributes = relation.output_schema[attributes]
-        attributes.update(associations)
+        model_attrs = relation.output_schema[attributes]
+        model_attrs.update(assoc_attrs)
 
-        model.new(attributes)
+        model(traits).new(**model_attrs)
+      rescue StandardError => e
+        raise TupleEvaluatorError.new(relation, e, attrs, traits, assoc_attrs)
+      end
+
+      def build_assoc?(name, attributes)
+        attributes.key?(name) && attributes[name] != [] && !attributes[name].nil?
+      end
+
+      def build_assoc_attrs(key, fk, value)
+        if value.is_a?(Array)
+          value.map { |el| build_assoc_attrs(key, fk, el) }
+        else
+          {attributes[key].foreign_key => fk}.merge(value.to_h)
+        end
       end
 
       # @api private
@@ -76,10 +119,15 @@ module ROM
       end
 
       def assocs(traits_names = [])
-        traits
+        found_assocs = traits
           .values_at(*traits_names)
+          .compact
           .map(&:associations).flat_map(&:elements)
           .inject(AttributeRegistry.new(attributes.associations.elements), :<<)
+
+        exclude = traits_names.select { |t| t.is_a?(Hash) }.reduce(:merge) || EMPTY_HASH
+
+        found_assocs.reject { |a| exclude[a.name] == false }
       end
 
       # @api private
@@ -97,7 +145,7 @@ module ROM
       # @api private
       def evaluate(traits, attrs, opts)
         evaluate_values(attrs)
-          .merge(evaluate_associations(attrs, opts))
+          .merge(evaluate_associations(traits, attrs, opts))
           .merge(evaluate_traits(traits, attrs, opts))
       end
 
@@ -113,24 +161,29 @@ module ROM
         end
       end
 
-      def evaluate_traits(traits, attrs, opts)
-        return {} if traits.empty?
+      def evaluate_traits(trait_list, attrs, opts)
+        return {} if trait_list.empty?
 
-        traits_attrs = self.traits.values_at(*traits).flat_map(&:elements)
+        traits = trait_list.map { |v| v.is_a?(Hash) ? v : {v => true} }.reduce(:merge)
+
+        traits_attrs = self.traits.select { |key, _value| traits[key] }.values.flat_map(&:elements)
         registry = AttributeRegistry.new(traits_attrs)
+
         self.class.new(registry, relation).defaults([], attrs, **opts)
       end
 
       # @api private
-      def evaluate_associations(attrs, opts)
-        attributes.associations.each_with_object({}) do |assoc, h|
-          if assoc.dependency?(relation)
-            h[assoc.name] = ->(parent, call_opts) do
+      def evaluate_associations(traits, attrs, opts)
+        assocs(traits).associations.each_with_object({}) do |assoc, memo|
+          if attrs.key?(assoc.name) && attrs[assoc.name].nil?
+            memo
+          elsif assoc.dependency?(relation)
+            memo[assoc.name] = ->(parent, call_opts) do
               assoc.call(parent, **opts, **call_opts)
             end
           else
             result = assoc.(attrs, **opts)
-            h.update(result) if result
+            memo.update(result) if result
           end
         end
       end
