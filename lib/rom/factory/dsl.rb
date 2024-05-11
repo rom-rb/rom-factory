@@ -31,7 +31,16 @@ module ROM
     #
     # @api public
     class DSL < BasicObject
-      define_method(:rand, ::Kernel.instance_method(:rand))
+      # @api private
+      module Kernel
+        %i[rand singleton_class class respond_to_missing? is_a? instance_of?].each do |meth|
+          define_method(meth, ::Kernel.instance_method(meth))
+        end
+
+        private :respond_to_missing?, :rand
+      end
+
+      include Kernel
 
       attr_reader :_name, :_relation, :_attributes, :_factories, :_struct_namespace, :_valid_names
       attr_reader :_traits
@@ -162,6 +171,7 @@ module ROM
         _attributes << attributes::Association.new(assoc, builder, *traits, **options)
       end
 
+
       private
 
       # @api private
@@ -175,7 +185,7 @@ module ROM
 
       # @api private
       def respond_to_missing?(method_name, include_private = false)
-        _valid_names.include?(meth) || super
+        _valid_names.include?(method_name) || super
       end
 
       # @api private
