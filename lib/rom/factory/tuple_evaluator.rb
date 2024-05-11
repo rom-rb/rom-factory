@@ -151,9 +151,9 @@ module ROM
 
       # @api private
       def evaluate_values(attrs)
-        attributes.values.tsort.each_with_object({}) do |attr, h|
-          deps = attr.dependency_names.map { |k| h[k] }.compact
-          result = attr.(attrs, *deps)
+        attributes.values.tsort.each_with_object(attrs.dup) do |attr, h|
+          deps = attr.dependency_names.filter_map { |k| h[k] }
+          result = attr.(h, *deps)
 
           if result
             h.update(result)
@@ -162,7 +162,7 @@ module ROM
       end
 
       def evaluate_traits(trait_list, attrs, opts)
-        return {} if trait_list.empty?
+        return EMPTY_HASH if trait_list.empty?
 
         traits = trait_list.map { |v| v.is_a?(Hash) ? v : {v => true} }.reduce(:merge)
 

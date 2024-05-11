@@ -490,6 +490,43 @@ RSpec.describe ROM::Factory do
 
       expect(user.email).to eql("#{user.first_name}.#{user.last_name}@test-1.org")
     end
+
+    it "can use passed values in the block" do
+      factories.define(:user, relation: :users) do |f|
+        f.last_name { fake(:name) }
+        f.email { |first_name, last_name| "#{first_name}.#{last_name}@example.com" }
+        f.timestamps
+      end
+
+      user = factories[:user, first_name: "Jane"]
+
+      expect(user.email).to eql("Jane.#{user.last_name}@example.com")
+    end
+
+    it "can use passed values in the block" do
+      factories.define(:user, relation: :users) do |f|
+        f.first_name nil
+        f.last_name { fake(:name) }
+        f.email { |first_name| "#{first_name}@example.com" }
+        f.timestamps
+      end
+
+      user = factories[:user, first_name: "Jane"]
+
+      expect(user.email).to eql("Jane@example.com")
+    end
+
+    it "can use passed values in the block" do
+      factories.define(:user, relation: :users) do |f|
+        f.last_name { fake(:name) }
+        f.email { |first_name| "#{first_name}@example.com" }
+        f.timestamps
+      end
+
+      user = factories[:user, first_name: "Jane"]
+
+      expect(user.email).to eql("Jane@example.com")
+    end
   end
 
   context "changing values of dependant attributes" do
