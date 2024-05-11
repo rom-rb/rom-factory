@@ -33,11 +33,11 @@ module ROM
     class DSL < BasicObject
       # @api private
       module Kernel
-        %i[rand singleton_class class respond_to_missing? is_a? instance_of?].each do |meth|
+        %i[binding class instance_of? is_a? rand respond_to_missing? singleton_class].each do |meth|
           define_method(meth, ::Kernel.instance_method(meth))
         end
 
-        private :respond_to_missing?, :rand
+        private :respond_to_missing?, :rand, :binding
       end
 
       include Kernel
