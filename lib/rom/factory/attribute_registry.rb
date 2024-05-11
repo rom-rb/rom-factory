@@ -54,6 +54,12 @@ module ROM
         self.class.new(elements.reject(&block))
       end
 
+      # @api private
+      def inspect
+        "#<#{self.class} #{elements.inspect}>"
+      end
+      alias_method :to_s, :inspect
+
       private
 
       # @api private

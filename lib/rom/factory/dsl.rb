@@ -171,6 +171,11 @@ module ROM
         _attributes << attributes::Association.new(assoc, builder, *traits, **options)
       end
 
+      # @api private
+      def inspect
+        "#<#{self.class} name=#{_name}>"
+      end
+      alias_method :to_s, :inspect
 
       private
 

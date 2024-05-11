@@ -28,6 +28,12 @@ module ROM::Factory
       def dependency_names
         block.parameters.map(&:last)
       end
+
+      # @api private
+      def inspect
+        "#<#{self.class.name} #{name} at #{block.source_location.join(":")}>"
+      end
+      alias_method :to_s, :inspect
     end
   end
 end
