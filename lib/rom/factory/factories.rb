@@ -170,6 +170,7 @@ module ROM::Factory
     def [](name, *traits, **attrs)
       registry[name].struct_namespace(struct_namespace).persistable.create(*traits, **attrs)
     end
+    alias create []
 
     # Return in-memory struct builder
     #

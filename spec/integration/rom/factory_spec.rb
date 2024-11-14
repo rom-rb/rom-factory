@@ -412,7 +412,7 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  context "creation of records" do
+  shared_examples_for "it creates records" do
     it "creates a record based on defined factories" do
       factories.define(:user, relation: :users) do |f|
         f.first_name "Janis"
@@ -421,8 +421,6 @@ RSpec.describe ROM::Factory do
         f.created_at Time.now
         f.updated_at Time.now
       end
-
-      user = factories[:user]
 
       expect(user.email).not_to be_empty
       expect(user.first_name).not_to be_empty
@@ -437,8 +435,6 @@ RSpec.describe ROM::Factory do
         f.created_at { Time.now }
         f.updated_at { Time.now }
       end
-
-      user = factories[:user]
 
       expect(user.email).not_to be_empty
       expect(user.first_name).not_to be_empty
@@ -456,9 +452,20 @@ RSpec.describe ROM::Factory do
         f.updated_at { Time.now }
       end
 
-      user = factories[:user]
       expect(user.email).to match(/\d{1,3}/)
     end
+  end
+
+  context "creation of records via .[]" do
+    let(:user) { factories[:user] }
+
+    it_should_behave_like "it creates records"
+  end
+
+  context "creation of records via .create" do
+    let(:user) { factories.create(:user) }
+
+    it_should_behave_like "it creates records"
   end
 
   context "changing values" do
@@ -472,6 +479,20 @@ RSpec.describe ROM::Factory do
       end
 
       user = factories[:user, email: "holla@gmail.com"]
+
+      expect(user.email).to eq("holla@gmail.com")
+    end
+
+    it "supports overwriting create values" do
+      factories.define(:user, relation: :users) do |f|
+        f.first_name "Janis"
+        f.last_name "Miezitis"
+        f.email "janjiss@gmail.com"
+        f.created_at Time.now
+        f.updated_at Time.now
+      end
+
+      user = factories.create(:user, email: "holla@gmail.com")
 
       expect(user.email).to eq("holla@gmail.com")
     end
