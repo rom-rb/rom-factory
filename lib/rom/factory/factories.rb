@@ -181,7 +181,7 @@ module ROM::Factory
       @__structs__ ||= Structs.new(registry, struct_namespace)
     end
 
-    # Return a new, non psersisted, struct
+    # Return a new, non-persisted struct
     #
     # @example create a struct with default attributes
     #   MyFactory.build(:user)
