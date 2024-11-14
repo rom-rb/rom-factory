@@ -21,6 +21,7 @@ jobs:
       COVERAGE: "${{matrix.coverage}}"
       COVERAGE_TOKEN: "${{secrets.CODACY_PROJECT_TOKEN}}"
       APT_DEPS: libpq-dev libmysqlclient-dev libsqlite3-dev
+      DATABASE_URL: "postgres://runner:@localhost:5432/rom_factory"
     steps:
     - name: Checkout
       uses: actions/checkout@v1

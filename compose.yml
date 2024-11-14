@@ -1,0 +1,7 @@
+---
+services:
+  db:
+    image: postgres
+    ports:
+      - 5432
+    env_file: .postgres.env
