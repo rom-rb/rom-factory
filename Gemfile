@@ -10,11 +10,13 @@ gem "faker", "~> 3.0"
 
 gem "rspec", "~> 3.0"
 
+gem "dotenv"
+
 git "https://github.com/rom-rb/rom.git", branch: "release-5.3" do
-  gem "rom-core"
-  gem "rom-changeset"
-  gem "rom-repository"
   gem "rom"
+  gem "rom-changeset"
+  gem "rom-core"
+  gem "rom-repository"
 end
 
 group :test do
