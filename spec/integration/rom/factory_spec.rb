@@ -404,7 +404,6 @@ RSpec.describe ROM::Factory do
     end
   end
 
-
   describe "factories builder DSL" do
     it "infers relation from the name" do
       factories.define(:user) do |f|
