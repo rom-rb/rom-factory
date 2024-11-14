@@ -181,6 +181,25 @@ module ROM::Factory
       @__structs__ ||= Structs.new(registry, struct_namespace)
     end
 
+    # Return a new, non psersisted, struct
+    #
+    # @example create a struct with default attributes
+    #   MyFactory.build(:user)
+    #
+    # @example create a struct with some attributes overridden
+    #   MyFactory.build(:uesr, name: "Jane")
+    #
+    # @param [Symbol] name The name of the registered factory
+    # @param [Array<Symbol>] traits List of traits to apply
+    # @param [Hash] attrs optional attributes to override the defaults
+    #
+    # @return [ROM::Struct]
+    #
+    # @api public
+    def build(name, *traits, **attrs)
+      structs[name, *traits, **attrs]
+    end
+
     # Get factories with a custom struct namespace
     #
     # @example

@@ -396,6 +396,15 @@ RSpec.describe ROM::Factory do
     end
   end
 
+  describe ".build" do
+    it_behaves_like "it builds a plain struct"
+
+    def build(factory, *traits, **attrs)
+      factories.build(factory, *traits, **attrs)
+    end
+  end
+
+
   describe "factories builder DSL" do
     it "infers relation from the name" do
       factories.define(:user) do |f|
