@@ -159,11 +159,15 @@ end
 
 ```ruby
 # Create in-memory object
-Factory.structs[:user]
+Factory.build(:user)
 
 # Persist struct in database
-Factory[:user]
+Factory.create(:user)
 
 # Override attributes
-Factory[:user, age: 24]
+Factory.create(:user, age: 24)
+
+# Build and Create via #[] accessors
+Factory.structs[:user]
+Factory[:user]
 ```
