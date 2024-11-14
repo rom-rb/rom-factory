@@ -21,7 +21,7 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  describe ".structs" do
+  shared_examples_for "it builds a plain struct" do
     it "returns a plain struct builder" do
       factories.define(:user) do |f|
         f.first_name "Jane"
@@ -30,8 +30,8 @@ RSpec.describe ROM::Factory do
         f.timestamps
       end
 
-      user1 = factories.structs[:user]
-      user2 = factories.structs[:user]
+      user1 = build(:user)
+      user2 = build(:user)
 
       expect(user1.id).to_not be(nil)
       expect(user1.first_name).to eql("Jane")
@@ -63,7 +63,7 @@ RSpec.describe ROM::Factory do
       end
 
       it "works when building parent" do
-        user_with_tasks = factories.structs[:user]
+        user_with_tasks = build(:user)
 
         expect(user_with_tasks.tasks.length).to eql(2)
         expect(relations[:tasks].count).to be_zero
@@ -73,19 +73,19 @@ RSpec.describe ROM::Factory do
       end
 
       it "sets a value explicitly" do
-        user = factories.structs[:user, tasks: []]
+        user = build(:user, tasks: [])
 
         expect(user.tasks).to be_empty
       end
 
       it "sets a value explicitly when persisting" do
-        user = factories[:user, tasks: []]
+        user = build(:user, tasks: [])
 
         expect(user.tasks).to be_empty
       end
 
       it "does not create records when building child" do
-        factories.structs[:task]
+        build(:task)
 
         expect(relations[:tasks].count).to be_zero
         expect(relations[:users].count).to be_zero
@@ -93,7 +93,7 @@ RSpec.describe ROM::Factory do
 
       it "does not pass provided attributes into associations" do
         expect {
-          factories.structs[:user, email: "jane@doe.com"]
+          build(:user, email: "jane@doe.com")
         }.not_to raise_error
       end
     end
@@ -117,14 +117,14 @@ RSpec.describe ROM::Factory do
         end
 
         it "creates a struct with associated parent" do
-          task = factories.structs[:task, title: "Bar"]
+          task = build(:task, title: "Bar")
 
           expect(task.title).to eql("Bar")
           expect(task.user.first_name).to eql("Jane")
         end
 
         it "does not build associated struct if it's set to nil explicitly" do
-          task = factories.structs[:task, user: nil]
+          task = build(:task, user: nil)
 
           expect(task.user).to be(nil)
         end
@@ -160,14 +160,14 @@ RSpec.describe ROM::Factory do
         end
 
         it "creates a struct with associated parent" do
-          task = factories.structs[:task, title: "Bar"]
+          task = build(:task, title: "Bar")
 
           expect(task.title).to eql("Bar")
           expect(task.author.first_name).to eql("Jane")
         end
 
         it "does not build associated struct if it's set to nil explicitly" do
-          task = factories.structs[:task, author: nil]
+          task = build(:task, author: nil)
 
           expect(task.author).to be_nil
         end
@@ -241,14 +241,14 @@ RSpec.describe ROM::Factory do
 
       context "when building a struct" do
         it "persists the relation properly with pre-existing assoc record" do
-          address = factories.structs[:address]
-          user = factories.structs[:user, address: address]
+          address = build(:address)
+          user = build(:user, address: address)
 
           expect(user.address).to have_attributes(full_address: "123 Elm St.")
         end
 
         it "persists the relation properly without pre-existing assoc record" do
-          user = factories.structs[:user]
+          user = build(:user)
 
           expect(user.address).to have_attributes(full_address: "123 Elm St.")
         end
@@ -301,7 +301,7 @@ RSpec.describe ROM::Factory do
         end
 
         it "works with one to one relationships with parent" do
-          user = factories.structs[:basic_user]
+          user = build(:basic_user)
 
           expect(relations[:basic_accounts].count).to be_zero
           expect(relations[:basic_users].count).to be_zero
@@ -309,7 +309,7 @@ RSpec.describe ROM::Factory do
         end
 
         it "does not persist when building a child struct" do
-          factories.structs[:basic_account]
+          build(:basic_account)
 
           expect(relations[:basic_accounts].count).to be_zero
           expect(relations[:basic_users].count).to be_zero
@@ -317,7 +317,7 @@ RSpec.describe ROM::Factory do
 
         it "does not pass provided attributes into associations" do
           expect {
-            factories.structs[:basic_account, created_at: Time.now]
+            build(:basic_account, created_at: Time.now)
           }.not_to raise_error
         end
       end
@@ -336,7 +336,7 @@ RSpec.describe ROM::Factory do
         end
 
         it "still allows building the parent struct" do
-          basic_user = factories.structs[:basic_user]
+          basic_user = build(:basic_user)
 
           expect(basic_user.basic_account).to respond_to(:id)
         end
@@ -363,7 +363,7 @@ RSpec.describe ROM::Factory do
         end
 
         it "does not build the related record" do
-          user = factories.structs[:basic_user]
+          user = build(:basic_user)
 
           expect(user.basic_account).to be_nil
         end
@@ -385,6 +385,22 @@ RSpec.describe ROM::Factory do
           expect(&defining_with_count_greater_than_zero).to raise_error(ArgumentError)
         end
       end
+    end
+  end
+
+  describe ".structs" do
+    it_behaves_like "it builds a plain struct"
+
+    def build(factory, *traits, **attrs)
+      factories.structs[factory, *traits, **attrs]
+    end
+  end
+
+  describe ".build" do
+    it_behaves_like "it builds a plain struct"
+
+    def build(factory, *traits, **attrs)
+      factories.build(factory, *traits, **attrs)
     end
   end
 
@@ -412,7 +428,7 @@ RSpec.describe ROM::Factory do
     end
   end
 
-  context "creation of records" do
+  shared_examples_for "it creates records" do
     it "creates a record based on defined factories" do
       factories.define(:user, relation: :users) do |f|
         f.first_name "Janis"
@@ -421,8 +437,6 @@ RSpec.describe ROM::Factory do
         f.created_at Time.now
         f.updated_at Time.now
       end
-
-      user = factories[:user]
 
       expect(user.email).not_to be_empty
       expect(user.first_name).not_to be_empty
@@ -437,8 +451,6 @@ RSpec.describe ROM::Factory do
         f.created_at { Time.now }
         f.updated_at { Time.now }
       end
-
-      user = factories[:user]
 
       expect(user.email).not_to be_empty
       expect(user.first_name).not_to be_empty
@@ -456,9 +468,20 @@ RSpec.describe ROM::Factory do
         f.updated_at { Time.now }
       end
 
-      user = factories[:user]
       expect(user.email).to match(/\d{1,3}/)
     end
+  end
+
+  context "creation of records via .[]" do
+    let(:user) { factories[:user] }
+
+    it_should_behave_like "it creates records"
+  end
+
+  context "creation of records via .create" do
+    let(:user) { factories.create(:user) }
+
+    it_should_behave_like "it creates records"
   end
 
   context "changing values" do
@@ -472,6 +495,20 @@ RSpec.describe ROM::Factory do
       end
 
       user = factories[:user, email: "holla@gmail.com"]
+
+      expect(user.email).to eq("holla@gmail.com")
+    end
+
+    it "supports overwriting create values" do
+      factories.define(:user, relation: :users) do |f|
+        f.first_name "Janis"
+        f.last_name "Miezitis"
+        f.email "janjiss@gmail.com"
+        f.created_at Time.now
+        f.updated_at Time.now
+      end
+
+      user = factories.create(:user, email: "holla@gmail.com")
 
       expect(user.email).to eq("holla@gmail.com")
     end

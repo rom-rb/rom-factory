@@ -15,6 +15,10 @@ RSpec.shared_context "database" do
     conf.gateways[:default].connection
   end
 
+  after do
+    conn.disconnect
+  end
+
   let(:relations) do
     rom.relations
   end
