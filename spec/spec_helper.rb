@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require_relative "support/coverage"
+require "dotenv"
+Dotenv.load(".postgres.env", ".env")
 
 require "pathname"
 SPEC_ROOT = root = Pathname(__FILE__).dirname
@@ -18,10 +20,16 @@ Dir[root.join("shared/*.rb").to_s].sort.each do |f|
 end
 
 DB_URI = ENV.fetch("DATABASE_URL") do
+  auth = ENV.values_at("POSTGRES_USER", "POSTGRES_PASSWORD").join(":")
+  address = `docker compose port db 5432 2> /dev/null`.strip
+  address = [auth, address].join("@") if address
+
+  address ||= "localhost"
+
   if defined? JRUBY_VERSION
-    "jdbc:postgresql://localhost/rom_factory"
+    "jdbc:postgresql://#{address}"
   else
-    "postgres://localhost/rom_factory"
+    "postgres://#{address}"
   end
 end
 

@@ -10,6 +10,8 @@ gem "faker", "~> 3.0"
 
 gem "rspec", "~> 3.0"
 
+gem "dotenv"
+
 git "https://github.com/rom-rb/rom.git", branch: "release-5.3" do
   gem "rom"
   gem "rom-changeset"
