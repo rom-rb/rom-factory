@@ -13,17 +13,23 @@ module ROM
     class << self
       # @api private
       def fake(*args, **options)
-        api = fetch_or_store(:faker, *args) do
+        const, method_name = fetch_or_store(:faker, *args) do
           *ns, method_name = args
 
           const = ns.reduce(::Faker) do |obj, name|
             obj.const_get(::Dry::Core::Inflector.camelize(name))
           end
 
-          const.method(method_name)
+          [const, method_name]
         end
 
-        api.(**options)
+        is_unique = options.delete(:unique) { false }
+
+        if is_unique
+          const.unique.public_send(method_name, **options)
+        else
+          const.method(method_name).(**options)
+        end
       end
     end
 
