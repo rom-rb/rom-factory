@@ -119,9 +119,13 @@ module ROM
       #   @example
       #     f.email { fake(:number, :between, from: 10, to: 100) }
       #
+      #   @example
+      #    f.email { fake(:internet, :email, unique: true) }
+      #
       #   @param [Symbol] genre The faker API identifier ie. :internet, :product etc.
       #   @param [Symbol] type The value type to generate
-      #   @param [Hash] options Additional arguments
+      #   @param [Hash] options Additional arguments, including unique: true will generate unique values
+      #
       #
       # @overload fake(genre, subgenre, type, **options)
       #   @example
