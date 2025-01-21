@@ -20,6 +20,12 @@
         f.association :image, traits: [:fancy]
       end
       ```
+    - |
+      Aliases for factory methods (via #92) (@cflipse)
+
+      `Factory.create` is aliased to `Factory.[]`
+      `Factory.build` is aliased to `Factory.structs[]`
+
   changed:
     - Minimum Ruby version is now 3.1 (@flash-gordon)
 - version: 0.12.0
