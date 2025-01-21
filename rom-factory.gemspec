@@ -25,11 +25,11 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.required_ruby_version = ">= 2.7.0"
+  spec.required_ruby_version = ">= 3.1.0"
 
-  spec.add_runtime_dependency "dry-configurable", "~> 1.0"
-  spec.add_runtime_dependency "dry-core", "~> 1.0"
-  spec.add_runtime_dependency "dry-struct", "~> 1.6"
+  spec.add_runtime_dependency "dry-configurable", "~> 1.3"
+  spec.add_runtime_dependency "dry-core", "~> 1.1"
+  spec.add_runtime_dependency "dry-struct", "~> 1.7"
   spec.add_runtime_dependency "faker", ">= 2.0", "< 4"
-  spec.add_runtime_dependency "rom-core", "~> 5.3"
+  spec.add_runtime_dependency "rom-core", "~> 5.4"
 end
