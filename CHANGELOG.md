@@ -23,6 +23,11 @@ Factory.define :category do |f|
 end
 ```
 
+- Aliases for factory methods (via #92) (@cflipse)
+
+`Factory.create` is aliased to `Factory.[]`
+`Factory.build` is aliased to `Factory.structs[]`
+
 
 ### Changed
 
