@@ -160,9 +160,13 @@ module ROM
       # @example has-many
       #   f.association(:posts, count: 2)
       #
+      # @example adding traits
+      #   f.association(:posts, traits: [:published])
+      #
       # @param [Symbol] name The name of the configured association
       # @param [Hash] options Additional options
       # @option options [Integer] count Number of objects to generate
+      # @option options [Array<Symbol>] traits Traits to apply to the association
       #
       # @api public
       def association(name, *traits, **options)
@@ -171,6 +175,8 @@ module ROM
         if assoc.is_a?(::ROM::SQL::Associations::OneToOne) && options.fetch(:count, 1) > 1
           ::Kernel.raise ::ArgumentError, "count cannot be greater than 1 on a OneToOne"
         end
+
+        traits = options.fetch(:traits, EMPTY_ARRAY) if traits.empty?
 
         builder = -> { _factories.for_relation(assoc.target) }
 
