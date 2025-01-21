@@ -21,7 +21,7 @@ jobs:
       COVERAGE: "${{matrix.coverage}}"
       COVERAGE_TOKEN: "${{secrets.CODACY_PROJECT_TOKEN}}"
       APT_DEPS: libpq-dev libmysqlclient-dev libsqlite3-dev
-      DATABASE_URL: "postgres://runner:@localhost:5432/rom_factory"
+      DATABASE_URL: "postgres://rom-factory:rom-factory@localhost:5432/rom_factory"
     steps:
     - name: Checkout
       uses: actions/checkout@v1
@@ -49,8 +49,8 @@ jobs:
       db:
         image: postgres:16.1
         env:
-          POSTGRES_USER: runner
-          POSTGRES_PASSWORD: ''
+          POSTGRES_USER: rom-factory
+          POSTGRES_PASSWORD: rom-factory
           POSTGRES_DB: rom_factory
         ports:
         - 5432:5432

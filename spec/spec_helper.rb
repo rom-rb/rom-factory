@@ -33,8 +33,6 @@ DB_URI = ENV.fetch("DATABASE_URL") do
   end
 end
 
-warning_api_available = RUBY_VERSION >= "2.4.0"
-
 module SileneceWarnings
   def warn(str)
     if str["/sequel/"] || str["/rspec-core"]
@@ -63,7 +61,7 @@ module Helpers
   end
 end
 
-Warning.extend(SileneceWarnings) if warning_api_available
+Warning.extend(SileneceWarnings)
 
 RSpec.configure do |config|
   config.disable_monkey_patching!
