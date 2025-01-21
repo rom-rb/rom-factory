@@ -141,6 +141,14 @@ Factory.define(:user) do |f|
 end
 ```
 
+##### Unique values with fake
+Passing the unique: true option will use Faker's [unique](https://github.com/faker-ruby/faker#ensuring-unique-values) feature  
+```ruby
+Factory.define(:user) do |f|
+  f.email { fake(:internet, :email, unique: true) }
+end
+```
+
 #### Dependent attributes
 
 Attributes can be based on the values of other attributes:

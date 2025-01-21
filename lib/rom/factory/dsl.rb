@@ -13,17 +13,23 @@ module ROM
     class << self
       # @api private
       def fake(*args, **options)
-        api = fetch_or_store(:faker, *args) do
+        const, method_name = fetch_or_store(:faker, *args) do
           *ns, method_name = args
 
           const = ns.reduce(::Faker) do |obj, name|
             obj.const_get(::Dry::Core::Inflector.camelize(name))
           end
 
-          const.method(method_name)
+          [const, method_name]
         end
 
-        api.(**options)
+        is_unique = options.delete(:unique) { false }
+
+        if is_unique
+          const.unique.public_send(method_name, **options)
+        else
+          const.method(method_name).(**options)
+        end
       end
     end
 
@@ -113,9 +119,13 @@ module ROM
       #   @example
       #     f.email { fake(:number, :between, from: 10, to: 100) }
       #
+      #   @example
+      #    f.email { fake(:internet, :email, unique: true) }
+      #
       #   @param [Symbol] genre The faker API identifier ie. :internet, :product etc.
       #   @param [Symbol] type The value type to generate
-      #   @param [Hash] options Additional arguments
+      #   @param [Hash] options Additional arguments, including unique: true will generate unique values
+      #
       #
       # @overload fake(genre, subgenre, type, **options)
       #   @example

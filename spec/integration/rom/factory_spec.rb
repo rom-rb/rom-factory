@@ -919,6 +919,18 @@ RSpec.describe ROM::Factory do
       expect(user.created_at).to_not be(nil)
       expect(user.created_at).to_not be(nil)
     end
+
+    it "uses unique when the unique option is true" do
+      factories.define(:user) do |f|
+        f.first_name { fake(:name) }
+        f.last_name { fake(:name, :last_name) }
+        f.email { fake(:internet, :email, unique: true) }
+        f.timestamps
+      end
+
+      emails = 10.times.map { factories.structs[:user].email }
+      expect(emails.uniq.length).to eq(emails.length)
+    end
   end
 
   context "custom non integer sequence primary_key" do
