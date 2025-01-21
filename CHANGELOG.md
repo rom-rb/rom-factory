@@ -5,7 +5,7 @@
 
 ### Added
 
-- Support for unique options in `fake` DSL (@sean-dickinson in #94)
+- Support for unique options in `fake` DSL (via #94) (@sean-dickinson)
 
 ```ruby
 Factory.define(:user) do |f|
@@ -27,13 +27,13 @@ Be advised there's `Faker::UniqueGenerator.clear` to clear the cache of unique v
 
 ### Added
 
-- Support for many-to-many and one-to-one-through associations (via
-- Support for UUID as PKs in associations (via
+- Support for many-to-many and one-to-one-through associations (via #86) (@solnic)
+- Support for UUID as PKs in associations (via #87) (@solnic)
 
 ### Fixed
 
-- Relations without PKs should work too (via
-- Relations with PK values generated on the Ruby side should work in SQlite too (via
+- Relations without PKs should work too (via #87) (@solnic)
+- Relations with PK values generated on the Ruby side should work in SQlite too (via #87) (@solnic)
 
 
 [Compare v0.11.0...v0.12.0](https://github.com/rom-rb/rom-factory/compare/v0.11.0...v0.12.0)
