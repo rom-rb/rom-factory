@@ -65,7 +65,7 @@ Warning.extend(SileneceWarnings)
 
 RSpec.configure do |config|
   config.disable_monkey_patching!
-  config.warnings = warning_api_available
+  config.warnings = true
   config.include(Helpers)
   config.before { ROM::Factory::Sequences.instance.reset }
   config.filter_run_when_matching :focus
