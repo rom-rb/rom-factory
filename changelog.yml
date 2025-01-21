@@ -3,7 +3,7 @@
   date: 2025-01-21
   added:
     - |
-      Support for unique options in `fake` DSL (@sean-dickinson in #94)
+      Support for unique options in `fake` DSL (via #94) (@sean-dickinson)
 
       ```ruby
       Factory.define(:user) do |f|
@@ -17,15 +17,15 @@
 - version: 0.12.0
   date: 2024-01-19
   added:
-    - Support for many-to-many and one-to-one-through associations (via #86) (@solnic)
-    - Support for UUID as PKs in associations (via #87) (@solnic)
+    - "Support for many-to-many and one-to-one-through associations (via #86) (@solnic)"
+    - "Support for UUID as PKs in associations (via #87) (@solnic)"
   fixed:
-    - Relations without PKs should work too (via #87) (@solnic)
-    - Relations with PK values generated on the Ruby side should work in SQlite too (via #87) (@solnic)
+    - "Relations without PKs should work too (via #87) (@solnic)"
+    - "Relations with PK values generated on the Ruby side should work in SQlite too (via #87) (@solnic)"
 - version: 0.11.0
   date: 2022-11-11
   added:
-    - Support for one-to-one associations (@ianks)
+    - "Support for one-to-one associations (@ianks)"
     - "[internal] cache for Faker constants (@flash-gordon)"
   changed:
     - |
