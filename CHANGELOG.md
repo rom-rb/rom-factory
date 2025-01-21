@@ -15,6 +15,14 @@ end
 
 Be advised there's `Faker::UniqueGenerator.clear` to clear the cache of unique values.
 
+- Support for setting traits with a keyword argument (via #84) (@parndt)
+
+```ruby
+Factory.define :category do |f|
+  f.association :image, traits: [:fancy]
+end
+```
+
 
 ### Changed
 
