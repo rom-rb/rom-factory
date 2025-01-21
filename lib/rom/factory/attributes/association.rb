@@ -6,8 +6,8 @@ module ROM::Factory
     # rubocop:disable Style/OptionalArguments
     module Association
       class << self
-        def new(assoc, builder, *traits, **options)
-          const_get(assoc.definition.type).new(assoc, builder, *traits, **options)
+        def new(assoc, ...)
+          const_get(assoc.definition.type).new(assoc, ...)
         end
       end
 
@@ -24,9 +24,7 @@ module ROM::Factory
         end
 
         # @api private
-        def through?
-          false
-        end
+        def through? = false
 
         # @api private
         def builder
@@ -34,34 +32,22 @@ module ROM::Factory
         end
 
         # @api private
-        def name
-          assoc.key
-        end
+        def name = assoc.key
 
         # @api private
-        def dependency?(*)
-          false
-        end
+        def dependency?(*) = false
 
         # @api private
-        def value?
-          false
-        end
+        def value? = false
 
         # @api private
-        def factories
-          builder.factories
-        end
+        def factories = builder.factories
 
         # @api private
-        def foreign_key
-          assoc.foreign_key
-        end
+        def foreign_key = assoc.foreign_key
 
         # @api private
-        def count
-          options.fetch(:count, 1)
-        end
+        def count = options.fetch(:count, 1)
       end
 
       # @api private
@@ -73,19 +59,20 @@ module ROM::Factory
 
           assoc_data = attrs.fetch(name, EMPTY_HASH)
 
-          if assoc_data.is_a?(Hash) && assoc_data[assoc.target.primary_key] && !attrs[foreign_key]
+          if assoc_data.is_a?(::Hash) && assoc_data[assoc.target.primary_key] && !attrs[foreign_key]
             assoc.associate(attrs, attrs[name])
-          elsif assoc_data.is_a?(ROM::Struct)
+          elsif assoc_data.is_a?(::ROM::Struct)
             assoc.associate(attrs, assoc_data)
           else
-            parent = if persist && !attrs[foreign_key]
-                       builder.persistable.create(*parent_traits, **assoc_data)
-                     else
-                       builder.struct(
-                         *parent_traits,
-                         **assoc_data.merge(assoc.target.primary_key => attrs[foreign_key])
-                       )
-                     end
+            parent =
+              if persist && !attrs[foreign_key]
+                builder.persistable.create(*parent_traits, **assoc_data)
+              else
+                builder.struct(
+                  *parent_traits,
+                  **assoc_data, assoc.target.primary_key => attrs[foreign_key]
+                )
+              end
 
             tuple = {name => parent}
 
@@ -112,7 +99,7 @@ module ROM::Factory
         def call(attrs = EMPTY_HASH, parent, persist: true)
           return if attrs.key?(name)
 
-          structs = Array.new(count).map do
+          structs = ::Array.new(count).map do
             # hash which contains the foreign key info, i.e: { user_id: 1 }
             association_hash = assoc.associate(attrs, parent)
 
@@ -127,9 +114,7 @@ module ROM::Factory
         end
 
         # @api private
-        def dependency?(rel)
-          assoc.source == rel
-        end
+        def dependency?(rel) = assoc.source == rel
       end
 
       # @api private
@@ -143,14 +128,15 @@ module ROM::Factory
 
           association_hash = assoc.associate(attrs, parent)
 
-          struct = if persist
-                     builder.persistable.create(*traits, **association_hash)
-                   else
-                     belongs_to_name = Dry::Core::Inflector.singularize(assoc.source_alias)
-                     belongs_to_associations = {belongs_to_name.to_sym => parent}
-                     final_attrs = attrs.merge(association_hash).merge(belongs_to_associations)
-                     builder.struct(*traits, **final_attrs)
-                   end
+          struct =
+            if persist
+              builder.persistable.create(*traits, **association_hash)
+            else
+              belongs_to_name = Dry::Core::Inflector.singularize(assoc.source_alias)
+              belongs_to_associations = {belongs_to_name.to_sym => parent}
+              final_attrs = attrs.merge(association_hash).merge(belongs_to_associations)
+              builder.struct(*traits, **final_attrs)
+            end
 
           {name => struct}
         end
@@ -175,7 +161,7 @@ module ROM::Factory
             if through_factory?
               structs.each do |child|
                 through_attrs = {
-                  Dry::Core::Inflector.singularize(assoc.source.name.key).to_sym => parent,
+                  ::Dry::Core::Inflector.singularize(assoc.source.name.key).to_sym => parent,
                   assoc.through.assoc_name => child
                 }
 
@@ -191,37 +177,27 @@ module ROM::Factory
           end
         end
 
-        def result(structs)
-          {name => structs}
-        end
+        def result(structs) = {name => structs}
 
-        def dependency?(rel)
-          assoc.source == rel
-        end
+        def dependency?(rel) = assoc.source == rel
 
-        def through?
-          true
-        end
+        def through? = true
 
         def through_factory?
           factories.registry.key?(through_factory_name)
         end
 
         def through_factory_name
-          ROM::Inflector.singularize(assoc.definition.through.source).to_sym
+          ::ROM::Inflector.singularize(assoc.definition.through.source).to_sym
         end
 
         private
 
-        def tpk
-          assoc.target.primary_key
-        end
+        def tpk = assoc.target.primary_key
       end
 
       class OneToOneThrough < ManyToMany
-        def result(structs)
-          {name => structs[0]}
-        end
+        def result(structs) = {name => structs[0]}
       end
     end
   end

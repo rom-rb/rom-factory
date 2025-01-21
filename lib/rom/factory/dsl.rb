@@ -143,7 +143,7 @@ module ROM
         ::ROM::Factory.fake(type, *args, **options)
       end
 
-      def trait(name, parents = [], &block)
+      def trait(name, parents = [], &)
         _traits[name] = DSL.new(
           "#{_name}_#{name}",
           attributes: _traits.values_at(*parents).flat_map(&:elements).inject(
@@ -152,7 +152,7 @@ module ROM
           relation: _relation,
           factories: _factories,
           struct_namespace: _struct_namespace,
-          &block
+          &
         )._attributes
       end
 
@@ -190,9 +190,9 @@ module ROM
       private
 
       # @api private
-      def method_missing(meth, *args, &block)
+      def method_missing(meth, ...)
         if _valid_names.include?(meth)
-          define_attr(meth, *args, &block)
+          define_attr(meth, ...)
         else
           super
         end

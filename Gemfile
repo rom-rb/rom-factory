@@ -21,7 +21,7 @@ end
 
 group :test do
   if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.4")
-    gem 'debug'
+    gem "debug"
   else
     gem "pry"
     gem "pry-byebug", "~> 3.8", platforms: :ruby

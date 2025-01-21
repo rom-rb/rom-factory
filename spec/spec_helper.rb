@@ -10,20 +10,18 @@ SPEC_ROOT = root = Pathname(__FILE__).dirname
 require "rom-factory"
 
 %w[debug byebug pry].each do |debugger|
-  begin
-    require debugger
-  rescue LoadError
-    # ignore
-  end
+  require debugger
+rescue LoadError
+  # ignore
 end
 
 require "rspec"
 
-Dir[root.join("support/*.rb").to_s].sort.each do |f|
+Dir[root.join("support/*.rb").to_s].each do |f|
   require f
 end
 
-Dir[root.join("shared/*.rb").to_s].sort.each do |f|
+Dir[root.join("shared/*.rb").to_s].each do |f|
   require f
 end
 
@@ -60,8 +58,8 @@ module Helpers
     attribute(:Value, name, *args)
   end
 
-  def sequence(name, &block)
-    attribute(:Sequence, name, &block)
+  def sequence(name, &)
+    attribute(:Sequence, name, &)
   end
 
   def callable(name, *args, &block)

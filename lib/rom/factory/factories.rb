@@ -126,7 +126,7 @@ module ROM::Factory
     # @return [ROM::Factory::Builder]
     #
     # @api public
-    def define(spec, opts = EMPTY_HASH, &block)
+    def define(spec, opts = EMPTY_HASH, &)
       name, parent = spec.is_a?(Hash) ? spec.flatten(1) : spec
       namespace = opts[:struct_namespace]
       relation_name = opts.fetch(:relation) { infer_relation(name) }
@@ -137,7 +137,7 @@ module ROM::Factory
 
       builder =
         if parent
-          extend_builder(name, registry[parent], relation_name, namespace, &block)
+          extend_builder(name, registry[parent], relation_name, namespace, &)
         else
           relation = rom.relations[relation_name]
           DSL.new(
@@ -145,7 +145,7 @@ module ROM::Factory
             relation: relation,
             factories: self,
             struct_namespace: builder_struct_namespace(namespace),
-            &block
+            &
           ).call
         end
 
@@ -242,7 +242,7 @@ module ROM::Factory
     end
 
     # @api private
-    def extend_builder(name, parent, relation_name, ns, &block)
+    def extend_builder(name, parent, relation_name, ns, &)
       namespace = parent.options[:struct_namespace]
       namespace = builder_struct_namespace(ns) if ns
       relation = rom.relations.fetch(relation_name) { parent.relation }
@@ -252,7 +252,7 @@ module ROM::Factory
         relation: relation,
         factories: self,
         struct_namespace: namespace,
-        &block
+        &
       ).call
     end
   end
