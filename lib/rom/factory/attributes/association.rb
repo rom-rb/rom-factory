@@ -132,7 +132,7 @@ module ROM::Factory
             if persist
               builder.persistable.create(*traits, **association_hash)
             else
-              belongs_to_name = Dry::Core::Inflector.singularize(assoc.source_alias)
+              belongs_to_name = ::ROM::Inflector.singularize(assoc.source_alias)
               belongs_to_associations = {belongs_to_name.to_sym => parent}
               final_attrs = attrs.merge(association_hash).merge(belongs_to_associations)
               builder.struct(*traits, **final_attrs)
@@ -161,7 +161,7 @@ module ROM::Factory
             if through_factory?
               structs.each do |child|
                 through_attrs = {
-                  ::Dry::Core::Inflector.singularize(assoc.source.name.key).to_sym => parent,
+                  ::ROM::Inflector.singularize(assoc.source.name.key).to_sym => parent,
                   assoc.through.assoc_name => child
                 }
 

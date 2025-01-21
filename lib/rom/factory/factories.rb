@@ -233,12 +233,12 @@ module ROM::Factory
 
     # @api private
     def infer_factory_name(name)
-      ::Dry::Core::Inflector.singularize(name).to_sym
+      ::ROM::Inflector.singularize(name).to_sym
     end
 
     # @api private
     def infer_relation(name)
-      ::Dry::Core::Inflector.pluralize(name).to_sym
+      ::ROM::Inflector.pluralize(name).to_sym
     end
 
     # @api private

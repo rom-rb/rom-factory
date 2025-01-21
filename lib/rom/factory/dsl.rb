@@ -17,7 +17,7 @@ module ROM
           *ns, method_name = args
 
           const = ns.reduce(::Faker) do |obj, name|
-            obj.const_get(::Dry::Core::Inflector.camelize(name))
+            obj.const_get(::ROM::Inflector.camelize(name))
           end
 
           if unique
