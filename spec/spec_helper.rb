@@ -8,7 +8,15 @@ require "pathname"
 SPEC_ROOT = root = Pathname(__FILE__).dirname
 
 require "rom-factory"
-require "byebug"
+
+%w[debug byebug pry].each do |debugger|
+  begin
+    require debugger
+  rescue LoadError
+    # ignore
+  end
+end
+
 require "rspec"
 
 Dir[root.join("support/*.rb").to_s].sort.each do |f|
