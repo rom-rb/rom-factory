@@ -12,31 +12,29 @@ module ROM
 
     class << self
       # @api private
-      def fake(*args, **options)
-        const, method_name = fetch_or_store(:faker, *args) do
+      def fake(*args, unique: false, **options)
+        factory, produce = fetch_or_store(:faker, unique, *args) do
           *ns, method_name = args
 
           const = ns.reduce(::Faker) do |obj, name|
             obj.const_get(::Dry::Core::Inflector.camelize(name))
           end
 
-          [const, method_name]
+          if unique
+            [const.unique, method_name]
+          else
+            [const, method_name]
+          end
         end
 
-        is_unique = options.delete(:unique) { false }
-
-        if is_unique
-          const.unique.public_send(method_name, **options)
-        else
-          const.method(method_name).(**options)
-        end
+        factory.public_send(produce, **options)
       end
     end
 
     # Factory builder DSL
     #
     # @api public
-    class DSL < BasicObject
+    class DSL < ::BasicObject
       # @api private
       module Kernel
         %i[binding class instance_of? is_a? rand respond_to_missing? singleton_class].each do |meth|
@@ -139,9 +137,7 @@ module ROM
       # @see https://github.com/faker-ruby/faker/tree/master/doc
       #
       # @api public
-      def fake(type, *args, **options)
-        ::ROM::Factory.fake(type, *args, **options)
-      end
+      def fake(...) = ::ROM::Factory.fake(...)
 
       def trait(name, parents = [], &)
         _traits[name] = DSL.new(
@@ -182,9 +178,7 @@ module ROM
       end
 
       # @api private
-      def inspect
-        "#<#{self.class} name=#{_name}>"
-      end
+      def inspect = "#<#{self.class} name=#{_name}>"
       alias_method :to_s, :inspect
 
       private
@@ -210,11 +204,12 @@ module ROM
 
       # @api private
       def define_attr(name, *args, &block)
-        _attributes << if block
-                         attributes::Callable.new(name, self, block)
-                       else
-                         attributes::Value.new(name, *args)
-                       end
+        _attributes <<
+          if block
+            attributes::Callable.new(name, self, block)
+          else
+            attributes::Value.new(name, *args)
+          end
       end
 
       # @api private
