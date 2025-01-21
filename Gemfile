@@ -12,7 +12,7 @@ gem "rspec", "~> 3.0"
 
 gem "dotenv"
 
-git "https://github.com/rom-rb/rom.git", branch: "release-5.3" do
+git "https://github.com/rom-rb/rom.git", branch: "release-5.4" do
   gem "rom"
   gem "rom-changeset"
   gem "rom-core"
@@ -20,16 +20,24 @@ git "https://github.com/rom-rb/rom.git", branch: "release-5.3" do
 end
 
 group :test do
-  gem "pry"
-  gem "pry-byebug", "~> 3.8", platforms: :ruby
-  gem "rom-sql", github: "rom-rb/rom-sql", branch: "release-3.6"
+  if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.4")
+    gem 'debug'
+  else
+    gem "pry"
+    gem "pry-byebug", "~> 3.8", platforms: :ruby
+  end
+  gem "rom-sql", github: "rom-rb/rom-sql", branch: "release-3.7"
 
   gem "jdbc-postgres", platforms: :jruby
   gem "pg", "~> 1.5", platforms: :ruby
 end
 
 group :tools do
-  gem "byebug", platform: :mri
+  if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new("3.4")
+    gem "byebug", platform: :mri
+  else
+    gem "pry-byebug", "~> 3.8", platforms: :ruby
+  end
   gem "redcarpet" # for yard
 end
 
