@@ -77,17 +77,15 @@ module ROM
       # @param [Symbol] The name of the registered builder
       #
       # @api public
-      def create(name, *args)
-        _factories[name, *args]
-      end
+      def create(name, *args) = _factories[name, *args]
 
       # Create a sequence attribute
       #
       # @param [Symbol] name The attribute name
       #
       # @api private
-      def sequence(meth, &block)
-        define_sequence(meth, block) if _valid_names.include?(meth)
+      def sequence(meth, &)
+        define_sequence(meth, &) if _valid_names.include?(meth)
       end
 
       # Set timestamp attributes
@@ -169,18 +167,22 @@ module ROM
       # @option options [Array<Symbol>] traits Traits to apply to the association
       #
       # @api public
-      def association(name, *traits, **options)
+      def association(name, *seq_traits, traits: EMPTY_ARRAY, **options)
         assoc = _relation.associations[name]
 
         if assoc.is_a?(::ROM::SQL::Associations::OneToOne) && options.fetch(:count, 1) > 1
           ::Kernel.raise ::ArgumentError, "count cannot be greater than 1 on a OneToOne"
         end
 
-        traits = options.fetch(:traits, EMPTY_ARRAY) if traits.empty?
-
         builder = -> { _factories.for_relation(assoc.target) }
 
-        _attributes << attributes::Association.new(assoc, builder, *traits, **options)
+        _attributes << attributes::Association.new(
+          assoc,
+          builder,
+          *seq_traits,
+          *traits,
+          **options
+        )
       end
 
       # @api private
@@ -204,8 +206,8 @@ module ROM
       end
 
       # @api private
-      def define_sequence(name, block)
-        _attributes << attributes::Callable.new(name, self, attributes::Sequence.new(name, &block))
+      def define_sequence(name, &)
+        _attributes << attributes::Callable.new(name, self, attributes::Sequence.new(name, &))
       end
 
       # @api private
@@ -219,9 +221,7 @@ module ROM
       end
 
       # @api private
-      def attributes
-        ::ROM::Factory::Attributes
-      end
+      def attributes = ::ROM::Factory::Attributes
     end
   end
 end
