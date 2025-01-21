@@ -13,6 +13,8 @@ require "rom-factory"
   require debugger
 rescue LoadError
   # ignore
+else
+  break
 end
 
 require "rspec"
