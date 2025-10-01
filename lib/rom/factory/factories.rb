@@ -51,6 +51,7 @@ module ROM::Factory
     extend ROM::Initializer
 
     setting :rom
+    setting :struct_namespace, default: proc { ROM::Struct }
 
     # @!attribute [r] rom
     #   @return [ROM::Container] configured rom container
@@ -128,7 +129,7 @@ module ROM::Factory
     # @api public
     def define(spec, opts = EMPTY_HASH, &)
       name, parent = spec.is_a?(Hash) ? spec.flatten(1) : spec
-      namespace = opts[:struct_namespace]
+      namespace = opts.fetch(:struct_namespace, struct_namespace)
       relation_name = opts.fetch(:relation) { infer_relation(name) }
 
       if registry.key?(name)
