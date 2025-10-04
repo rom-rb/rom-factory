@@ -6,9 +6,10 @@ module ROM
       class Sequence
         attr_reader :name, :count, :block
 
-        def initialize(name, &block)
+        def initialize(name, transient: false, &block)
           @name = name
           @count = 0
+          @transient = transient
           @block = block
         end
 

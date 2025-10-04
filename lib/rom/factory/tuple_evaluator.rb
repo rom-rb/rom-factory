@@ -132,6 +132,10 @@ module ROM
         found_assocs.reject { |a| exclude[a.name] == false }
       end
 
+      def transients
+        attributes.select(&:transient)
+      end
+
       # @api private
       def has_associations?(traits = [])
         !assoc_names(traits).empty?
@@ -212,6 +216,8 @@ module ROM
         unmergeable = assocs(traits).select(&:through?).map do |a|
           ::ROM::Inflector.singularize(a.assoc.target.name.to_sym).to_sym
         end
+        transient_attrs = transients
+        unmergeable += transient_attrs
         attrs.dup.delete_if { |key, _| unmergeable.include?(key) }
       end
     end
