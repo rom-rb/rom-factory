@@ -700,6 +700,37 @@ RSpec.describe ROM::Factory do
     end
   end
 
+    it "supports overwriting transient values" do
+      factories.define(:user, relation: :users) do |f|
+        f.email "janjiss@gmail.com"
+        f.password_hash {|password| password.reverse}
+        f.transient do |t|
+          t.password "secret"
+        end
+        f.first_name "Janis"
+        f.last_name "Miezitis"
+        f.created_at Time.now
+        f.updated_at Time.now
+      end
+
+      user = factories[:user, password: "something else"]
+
+      expect(user.password_hash).to eq("esle gnihtemos")
+    end
+
+    it "supports fakes" do
+      factories.define(:task) do |f|
+        f.transient do |t|
+          t.book_title { fake(:book, :title) }
+        end
+        f.title { |book_title| "Read #{book_title}" }
+      end
+
+      task = factories.structs[:task]
+
+      expect(task.title).to match(/\ARead .+\z/)
+    end
+
   context "timestamps" do
     it "creates timestamps, created_at and updated_at, based on callable property" do
       factories.define(:user, relation: :users) do |f|
