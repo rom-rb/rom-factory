@@ -82,7 +82,7 @@ module ROM::Factory
     def validate_keys(traits, tuple, allow_associations: false)
       schema_keys = relation.schema.attributes.map(&:name)
       assoc_keys = tuple_evaluator.assoc_names(traits)
-      transient_keys = attributes.select{ it.transient }.map(&:name)
+      transient_keys = attributes.select(&:transient).map(&:name)
       unknown_keys = tuple.keys - schema_keys - assoc_keys - transient_keys
 
       unknown_keys -= relation.schema.associations.to_h.keys if allow_associations
