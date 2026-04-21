@@ -37,7 +37,8 @@ module ROM
     class DSL < ::BasicObject
       # @api private
       module Kernel
-        %i[binding class instance_of? is_a? rand respond_to_missing? singleton_class dup initialize_dup initialize_copy tap instance_variable_set].each do |meth|
+        %i[binding class instance_of? is_a? rand respond_to_missing? singleton_class dup initialize_dup initialize_copy
+           tap instance_variable_set].each do |meth|
           define_method(meth, ::Kernel.instance_method(meth))
         end
 
@@ -50,7 +51,8 @@ module ROM
       attr_reader :_traits, :_transient
 
       # @api private
-      def initialize(name, relation:, factories:, struct_namespace:, attributes: AttributeRegistry.new, transient: false)
+      def initialize(name, relation:, factories:, struct_namespace:, attributes: AttributeRegistry.new,
+                     transient: false)
         @_name = name
         @_relation = relation
         @_factories = factories
@@ -152,7 +154,7 @@ module ROM
       end
 
       def transient(&block)
-        self.dup.tap do |transient_dsl|
+        dup.tap do |transient_dsl|
           transient_dsl.instance_variable_set("@_transient", true)
           transient_dsl.instance_eval(&block)
         end

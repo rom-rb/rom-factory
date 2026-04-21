@@ -214,7 +214,7 @@ module ROM
         unmergeable = assocs(traits).select(&:through?).map do |a|
           ::ROM::Inflector.singularize(a.assoc.target.name.to_sym).to_sym
         end
-        transient_attrs  = transients
+        transient_attrs = transients
         unmergeable += transient_attrs
         attrs.dup.delete_if { |key, _| unmergeable.include?(key) }
       end
