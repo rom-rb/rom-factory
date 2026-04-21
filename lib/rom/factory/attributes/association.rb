@@ -15,6 +15,10 @@ module ROM::Factory
       class Core
         attr_reader :assoc, :options, :traits
 
+        def transient
+          false
+        end
+
         # @api private
         def initialize(assoc, builder, *traits, **options)
           @assoc = assoc

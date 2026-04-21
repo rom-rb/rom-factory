@@ -8,6 +8,7 @@ RSpec.shared_context "relations" do
       primary_key :id
       column :last_name, String, null: false
       column :first_name, String, null: false
+      column :password_hash, String, null: true
       column :alias, String, null: true
       column :email, String, null: false
       column :created_at, Time, null: false

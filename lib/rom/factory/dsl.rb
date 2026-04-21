@@ -37,7 +37,8 @@ module ROM
     class DSL < ::BasicObject
       # @api private
       module Kernel
-        %i[binding class instance_of? is_a? rand respond_to_missing? singleton_class].each do |meth|
+        %i[binding class instance_of? is_a? rand respond_to_missing? singleton_class dup initialize_dup initialize_copy
+           tap instance_variable_set].each do |meth|
           define_method(meth, ::Kernel.instance_method(meth))
         end
 
@@ -47,10 +48,11 @@ module ROM
       include Kernel
 
       attr_reader :_name, :_relation, :_attributes, :_factories, :_struct_namespace, :_valid_names
-      attr_reader :_traits
+      attr_reader :_traits, :_transient
 
       # @api private
-      def initialize(name, relation:, factories:, struct_namespace:, attributes: AttributeRegistry.new)
+      def initialize(name, relation:, factories:, struct_namespace:, attributes: AttributeRegistry.new,
+                     transient: false)
         @_name = name
         @_relation = relation
         @_factories = factories
@@ -58,6 +60,7 @@ module ROM
         @_attributes = attributes.dup
         @_traits = {}
         @_valid_names = _relation.schema.attributes.map(&:name)
+        @_transient = transient
         yield(self)
       end
 
@@ -85,7 +88,7 @@ module ROM
       #
       # @api private
       def sequence(meth, &)
-        define_sequence(meth, &) if _valid_names.include?(meth)
+        define_sequence(meth, &) if _valid_names.include?(meth) || @_transient
       end
 
       # Set timestamp attributes
@@ -150,6 +153,13 @@ module ROM
         )._attributes
       end
 
+      def transient(&block)
+        dup.tap do |transient_dsl|
+          transient_dsl.instance_variable_set("@_transient", true)
+          transient_dsl.instance_eval(&block)
+        end
+      end
+
       # Create an association attribute
       #
       # @example belongs-to
@@ -193,7 +203,7 @@ module ROM
 
       # @api private
       def method_missing(meth, ...)
-        if _valid_names.include?(meth)
+        if _valid_names.include?(meth) || @_transient
           define_attr(meth, ...)
         else
           super
@@ -202,7 +212,7 @@ module ROM
 
       # @api private
       def respond_to_missing?(method_name, include_private = false)
-        _valid_names.include?(method_name) || super
+        _valid_names.include?(method_name) || @_transient || super
       end
 
       # @api private
@@ -214,9 +224,9 @@ module ROM
       def define_attr(name, *args, &block)
         _attributes <<
           if block
-            attributes::Callable.new(name, self, block)
+            attributes::Callable.new(name, self, block, transient: @_transient)
           else
-            attributes::Value.new(name, *args)
+            attributes::Value.new(name, *args, transient: @_transient)
           end
       end
 
