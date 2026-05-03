@@ -1,0 +1,2 @@
+APT_DEPS: libpq-dev
+DATABASE_URL: "postgres://rom-factory:rom-factory@localhost:5432/rom_factory"

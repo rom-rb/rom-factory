@@ -1,0 +1,15 @@
+db:
+  # ubuntu-latest is currently at 16.x at time of writing.
+  # See https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md
+  image: postgres:16
+  env:
+    POSTGRES_USER: rom-factory
+    POSTGRES_PASSWORD: rom-factory
+    POSTGRES_DB: rom_factory
+  ports:
+    - 5432:5432
+  options: >-
+    --health-cmd pg_isready
+    --health-interval 10s
+    --health-timeout 5s
+    --health-retries 5
