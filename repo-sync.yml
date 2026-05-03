@@ -3,6 +3,8 @@ name:
   constant: ROM::Factory
   title: ROM Factory
 github_org: rom-rb
+ci:
+  jruby: false
 gemspec:
   authors: ["Hanakai team"]
   email: ["info@hanakai.org"]
