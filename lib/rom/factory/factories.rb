@@ -5,255 +5,257 @@ require "rom/struct"
 require "rom/factory/dsl"
 require "rom/factory/registry"
 
-module ROM::Factory
-  # In-memory builder API
-  #
-  # @api public
-  class Structs
-    # @!attribute [r] registry
-    #   @return [Hash<Symbol=>Builder>]
-    attr_reader :registry
-
-    # @!attribute [r] struct_namespace
-    #   @return [Module]
-    attr_reader :struct_namespace
-
-    # @api private
-    def initialize(registry, struct_namespace)
-      @registry = registry
-      @struct_namespace = struct_namespace
-    end
-
-    # Build an in-memory struct
-    #
-    # @example create a struct with default attributes
-    #   MyFactory[:user]
-    #
-    # @example create a struct with some attributes overridden
-    #   MyFactory.structs[:user, name: "Jane"]
-    #
-    # @param [Symbol] name The name of the registered factory
-    # @param [Hash] attrs An optional hash with attributes
-    #
-    # @return [ROM::Struct]
+module ROM
+  module Factory
+    # In-memory builder API
     #
     # @api public
-    def [](name, *traits, **attrs)
-      registry[name].struct_namespace(struct_namespace).create(*traits, **attrs)
-    end
-  end
+    class Structs
+      # @!attribute [r] registry
+      #   @return [Hash<Symbol=>Builder>]
+      attr_reader :registry
 
-  # A registry with all configured factories
-  #
-  # @api public
-  class Factories
-    extend Dry::Configurable
-    extend ROM::Initializer
+      # @!attribute [r] struct_namespace
+      #   @return [Module]
+      attr_reader :struct_namespace
 
-    setting :rom
-
-    # @!attribute [r] rom
-    #   @return [ROM::Container] configured rom container
-    param :rom
-
-    # @!attribute [r] struct_namespace
-    #   @return [Structs] in-memory struct builder instance
-    option :struct_namespace, optional: true, default: proc { ROM::Struct }
-
-    # @!attribute [r] registry
-    #   @return [Hash<Symbol=>Builder>] a map with defined db-backed builders
-    option :registry, default: proc { Registry.new }
-
-    # Define a new builder
-    #
-    # @example a simple builder
-    #   MyFactory.define(:user) do |f|
-    #     f.name "Jane"
-    #     f.email "jane@doe.org"
-    #   end
-    #
-    # @example a builder using auto-generated fake values
-    #   MyFactory.define(:user) do |f|
-    #     f.name { fake(:name) }
-    #     f.email { fake(:internet, :email) }
-    #   end
-    #
-    # @example a builder using sequenced values
-    #   MyFactory.define(:user) do |f|
-    #     f.sequence(:name) { |n| "user-#{n}" }
-    #   end
-    #
-    # @example a builder using values from other attribute(s)
-    #   MyFactory.define(:user) do |f|
-    #     f.name "Jane"
-    #     f.email { |name| "#{name.downcase}@rom-rb.org" }
-    #   end
-    #
-    # @example a builder with "belongs-to" association
-    #   MyFactory.define(:group) do |f|
-    #     f.name "Admins"
-    #   end
-    #
-    #   MyFactory.define(:user) do |f|
-    #     f.name "Jane"
-    #     f.association(:group)
-    #   end
-    #
-    # @example a builder with "has-many" association
-    #   MyFactory.define(:group) do |f|
-    #     f.name "Admins"
-    #     f.association(:users, count: 2)
-    #   end
-    #
-    #   MyFactory.define(:user) do |f|
-    #     f.sequence(:name) { |n| "user-#{n}" }
-    #   end
-    #
-    # @example a builder which extends another builder
-    #   MyFactory.define(:user) do |f|
-    #     f.name "Jane"
-    #     f.admin false
-    #   end
-    #
-    #   MyFactory.define(admin: :user) do |f|
-    #     f.admin true
-    #   end
-    #
-    # @param [Symbol, Hash<Symbol=>Symbol>] spec Builder identifier, can point to a parent builder too
-    # @param [Hash] opts Additional options
-    # @option opts [Symbol] relation An optional relation name (defaults to pluralized builder name)
-    #
-    # @return [ROM::Factory::Builder]
-    #
-    # @api public
-    def define(spec, opts = EMPTY_HASH, &)
-      name, parent = spec.is_a?(Hash) ? spec.flatten(1) : spec
-      namespace = opts[:struct_namespace]
-      relation_name = opts.fetch(:relation) { infer_relation(name) }
-
-      if registry.key?(name)
-        raise ArgumentError, "#{name.inspect} factory has been already defined"
+      # @api private
+      def initialize(registry, struct_namespace)
+        @registry = registry
+        @struct_namespace = struct_namespace
       end
 
-      builder =
-        if parent
-          extend_builder(name, registry[parent], relation_name, namespace, &)
-        else
-          relation = rom.relations[relation_name]
-          DSL.new(
-            name,
-            relation: relation,
-            factories: self,
-            struct_namespace: builder_struct_namespace(namespace),
-            &
-          ).call
+      # Build an in-memory struct
+      #
+      # @example create a struct with default attributes
+      #   MyFactory[:user]
+      #
+      # @example create a struct with some attributes overridden
+      #   MyFactory.structs[:user, name: "Jane"]
+      #
+      # @param [Symbol] name The name of the registered factory
+      # @param [Hash] attrs An optional hash with attributes
+      #
+      # @return [ROM::Struct]
+      #
+      # @api public
+      def [](name, *traits, **attrs)
+        registry[name].struct_namespace(struct_namespace).create(*traits, **attrs)
+      end
+    end
+
+    # A registry with all configured factories
+    #
+    # @api public
+    class Factories
+      extend Dry::Configurable
+      extend ROM::Initializer
+
+      setting :rom
+
+      # @!attribute [r] rom
+      #   @return [ROM::Container] configured rom container
+      param :rom
+
+      # @!attribute [r] struct_namespace
+      #   @return [Structs] in-memory struct builder instance
+      option :struct_namespace, optional: true, default: proc { ROM::Struct }
+
+      # @!attribute [r] registry
+      #   @return [Hash<Symbol=>Builder>] a map with defined db-backed builders
+      option :registry, default: proc { Registry.new }
+
+      # Define a new builder
+      #
+      # @example a simple builder
+      #   MyFactory.define(:user) do |f|
+      #     f.name "Jane"
+      #     f.email "jane@doe.org"
+      #   end
+      #
+      # @example a builder using auto-generated fake values
+      #   MyFactory.define(:user) do |f|
+      #     f.name { fake(:name) }
+      #     f.email { fake(:internet, :email) }
+      #   end
+      #
+      # @example a builder using sequenced values
+      #   MyFactory.define(:user) do |f|
+      #     f.sequence(:name) { |n| "user-#{n}" }
+      #   end
+      #
+      # @example a builder using values from other attribute(s)
+      #   MyFactory.define(:user) do |f|
+      #     f.name "Jane"
+      #     f.email { |name| "#{name.downcase}@rom-rb.org" }
+      #   end
+      #
+      # @example a builder with "belongs-to" association
+      #   MyFactory.define(:group) do |f|
+      #     f.name "Admins"
+      #   end
+      #
+      #   MyFactory.define(:user) do |f|
+      #     f.name "Jane"
+      #     f.association(:group)
+      #   end
+      #
+      # @example a builder with "has-many" association
+      #   MyFactory.define(:group) do |f|
+      #     f.name "Admins"
+      #     f.association(:users, count: 2)
+      #   end
+      #
+      #   MyFactory.define(:user) do |f|
+      #     f.sequence(:name) { |n| "user-#{n}" }
+      #   end
+      #
+      # @example a builder which extends another builder
+      #   MyFactory.define(:user) do |f|
+      #     f.name "Jane"
+      #     f.admin false
+      #   end
+      #
+      #   MyFactory.define(admin: :user) do |f|
+      #     f.admin true
+      #   end
+      #
+      # @param [Symbol, Hash<Symbol=>Symbol>] spec Builder identifier, can point to a parent builder too
+      # @param [Hash] opts Additional options
+      # @option opts [Symbol] relation An optional relation name (defaults to pluralized builder name)
+      #
+      # @return [ROM::Factory::Builder]
+      #
+      # @api public
+      def define(spec, opts = EMPTY_HASH, &)
+        name, parent = spec.is_a?(Hash) ? spec.flatten(1) : spec
+        namespace = opts[:struct_namespace]
+        relation_name = opts.fetch(:relation) { infer_relation(name) }
+
+        if registry.key?(name)
+          raise ArgumentError, "#{name.inspect} factory has been already defined"
         end
 
-      registry[name] = builder
-    end
+        builder =
+          if parent
+            extend_builder(name, registry[parent], relation_name, namespace, &)
+          else
+            relation = rom.relations[relation_name]
+            DSL.new(
+              name,
+              relation: relation,
+              factories: self,
+              struct_namespace: builder_struct_namespace(namespace),
+              &
+            ).call
+          end
 
-    # Create and persist a new struct
-    #
-    # @example create a struct with default attributes
-    #   MyFactory[:user]
-    #
-    # @example create a struct with some attributes overridden
-    #   MyFactory[:user, name: "Jane"]
-    #
-    # @param [Symbol] name The name of the registered factory
-    # @param [Array<Symbol>] traits List of traits to apply
-    # @param [Hash] attrs optional attributes to override the defaults
-    #
-    # @return [ROM::Struct]
-    #
-    # @api public
-    def [](name, *traits, **attrs)
-      registry[name].struct_namespace(struct_namespace).persistable.create(*traits, **attrs)
-    end
-    alias_method :create, :[]
-
-    # Return in-memory struct builder
-    #
-    # @return [Structs]
-    #
-    # @api public
-    def structs
-      @__structs__ ||= Structs.new(registry, struct_namespace)
-    end
-
-    # Return a new, non-persisted struct
-    #
-    # @example create a struct with default attributes
-    #   MyFactory.build(:user)
-    #
-    # @example create a struct with some attributes overridden
-    #   MyFactory.build(:uesr, name: "Jane")
-    #
-    # @param [Symbol] name The name of the registered factory
-    # @param [Array<Symbol>] traits List of traits to apply
-    # @param [Hash] attrs optional attributes to override the defaults
-    #
-    # @return [ROM::Struct]
-    #
-    # @api public
-    def build(name, *traits, **attrs)
-      structs[name, *traits, **attrs]
-    end
-
-    # Get factories with a custom struct namespace
-    #
-    # @example
-    #   EntityFactory = MyFactory.struct_namespace(MyApp::Entities)
-    #
-    #   EntityFactory[:user]
-    #   # => #<MyApp::Entities::User id=2 ...>
-    #
-    # @param [Module] namespace
-    #
-    # @return [Factories]
-    #
-    # @api public
-    def struct_namespace(namespace = Undefined)
-      if namespace.equal?(Undefined)
-        options[:struct_namespace]
-      else
-        with(struct_namespace: namespace)
+        registry[name] = builder
       end
-    end
 
-    # @api private
-    def builder_struct_namespace(ns)
-      ns ? {namespace: ns, overridable: false} : {namespace: struct_namespace, overridable: true}
-    end
+      # Create and persist a new struct
+      #
+      # @example create a struct with default attributes
+      #   MyFactory[:user]
+      #
+      # @example create a struct with some attributes overridden
+      #   MyFactory[:user, name: "Jane"]
+      #
+      # @param [Symbol] name The name of the registered factory
+      # @param [Array<Symbol>] traits List of traits to apply
+      # @param [Hash] attrs optional attributes to override the defaults
+      #
+      # @return [ROM::Struct]
+      #
+      # @api public
+      def [](name, *traits, **attrs)
+        registry[name].struct_namespace(struct_namespace).persistable.create(*traits, **attrs)
+      end
+      alias_method :create, :[]
 
-    # @api private
-    def for_relation(relation)
-      registry[infer_factory_name(relation.name.to_sym)]
-    end
+      # Return in-memory struct builder
+      #
+      # @return [Structs]
+      #
+      # @api public
+      def structs
+        @__structs__ ||= Structs.new(registry, struct_namespace)
+      end
 
-    # @api private
-    def infer_factory_name(name)
-      ::ROM::Inflector.singularize(name).to_sym
-    end
+      # Return a new, non-persisted struct
+      #
+      # @example create a struct with default attributes
+      #   MyFactory.build(:user)
+      #
+      # @example create a struct with some attributes overridden
+      #   MyFactory.build(:uesr, name: "Jane")
+      #
+      # @param [Symbol] name The name of the registered factory
+      # @param [Array<Symbol>] traits List of traits to apply
+      # @param [Hash] attrs optional attributes to override the defaults
+      #
+      # @return [ROM::Struct]
+      #
+      # @api public
+      def build(name, *traits, **attrs)
+        structs[name, *traits, **attrs]
+      end
 
-    # @api private
-    def infer_relation(name)
-      ::ROM::Inflector.pluralize(name).to_sym
-    end
+      # Get factories with a custom struct namespace
+      #
+      # @example
+      #   EntityFactory = MyFactory.struct_namespace(MyApp::Entities)
+      #
+      #   EntityFactory[:user]
+      #   # => #<MyApp::Entities::User id=2 ...>
+      #
+      # @param [Module] namespace
+      #
+      # @return [Factories]
+      #
+      # @api public
+      def struct_namespace(namespace = Undefined)
+        if namespace.equal?(Undefined)
+          options[:struct_namespace]
+        else
+          with(struct_namespace: namespace)
+        end
+      end
 
-    # @api private
-    def extend_builder(name, parent, relation_name, ns, &)
-      namespace = parent.options[:struct_namespace]
-      namespace = builder_struct_namespace(ns) if ns
-      relation = rom.relations.fetch(relation_name) { parent.relation }
-      DSL.new(
-        name,
-        attributes: parent.attributes,
-        relation: relation,
-        factories: self,
-        struct_namespace: namespace,
-        &
-      ).call
+      # @api private
+      def builder_struct_namespace(ns)
+        ns ? {namespace: ns, overridable: false} : {namespace: struct_namespace, overridable: true}
+      end
+
+      # @api private
+      def for_relation(relation)
+        registry[infer_factory_name(relation.name.to_sym)]
+      end
+
+      # @api private
+      def infer_factory_name(name)
+        ::ROM::Inflector.singularize(name).to_sym
+      end
+
+      # @api private
+      def infer_relation(name)
+        ::ROM::Inflector.pluralize(name).to_sym
+      end
+
+      # @api private
+      def extend_builder(name, parent, relation_name, ns, &)
+        namespace = parent.options[:struct_namespace]
+        namespace = builder_struct_namespace(ns) if ns
+        relation = rom.relations.fetch(relation_name) { parent.relation }
+        DSL.new(
+          name,
+          attributes: parent.attributes,
+          relation: relation,
+          factories: self,
+          struct_namespace: namespace,
+          &
+        ).call
+      end
     end
   end
 end
