@@ -1,77 +1,93 @@
----
-name: ci
+# This file is synced from hanakai-rb/repo-sync
+
+name: CI
+run-name: ${{ github.ref_type == 'tag' && format('Release {0}', github.ref_name) || 'CI' }}
+
 on:
   push:
+    branches: ["main", "release-*", "ci/*"]
+    tags: ["v*"]
   pull_request:
-  create:
+    branches: ["main", "release-*"]
   schedule:
     - cron: "30 4 * * *"
+
+permissions:
+  contents: read
+
 jobs:
   tests:
+    name: Tests (Ruby ${{ matrix.ruby }})
     runs-on: ubuntu-latest
+    continue-on-error: ${{ matrix.optional || false }}
     strategy:
       fail-fast: false
       matrix:
         ruby:
-        - '4.0'
-        - '3.4'
-        - '3.3'
-        - '3.2'
+          - "4.0"
+          - "3.4"
+          - "3.3"
+          - "3.2"
+        include:
+          - ruby: "4.0"
+            coverage: "true"
+          - ruby: "jruby"
+            optional: true
     env:
-      COVERAGE: "${{matrix.coverage}}"
-      COVERAGE_TOKEN: "${{secrets.CODACY_PROJECT_TOKEN}}"
-      APT_DEPS: libpq-dev libmysqlclient-dev libsqlite3-dev
+      COVERAGE: ${{ matrix.coverage }}
+      # Env below included from ./repo-sync-extensions/ci-env.yml
+      APT_DEPS: libpq-dev
       DATABASE_URL: "postgres://rom-factory:rom-factory@localhost:5432/rom_factory"
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v1
-    - name: Install package dependencies
-      run: "[ -e $APT_DEPS ] || sudo apt-get install -y --no-install-recommends $APT_DEPS"
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: "${{matrix.ruby}}"
-        bundler-cache: true
-    - name: Run all tests
-      run: bundle exec rake
-    - name: Run codacy-coverage-reporter
-      uses: codacy/codacy-coverage-reporter-action@master
-      if: env.COVERAGE == 'true' && env.COVERAGE_TOKEN != ''
-      with:
-        project-token: "${{secrets.CODACY_PROJECT_TOKEN}}"
-        coverage-reports: coverage/coverage.xml
+    # Services included from ./repo-sync-extensions/ci-services.yml
     services:
       db:
-        image: postgres:16.1
+        # ubuntu-latest is currently at 16.x at time of writing.
+        # See https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md
+        image: postgres:16
         env:
           POSTGRES_USER: rom-factory
           POSTGRES_PASSWORD: rom-factory
           POSTGRES_DB: rom_factory
         ports:
-        - 5432:5432
-        options: "--health-cmd pg_isready --health-interval 10s --health-timeout 5s
-          --health-retries 5"
-  release:
-    runs-on: ubuntu-latest
-    if: contains(github.ref, 'tags') && github.event_name == 'create'
-    needs: tests
-    env:
-      GITHUB_LOGIN: rom-bot
-      GITHUB_TOKEN: "${{secrets.GH_PAT}}"
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
-    - uses: actions/checkout@v1
-    - name: Install package dependencies
-      run: "[ -e $APT_DEPS ] || sudo apt-get install -y --no-install-recommends $APT_DEPS"
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: "3.1"
-    - name: Install dependencies
-      run: gem install ossy --no-document
-    - name: Trigger release workflow
-      run: |
-        tag=$(echo $GITHUB_REF | cut -d / -f 3)
-        ossy gh w rom-rb/devtools release --payload "{\"tag\":\"$tag\",\"sha\":\"${{github.sha}}\",\"tag_creator\":\"$GITHUB_ACTOR\",\"repo\":\"$GITHUB_REPOSITORY\",\"repo_name\":\"${{github.event.repository.name}}\"}"
+      - name: Checkout
+        uses: actions/checkout@0c366fd6a839edf440554fa01a7085ccba70ac98
+        with:
+          persist-credentials: false
+      - name: Install package dependencies
+        run: "[ -e $APT_DEPS ] || sudo apt-get install -y --no-install-recommends $APT_DEPS"
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@0cb964fd540e0a24c900370abf38a33466142735 # zizmor: ignore[cache-poisoning]
+        with:
+          ruby-version: ${{ matrix.ruby }}
+          bundler-cache: true
+      - name: Run all tests
+        id: test
+        run: |
+          status=0
+          bundle exec rake || status=$?
+          if [ ${status} -ne 0 ] && [ "${{ matrix.optional }}" == "true" ]; then
+            echo "::warning::Optional matrix job failed."
+            echo "optional_fail=true" >> "${GITHUB_OUTPUT}"
+            echo "optional_fail_status=${status}" >> "${GITHUB_OUTPUT}"
+            exit 0  # Ignore error here to keep the green checkmark
+          fi
+          exit ${status}
+      - name: Create optional failure comment
+        if: ${{ matrix.optional && github.event.pull_request }}
+        uses: hanakai-rb/repo-sync/pr-comment-artifact@main
+        with:
+          name: ci-ruby-${{ matrix.ruby }}
+          pr-number: ${{ github.event.pull_request.number }}
+          comment-tag: ruby-${{ matrix.ruby }}-optional-failure
+          message: "ℹ️ Optional job failed: Ruby ${{ matrix.ruby }}"
+          mode: ${{ steps.test.outputs.optional_fail == 'true' && 'upsert' || 'delete' }}
 
   workflow-keepalive:
     if: github.event_name == 'schedule'
@@ -79,4 +95,5 @@ jobs:
     permissions:
       actions: write
     steps:
-      - uses: liskin/gh-workflow-keepalive@v1
+      - uses: liskin/gh-workflow-keepalive@7a9194bad497f0b993708eeaf10fc0a2d726eb71
+
