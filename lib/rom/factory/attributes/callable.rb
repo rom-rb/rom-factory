@@ -8,12 +8,12 @@ module ROM
         attr_reader :name, :dsl, :block, :transient
 
         # @api private
-      def initialize(name, dsl, block, transient: false)
-        @name = name
-        @dsl = dsl
-        @block = block
-        @transient = transient
-      end
+        def initialize(name, dsl, block, transient: false)
+          @name = name
+          @dsl = dsl
+          @block = block
+          @transient = transient
+        end
 
         # @api private
         def call(attrs, *args)

@@ -646,7 +646,7 @@ RSpec.describe ROM::Factory do
     it "supports transient values" do
       factories.define(:user, relation: :users) do |f|
         f.email "janjiss@gmail.com"
-        f.password_hash { |password| password.reverse } # rubocop:disable Style/SymbolProc
+        f.password_hash { |password| password.reverse }
         f.transient do |t|
           t.password "secret"
         end
@@ -664,7 +664,7 @@ RSpec.describe ROM::Factory do
     it "supports transient sequences" do
       factories.define(:user, relation: :users) do |f|
         f.email "janjiss@gmail.com"
-        f.password_hash { |password| password.reverse } # rubocop:disable Style/SymbolProc
+        f.password_hash { |password| password.reverse }
         f.transient do |t|
           t.sequence(:password) { |n| "password#{n}" }
         end
@@ -684,7 +684,7 @@ RSpec.describe ROM::Factory do
     it "supports transient callables" do
       factories.define(:user, relation: :users) do |f|
         f.email "janjiss@gmail.com"
-        f.password_hash { |password| password.reverse } # rubocop:disable Style/SymbolProc
+        f.password_hash { |password| password.reverse }
         f.transient do |t|
           t.password { %w[sec ret].join }
         end
@@ -703,7 +703,7 @@ RSpec.describe ROM::Factory do
   it "supports overwriting transient values" do
     factories.define(:user, relation: :users) do |f|
       f.email "janjiss@gmail.com"
-      f.password_hash { |password| password.reverse } # rubocop:disable Style/SymbolProc
+      f.password_hash { |password| password.reverse }
       f.transient do |t|
         t.password "secret"
       end

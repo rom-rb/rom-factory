@@ -8,11 +8,11 @@ module ROM
         attr_reader :name, :value, :transient
 
         # @api private
-      def initialize(name, value, transient: false)
-        @name = name
-        @value = value
-        @transient = transient
-      end
+        def initialize(name, value, transient: false)
+          @name = name
+          @value = value
+          @transient = transient
+        end
 
         # @api private
         def call(attrs = EMPTY_HASH)

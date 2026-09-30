@@ -4,9 +4,11 @@ require "rom/factory/builder"
 
 RSpec.describe ROM::Factory::Builder do
   subject(:builder) do
-    ROM::Factory::Builder.new(ROM::Factory::AttributeRegistry.new(attributes),
-                              relation: relation,
-                              struct_namespace: {namespace: ROM::Struct, overridable: true}).persistable
+    ROM::Factory::Builder.new(
+      ROM::Factory::AttributeRegistry.new(attributes),
+      relation: relation,
+      struct_namespace: {namespace: ROM::Struct, overridable: true}
+    ).persistable
   end
 
   include_context "database"
