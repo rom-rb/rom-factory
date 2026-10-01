@@ -7,6 +7,9 @@ and this project adheres to [Break Versioning](https://www.taoensso.com/break-ve
 
 ## [Unreleased]
 
+### Added
+
+- Support transient attributes (via #97) (@rickenharp)
 
 ## [0.13.0] - 2025-01-21
 
