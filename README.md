@@ -2,7 +2,7 @@
 
 [actions]: https://github.com/rom-rb/rom-factory/actions
 [chat]: https://discord.gg/naQApPAsZB
-[forum]: https://discourse.hanamirb.org
+[forum]: https://discourse.hanakai.org
 [rubygem]: https://rubygems.org/gems/rom-factory
 
 # ROM Factory [![Gem Version](https://badge.fury.io/rb/rom-factory.svg)][rubygem] [![CI Status](https://github.com/rom-rb/rom-factory/workflows/CI/badge.svg)][actions]
