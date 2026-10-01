@@ -3,8 +3,6 @@ name:
   constant: ROM::Factory
   title: ROM Factory
 github_org: rom-rb
-ci:
-  jruby: false
 gemspec:
   authors: ["Hanakai team"]
   email: ["info@hanakai.org"]
@@ -17,4 +15,3 @@ gemspec:
     - ["faker", ">= 2.0", "< 4"]
     - ["rom-core", "~> 5.4"]
     - ["tsort", "~> 0.2"]
-  required_ruby_version: ">= 3.1.0"

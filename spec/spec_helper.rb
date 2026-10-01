@@ -5,6 +5,7 @@ require "dotenv"
 Dotenv.load(".postgres.env", ".env")
 
 require "pathname"
+require "uri"
 SPEC_ROOT = root = Pathname(__FILE__).dirname
 
 require "rom-factory"
@@ -28,17 +29,25 @@ Dir[root.join("shared/*.rb").to_s].each do |f|
 end
 
 DB_URI = ENV.fetch("DATABASE_URL") do
-  auth = ENV.values_at("POSTGRES_USER", "POSTGRES_PASSWORD").join(":")
-  address = `docker compose port db 5432 2> /dev/null`.strip
-  address = [auth, address].join("@") if address
-
-  address ||= "localhost"
+  user, password = ENV.values_at("POSTGRES_USER", "POSTGRES_PASSWORD")
+  database = ENV.fetch("POSTGRES_DATABASE", "rom_factory")
+  address = `docker compose port db 5432 2> /dev/null`.lines.first.to_s.strip
+  address = "localhost" if address.empty?
 
   if defined? JRUBY_VERSION
-    "jdbc:postgresql://#{address}"
+    "jdbc:postgresql://#{address}/#{database}?user=#{user}&password=#{password}"
   else
-    "postgres://#{address}"
+    "postgres://#{user}:#{password}@#{address}/#{database}"
   end
+end
+
+if defined?(JRUBY_VERSION) && DB_URI.start_with?("postgres://", "postgresql://")
+  uri = URI.parse(DB_URI)
+  params = URI.decode_www_form(uri.query.to_s).to_h
+  params["user"] ||= uri.user if uri.user
+  params["password"] ||= uri.password if uri.password
+
+  DB_URI = "jdbc:postgresql://#{uri.host}:#{uri.port}#{uri.path}?#{URI.encode_www_form(params)}".freeze
 end
 
 module SileneceWarnings
@@ -72,9 +81,6 @@ end
 Warning.extend(SileneceWarnings)
 
 RSpec.configure do |config|
-  config.disable_monkey_patching!
-  config.warnings = true
   config.include(Helpers)
   config.before { ROM::Factory::Sequences.instance.reset }
-  config.filter_run_when_matching :focus
 end
