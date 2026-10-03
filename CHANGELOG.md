@@ -11,8 +11,19 @@ and this project adheres to [Break Versioning](https://www.taoensso.com/break-ve
 
 - Support transient attributes (via #97) (@rickenharp)
 
-## [0.13.0] - 2025-01-21
+### Changed
 
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+[Unreleased]: https://github.com/rom-rb/rom-factory/compare/v0.13.0...main
+
+## [0.13.0] - 2025-01-21
 
 ### Added
 
@@ -39,15 +50,13 @@ end
 `Factory.create` is aliased to `Factory.[]`
 `Factory.build` is aliased to `Factory.structs[]`
 
-
 ### Changed
 
 - Minimum Ruby version is now 3.1 (@flash-gordon)
 
-[Compare v0.12.0...v0.13.0](https://github.com/rom-rb/rom-factory/compare/v0.12.0...v0.13.0)
+[0.13.0]: https://github.com/rom-rb/rom-factory/compare/v0.12.0...v0.13.0
 
 ## [0.12.0] - 2024-01-19
-
 
 ### Added
 
@@ -59,11 +68,9 @@ end
 - Relations without PKs should work too (via #87) (@solnic)
 - Relations with PK values generated on the Ruby side should work in SQlite too (via #87) (@solnic)
 
-
-[Compare v0.11.0...v0.12.0](https://github.com/rom-rb/rom-factory/compare/v0.11.0...v0.12.0)
+[0.12.0]: https://github.com/rom-rb/rom-factory/compare/v0.11.0...v0.12.0
 
 ## [0.11.0] - 2022-11-11
-
 
 ### Added
 
@@ -96,20 +103,17 @@ Factory[:user, **user_attributes]
 - Upgraded to the latest versions of dry-rb dependencies, compatible with rom 5.3 (@flash-gordon)
 - Support for Faker 1.x was dropped (@alassek)
 
-[Compare v0.10.2...v0.11.0](https://github.com/rom-rb/rom-factory/compare/v0.10.2...v0.11.0)
+[0.11.0]: https://github.com/rom-rb/rom-factory/compare/v0.10.2...v0.11.0
 
 ## [0.10.2] - 2020-04-05
-
 
 ### Fixed
 
 - Fix more keyword warnings (@flash-gordon)
 
-
-[Compare v0.10.1...v0.10.2](https://github.com/rom-rb/rom-factory/compare/v0.10.1...v0.10.2)
+[0.10.2]: https://github.com/rom-rb/rom-factory/compare/v0.10.1...v0.10.2
 
 ## [0.10.1] - 2019-12-28
-
 
 ### Added
 
@@ -119,11 +123,9 @@ Factory[:user, **user_attributes]
 
 - Keyword warnings reported by Ruby 2.7 (@flash-gordon)
 
-
-[Compare v0.10.0...v0.10.1](https://github.com/rom-rb/rom-factory/compare/v0.10.0...v0.10.1)
+[0.10.1]: https://github.com/rom-rb/rom-factory/compare/v0.10.0...v0.10.1
 
 ## [0.10.0] - 2019-12-11
-
 
 ### Added
 
@@ -140,41 +142,33 @@ Factory[:user, **user_attributes]
 - Support building structs when child assoc does not define parent (@psparrow)
 - Fixed `TupleEvaluator#struct_attrs` for non-standard output schema (@AMHOL)
 
-
-[Compare v0.9.1...v0.10.0](https://github.com/rom-rb/rom-factory/compare/v0.9.1...v0.10.0)
+[0.10.0]: https://github.com/rom-rb/rom-factory/compare/v0.9.1...v0.10.0
 
 ## [0.9.1] - 2019-10-23
-
 
 ### Fixed
 
 - Attributes of a struct are no longer accidentally passed to their associations (@psparrow)
 
+[0.9.1]: https://github.com/rom-rb/rom-factory/compare/v0.9.0...v0.9.1
 
-[Compare v0.9.0...v0.9.1](https://github.com/rom-rb/rom-factory/compare/v0.9.0...v0.9.1)
-
-## 0.9.0 2019-08-12
-
+## [0.9.0] - 2019-08-12
 
 ### Added
 
 - When attributes hash includes unknown attributes, a `ROM::Factory::UnknownAttributeError` will be raised (@rawburt)
 
-
-[Compare v0.8.0...v0.9.0](https://github.com/rom-rb/rom-factory/compare/v0.8.0...v0.9.0)
+[0.9.0]: https://github.com/rom-rb/rom-factory/compare/v0.8.0...v0.9.0
 
 ## [0.8.0] - 2019-04-24
-
 
 ### Fixed
 
 - Loaded association structs are no longer rejected by output schemas (issue #34) (flash-gordon + solnic)
 
-
-[Compare v0.7.0...v0.8.0](https://github.com/rom-rb/rom-factory/compare/v0.7.0...v0.8.0)
+[0.8.0]: https://github.com/rom-rb/rom-factory/compare/v0.7.0...v0.8.0
 
 ## [0.7.0] - 2018-11-17
-
 
 ### Added
 
@@ -185,11 +179,9 @@ Factory[:user, **user_attributes]
 
 - Overwritten attributes with dependencies (JanaVPetrova)
 
-
-[Compare v0.6.0...v0.7.0](https://github.com/rom-rb/rom-factory/compare/v0.6.0...v0.7.0)
+[0.7.0]: https://github.com/rom-rb/rom-factory/compare/v0.6.0...v0.7.0
 
 ## [0.6.0] - 2018-01-31
-
 
 ### Added
 
@@ -203,10 +195,9 @@ Factory[:user, **user_attributes]
 
 - Accessing a factory which is not defined will result in `FactoryNotDefinedError` exception (GustavoCaso + solnic)
 
-[Compare v0.5.0...v0.6.0](https://github.com/rom-rb/rom-factory/compare/v0.5.0...v0.6.0)
+[0.6.0]: https://github.com/rom-rb/rom-factory/compare/v0.5.0...v0.6.0
 
 ## [0.5.0] - 2017-10-24
-
 
 ### Added
 
@@ -219,7 +210,7 @@ Factory[:user, **user_attributes]
 
 - Depends on `rom-core` now (solnic)
 
-[Compare v0.4.0...v0.5.0](https://github.com/rom-rb/rom-factory/compare/v0.4.0...v0.5.0)
+[0.5.0]: https://github.com/rom-rb/rom-factory/compare/v0.4.0...v0.5.0
 
 ## [0.4.0] - 2017-03-03
 
@@ -240,3 +231,5 @@ improves internals.
 - `Rom::Factory::Config.configure` was replaced with `ROM::Factory.configure` (solnic)
 - Global factory config and builders are gone (solnic)
 - Structs are now based on dry-struct (solnic)
+
+[0.4.0]: https://github.com/rom-rb/rom-factory/tree/v0.4.0
