@@ -23,9 +23,9 @@ Gem::Specification.new do |spec|
 
   spec.extra_rdoc_files = ["README.md", "CHANGELOG.md", "LICENSE"]
 
-  spec.metadata["changelog_uri"]     = "https://github.com/rom-rb/rom-factory/blob/main/CHANGELOG.md"
-  spec.metadata["source_code_uri"]   = "https://github.com/rom-rb/rom-factory"
-  spec.metadata["bug_tracker_uri"]   = "https://github.com/rom-rb/rom-factory/issues"
+  spec.metadata["changelog_uri"]     = "https://github.com/hanakai-rb/rom-factory/blob/main/CHANGELOG.md"
+  spec.metadata["source_code_uri"]   = "https://github.com/hanakai-rb/rom-factory"
+  spec.metadata["bug_tracker_uri"]   = "https://github.com/hanakai-rb/rom-factory/issues"
   spec.metadata["funding_uri"]       = "https://github.com/sponsors/hanami"
 
   spec.required_ruby_version = ">= 3.3"
