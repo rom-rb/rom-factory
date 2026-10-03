@@ -2,7 +2,7 @@ name:
   gem: rom-factory
   constant: ROM::Factory
   title: ROM Factory
-github_org: rom-rb
+github_org: hanakai-rb
 gemspec:
   authors: ["Hanakai team"]
   email: ["info@hanakai.org"]
