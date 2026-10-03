@@ -9,8 +9,6 @@ and this project adheres to [Break Versioning](https://www.taoensso.com/break-ve
 
 ### Added
 
-- Support transient attributes (via #97) (@rickenharp)
-
 ### Changed
 
 ### Deprecated
@@ -21,7 +19,33 @@ and this project adheres to [Break Versioning](https://www.taoensso.com/break-ve
 
 ### Security
 
-[Unreleased]: https://github.com/rom-rb/rom-factory/compare/v0.13.0...main
+[Unreleased]: https://github.com/rom-rb/rom-factory/compare/v0.14.0...main
+
+## [0.14.0] - 2026-10-03
+
+### Added
+
+- Support transient attributes. (@rickenharp in #97)
+
+  Define transient attributes inside a `transient` block. Other attributes can depend on them, but they are not part of the resulting tuple or struct. You can override them when building, like any other attribute.
+
+  ```ruby
+  Factory.define(:user) do |f|
+    f.transient do |t|
+      t.password "secret"
+    end
+    f.password_hash { |password| BCrypt::Password.create(password) }
+  end
+
+  Factory[:user, password: "something else"]
+  ```
+
+### Changed
+
+- Minimum Ruby version is now 3.3. (@alassek)
+- Add `tsort` as an explicit runtime dependency. (@flash-gordon)
+
+[0.13.0]: https://github.com/rom-rb/rom-factory/compare/v0.13.0...v0.14.0
 
 ## [0.13.0] - 2025-01-21
 
